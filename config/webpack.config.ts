@@ -1,9 +1,7 @@
 import { CleanWebpackPlugin as CleanPlugin } from "clean-webpack-plugin";
 import TsCheckerPlugin from "fork-ts-checker-webpack-plugin";
-import { cpus } from "os";
 import { resolve } from "path";
 import { Configuration } from "webpack";
-const PnpPlugin = require("pnp-webpack-plugin");
 
 /** Name of the entry and output file. */
 const simpleEntryName = "file-example";
@@ -36,13 +34,6 @@ const baseConfig: Configuration = {
       {
         test: /\.tsx?$/, // Look for ts or tsx files (future-proofing)
         use: [
-          {
-            loader: "thread-loader", // Throw ts-loader into multi-threading to speed things up.
-            options: {
-              workers: cpus.length - 1,
-              poolTimeout: Infinity,
-            },
-          },
           {
             loader: "ts-loader", // We use ts-loader because Webpack doesn't understand TypeScript by default.
             options: {
@@ -86,7 +77,6 @@ const baseConfig: Configuration = {
           if (isProductionBuild) {
             setTimeout(() => {
               console.log(`Compilation complete...`);
-
               process.exit(0);
             }, 0);
           }
@@ -94,13 +84,6 @@ const baseConfig: Configuration = {
       },
     },
   ],
-  resolve: {
-    extensions: [".tsx", ".ts", ".js"],
-    plugins: [PnpPlugin], // Because of Yarn Modern, we have to Pnpify everything.
-  },
-  resolveLoader: {
-    plugins: [PnpPlugin.moduleLoader(module)],
-  },
   stats: {
     warnings: false, // Turn off warnings, only express has warnings with Yarn 2 (future-proofing)
   },

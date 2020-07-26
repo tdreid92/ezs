@@ -1,0 +1,90 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform:
+- AWS::Serverless-2016-10-31
+- AWS::CodeStar
+
+Parameters:
+  ProjectId:
+    Type: String
+    Description: AWS CodeStar projectID used to associate new resources to team members
+  CodeDeployRole:
+    Type: String
+    Description: IAM role to allow AWS CodeDeploy to manage deployment of AWS Lambda functions
+  Stage:
+    Type: String
+    Description: The name for a project pipeline stage, such as Staging or Prod, for which resources are provisioned and deployed.
+    Default: ''
+  Application:
+    Type: String
+    Default: ''
+
+Globals:
+  Function:
+    AutoPublishAlias: live
+    DeploymentPreference:
+      Enabled: true
+      Type: Canary10Percent5Minutes
+      Role: !Ref CodeDeployRole
+
+Resources:
+  CryptocurrencyConversionController:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${Application}-${ProjectId}-CryptocurrencyConversionController-${Stage}'
+      Handler: index.handler
+      Runtime: nodejs12.x
+      Environment:
+        Variables:
+          NODE_ENV: !Sub '${Stage}'
+      Role:
+        Fn::GetAtt:
+        - LambdaInvocationRole
+        - Arn
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            Path: /cryptocurrency/exchangerate/{src}/{dst}/{query}
+            Method: get
+      Timeout: 3
+      CodeUri: ./src/cryptocurrency-conversion-controller
+  FindCryptocurrencyExchangeRate:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${Application}-${ProjectId}-FindCryptocurrencyExchangeRate-${Stage}'
+      Handler: index.handler
+      Runtime: nodejs12.x
+      Environment:
+        Variables:
+          NODE_ENV: !Sub '${Stage}'
+      Description: ''
+      MemorySize: 128
+      Timeout: 3
+      Role:
+        Fn::GetAtt:
+          - LambdaInvocationRole
+          - Arn
+      Tags:
+        Project: LPS
+      CodeUri: ./src/find-cryptocurrency-exchange-rate
+  LambdaInvocationRole:
+    Description: Invoke Lambdas
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${Application}-${ProjectId}-LambdaInvocationRole-${Stage}'
+      AssumeRolePolicyDocument:
+        Statement:
+          - 
+            Effect: Allow
+            Principal: 
+              Service: 
+                - lambda.amazonaws.com
+            Action: 
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/lts -'
+      PermissionsBoundary: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/CodeStar_${ProjectId}_PermissionsBoundary'
+
+
+
