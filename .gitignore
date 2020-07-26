@@ -13,4 +13,4 @@ tsconfig.tsbuildinfo
 node_modules/
 
 # Idea
-*.imi
+*.iml
