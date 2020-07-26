@@ -11,3 +11,6 @@ tsconfig.tsbuildinfo
 
 # Webpack Plugins
 node_modules/
+
+# Idea
+*.imi

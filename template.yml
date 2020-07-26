@@ -44,7 +44,7 @@ Resources:
         GetEvent:
           Type: Api
           Properties:
-            Path: /cryptocurrency/exchangerate/{src}/{dst}/{query}
+            Path: /cryptocurrency/exchangerate/{fromCurr}/{toCurr}
             Method: get
       Timeout: 3
       CodeUri: ./src/cryptocurrency-conversion-controller
