@@ -1,15 +1,22 @@
 import { CleanWebpackPlugin as CleanPlugin } from "clean-webpack-plugin";
 import TsCheckerPlugin from "fork-ts-checker-webpack-plugin";
 import { resolve } from "path";
+// const CleanPlugin = require(`pnp-webpack-plugin`);
+// const TsCheckerPlugin = require(`fork-ts-checker-webpack-plugin`);
+// const resolve = require(`path`);
 import { Configuration } from "webpack";
+// const PnpWebpackPlugin = require(`pnp-webpack-plugin`);
+// const root = (pathToFile, filename) =>
+//   resolve(__dirname, "..", filename ? `${pathToFile}/${filename}` : pathToFile);
 
 /** Name of the entry and output file. */
 const simpleEntryName = "file-example";
 /** Determine if this a production build. */
 const isProductionBuild: boolean = process.env.NODE_ENV == "production";
 /** Resolve paths down from the root directory. */
+
 const root = (pathToFile: string, filename?: string) =>
-  resolve(__dirname, "..", filename ? `${pathToFile}/${filename}` : pathToFile);
+    resolve(__dirname, "..", filename ? `${pathToFile}/${filename}` : pathToFile);
 /** An object containing all required paths, this keeps things up-to-date. */
 const paths = {
   source: {
@@ -25,7 +32,7 @@ const paths = {
 };
 
 /** The base webpack config needed with a few optimizations. Some of this should explain itself. */
-const baseConfig: Configuration = {
+const baseConfig = {
   devtool: "source-map",
   entry: paths.source.entry,
   mode: isProductionBuild ? "production" : "development",
@@ -40,7 +47,7 @@ const baseConfig: Configuration = {
               configFile: paths.config.tsconfig, // Load our config file, not required, but should we move it, we have it already.
               transpileOnly: true, // Fork-TS-Checker-Webpack-Plugin does the type-checking for us.
               experimentalWatchApi: true,
-              happyPackMode: true,
+              happyPackMode: true
             },
           },
         ],
