@@ -64,7 +64,8 @@ const baseConfig = {
     __dirname: true, // Webpack has to manually solve __dirname references (future-proofing)
   },
   output: {
-    filename: `${simpleEntryName}.js`, // We dynamically name the output based on the input.
+    filename: (chunkData) => awsSamPlugin.filename(chunkData),
+    libraryTarget: "commonjs2",
     path: paths.build.root,
   },
   plugins: [
