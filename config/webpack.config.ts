@@ -31,6 +31,7 @@ const paths = {
     tsconfig: root("tsconfig.json"),
   },
 };
+console.log("PATH" + paths.build.root);
 
 /** The base webpack config needed with a few optimizations. Some of this should explain itself. */
 const baseConfig = {
