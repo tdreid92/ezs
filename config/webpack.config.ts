@@ -63,6 +63,9 @@ const baseConfig = {
   node: {
     __dirname: true, // Webpack has to manually solve __dirname references (future-proofing)
   },
+  resolve: {
+    extensions: [".ts", ".js"]
+  },
   output: {
     filename: (chunkData) => awsSamPlugin.filename(chunkData),
     libraryTarget: "commonjs2",
