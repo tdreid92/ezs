@@ -3896,6 +3896,9 @@ __metadata:
     typescript: ^3.9.7
     webpack: next
     webpack-cli: latest
+  dependenciesMeta:
+    aws-sam-plugin:
+      unplugged: true
   languageName: unknown
   linkType: soft
 

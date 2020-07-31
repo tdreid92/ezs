@@ -69,7 +69,7 @@ const baseConfig = {
   output: {
     filename: (chunkData) => awsSamPlugin.filename(chunkData),
     libraryTarget: "commonjs2",
-    path: paths.build.root,
+    path: paths.build.root // CHECK
   },
   plugins: [
     awsSamPlugin,
