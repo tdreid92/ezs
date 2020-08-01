@@ -10,7 +10,7 @@
     "build": "NODE_ENV=production && yarn _webpack",
     "start": "node ./dist/file-example.js",
     "prepare": "install-peers",
-    "_webpack": "webpack --config ./config/webpack.config.ts"
+    "_webpack": "webpack --config webpack.config.ts"
   },
   "devDependencies": {
     "@types/node": "^12.12.50",

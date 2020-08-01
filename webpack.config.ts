@@ -17,22 +17,22 @@ const simpleEntryName = "file-example";
 /** Resolve paths down from the root directory. */
 
 const root = (pathToFile: string, filename?: string) =>
-    resolve(__dirname, "..", filename ? `${pathToFile}/${filename}` : pathToFile);
+    resolve(__dirname, filename ? `${pathToFile}/${filename}` : pathToFile);
 /** An object containing all required paths, this keeps things up-to-date. */
-// const paths = {
-//   source: {
-//     entry: root("src", `${simpleEntryName}.ts`),
-//     root: root("src"),
-//   },
-//   build: {
-//     root: root("dist"),
-//   },
-//   config: {
-//     tsconfig: root("tsconfig.json"),
-//   },
-// };
-// console.log("PATH" + paths.build.root);
-
+const paths = {
+  source: {
+    entry: root("src", `${simpleEntryName}.ts`),
+    root: root("src"),
+  },
+  build: {
+    root: root("dist"),
+  },
+  config: {
+    tsconfig: root("tsconfig.json"),
+  },
+};
+console.log("PATH" + paths.config.tsconfig);
+console.log("Current directory:", __dirname);
 /** The base webpack config needed with a few optimizations. Some of this should explain itself. */
 const baseConfig = {
   devtool: "source-map",
@@ -44,9 +44,9 @@ const baseConfig = {
         test: /\.tsx?$/, // Look for ts or tsx files (future-proofing)
         use: [
           {
-            loader: require.resolve('ts-loader'),// We use ts-loader because Webpack doesn't understand TypeScript by default.
+            loader: "ts-loader", // We use ts-loader because Webpack doesn't understand TypeScript by default.
             options: {
-              configFile: "tsconfig.json", // Load our config file, not required, but should we move it, we have it already.
+              configFile: resolve('tsconfig.json'), // Load our config file, not required, but should we move it, we have it already.
               transpileOnly: true, // Fork-TS-Checker-Webpack-Plugin does the type-checking for us.
               experimentalWatchApi: true,
               happyPackMode: true
@@ -61,16 +61,16 @@ const baseConfig = {
       },
     ],
   },
-  node: {
-    __dirname: true, // Webpack has to manually solve __dirname references (future-proofing)
-  },
+  // node: {
+  //   __dirname: true, // Webpack has to manually solve __dirname references (future-proofing)
+  // },
   resolve: {
     extensions: [".ts", ".js"]
   },
   output: {
     filename: (chunkData) => awsSamPlugin.filename(chunkData),
     libraryTarget: "commonjs2",
-    path: resolve('.'),
+    path: paths.build.root // CHECK
   },
   plugins: [
     awsSamPlugin,
@@ -78,7 +78,7 @@ const baseConfig = {
     new TsCheckerPlugin({
       typescript: {
         build: true, // Build mode speeds up consequential builds (evertyhing after the first build, based on the prior build)
-        configFile: 'tsconfig.json',
+        configFile: resolve('tsconfig.json'),
         mode: "write-tsbuildinfo",
       },
     })

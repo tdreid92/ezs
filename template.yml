@@ -47,7 +47,7 @@ Resources:
             Path: /cryptocurrency/exchangerate/{fromCurr}/{toCurr}
             Method: get
       Timeout: 3
-      CodeUri: ./src/cryptocurrency-conversion-controller
+      CodeUri: src/cryptocurrency-conversion-controller
   FindCryptocurrencyExchangeRate:
     Type: AWS::Serverless::Function
     Properties:
@@ -66,7 +66,7 @@ Resources:
           - Arn
       Tags:
         Project: LPS
-      CodeUri: ./src/find-cryptocurrency-exchange-rate
+      CodeUri: src/find-cryptocurrency-exchange-rate
   LambdaInvocationRole:
     Description: Invoke Lambdas
     Type: AWS::IAM::Role
