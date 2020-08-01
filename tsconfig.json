@@ -5,7 +5,7 @@
     "module": "commonjs",
     "declaration": false,
     "sourceMap": true,
-    "outDir": "./dist",
+    "outDir": "./dist", // Removing this for tsconfig.json file will place generated files along with original .ts files
     "removeComments": true,
     // "baseUrl": "./", /* Currently unsupported by Yarn 2 */
     "rootDir": "./src",
