@@ -9,9 +9,13 @@
   "scripts": {
     "build:prod": "NODE_ENV=production && webpack --config webpack.prod.config.ts",
     "build:dev": "NODE_ENV=development && webpack --config webpack.dev.config.ts",
-    "eslint": "eslint --cache src/**/*.ts"
+    "eslint": "eslint --cache src/**/*.ts layers/**/*.ts",
+    "start:api": "sam local start-api -p 3000",
+    "start:lambda": "sam local start-lambda -p 3001",
+    "start:local": "concurrently \"yarn start:api\" \"yarn start:lambda\""
   },
   "devDependencies": {
+    "@types/concurrently": "^5",
     "@types/eslint-plugin-prettier": "^3.1.0",
     "@types/node": "^12.12.50",
     "@types/typescript": "^2.0.0",
@@ -20,6 +24,7 @@
     "@typescript-eslint/parser": "^3.6.0",
     "@yarnpkg/pnpify": "^2.0.0-rc.25",
     "aws-sam-webpack-plugin": "^0.6.0",
+    "concurrently": "^5.2.0",
     "eslint": "^7.5.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-import-resolver-typescript": "^2.0.0",

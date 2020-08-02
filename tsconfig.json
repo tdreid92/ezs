@@ -1,24 +1,43 @@
 {
   "compilerOptions": {
     "incremental": true,
-    "target": "esnext",
+    "target": "ES2019", // ECMA Script 2019
     "module": "commonjs",
     "declaration": false,
     "sourceMap": true,
     "outDir": "./dist", // Removing this for tsconfig.json file will place generated files along with original .ts files
     "removeComments": true,
     // "baseUrl": "./", /* Currently unsupported by Yarn 2 */
-    "rootDir": "./src",
-    "importHelpers": true,
+    "rootDir": "./",
+    "importHelpers": true, // By default, TypeScript inserts helper functions into the emitted JavaScript file if needed. When true, these helper functions are imported from the tslib module
     "downlevelIteration": true,
     "isolatedModules": false,
     "strict": true,
     "alwaysStrict": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
+    "resolveJsonModule": true, // Include modules imported with .json extension. See unit and integration tests under the tests directory that import AWS SAM Events as json files
+    "moduleResolution": "node", // Search under node_modules for non-relative imports.
+    "allowSyntheticDefaultImports": true, // Allow write of an import without *
+    "esModuleInterop": true, // Allow use of an import like this: import myModule from '../myModule'. Insert an import helper for resolving default import issue
+    "skipLibCheck": true, // Skip type checking of all declaration files (*.d.ts).
     "noImplicitAny": false,
-    "forceConsistentCasingInFileNames": true
-  }
+    "forceConsistentCasingInFileNames": true,
+    "typeRoots": [
+      // Add “./node_modules/@types” because TypeScript will search for the only directories in typeRoots
+      "node_modules/@types"
+    ]
+  },
+    "include": [
+      "src/**/*.ts",
+      "src/**/*.js",
+      "layers/**/*.ts",
+      "layers/**/*.js",
+      "tests/**/*.ts",
+      "tests/**/*.js"
+    ],
+  "exclude": [
+    "**/node_modules/**/*",
+    ".aws-sam/**/*",
+    ".yarn/**/*",
+    "**/*.js"
+  ]
 }

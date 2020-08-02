@@ -1,15 +1,17 @@
 import express from 'express';
+import { getRate } from './core-service';
 export const app = express();
 
 app.get(
   '/cryptocurrency/exchangerate/:fromCurr/:toCurr',
   async (
     req: { params: { fromCurr: string; toCurr: string } },
-    res: { send: (fromCurr: string, toCurr: string, number: number) => void }
+    res: { send: (rate: any, statusCode: number) => void }
   ) => {
     const fromCurr = req.params.fromCurr.toLowerCase();
     const toCurr = req.params.toCurr.toLowerCase();
-    res.send(fromCurr, toCurr, 200);
+    const rate = await getRate(fromCurr, toCurr);
+    res.send(rate, 200);
   }
 );
 
