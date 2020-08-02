@@ -4,7 +4,7 @@ export const app = express();
 app.get(
   '/cryptocurrency/exchangerate/:fromCurr/:toCurr',
   async (
-    req: { params: { fromCurr: string; toCurr: string; } },
+    req: { params: { fromCurr: string; toCurr: string } },
     res: { send: (fromCurr: string, toCurr: string, number: number) => void }
   ) => {
     const fromCurr = req.params.fromCurr.toLowerCase();

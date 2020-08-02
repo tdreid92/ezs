@@ -2452,6 +2452,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-plugin-typescript@npm:^0.14.0":
+  version: 0.14.0
+  resolution: "eslint-plugin-typescript@npm:0.14.0"
+  dependencies:
+    requireindex: ~1.1.0
+  checksum: 09891737280f3e139094f1a6bd3ab5cb1a0344ea2ded41afd72bff3f7bd5dba477049af476a57f02cc45ce0334b746906726c7a8adb48387cbedd94565ddaf5e
+  languageName: node
+  linkType: hard
+
 "eslint-scope@npm:^5.0.0, eslint-scope@npm:^5.1.0":
   version: 5.1.0
   resolution: "eslint-scope@npm:5.1.0"
@@ -5483,6 +5492,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"requireindex@npm:~1.1.0":
+  version: 1.1.0
+  resolution: "requireindex@npm:1.1.0"
+  checksum: 571a7c97bc3c881321c757c8a1bee09da41eeefab8294bd7858bc4f108eab73e4ad4ce80f8206e7c20ffa1482eda842f3b3021f28ab543ddfc1756272659c71e
+  languageName: node
+  linkType: hard
+
 "resolve-alpn@npm:^1.0.0":
   version: 1.0.0
   resolution: "resolve-alpn@npm:1.0.0"
@@ -5677,6 +5693,7 @@ __metadata:
     eslint-plugin-import: ^2.22.0
     eslint-plugin-jest: ^23.18.0
     eslint-plugin-prettier: ^3.1.4
+    eslint-plugin-typescript: ^0.14.0
     express: ^4.17.1
     fork-ts-checker-webpack-plugin: ^5.0.11
     install-peers-cli: ^2.2.0

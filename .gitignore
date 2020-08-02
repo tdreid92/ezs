@@ -5,8 +5,9 @@
 !.yarn/versions/
 !.yarn/sdks/
 
-# Typescript
+# SDK Artifacts
 tsconfig.tsbuildinfo
+.eslintcache
 
 # NPM Libaries
 node_modules/*

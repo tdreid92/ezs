@@ -8,7 +8,8 @@
   "private": true,
   "scripts": {
     "build:prod": "NODE_ENV=production && webpack --config webpack.prod.config.ts",
-    "build:dev": "NODE_ENV=development && webpack --config webpack.dev.config.ts"
+    "build:dev": "NODE_ENV=development && webpack --config webpack.dev.config.ts",
+    "eslint": "eslint --cache src/**/*.ts"
   },
   "devDependencies": {
     "@types/eslint-plugin-prettier": "^3.1.0",
@@ -28,6 +29,7 @@
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-jest": "^23.18.0",
     "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-typescript": "^0.14.0",
     "fork-ts-checker-webpack-plugin": "^5.0.11",
     "install-peers-cli": "^2.2.0",
     "pnp-webpack-plugin": "^1.6.4",

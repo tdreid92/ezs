@@ -1,0 +1,12 @@
+# Ignoring files we don't want to lint and improve webpack efficiency
+# don't ever lint node_modules
+
+# Yarn 2
+.yarn/*
+
+# NPM Libaries
+node_modules/*
+
+# AWS
+.aws-sam/*
+

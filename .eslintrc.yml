@@ -1,0 +1,29 @@
+root: true
+env:
+  es6: true # Enable all ECMAScript 6 features except for modules (this automatically sets the ecmaVersion parser option to 6).
+  mocha: true # Adds all of the Mocha testing global variables
+  node: true # Adds Node.js global variables and Node.js scoping
+parser: '@typescript-eslint/parser' # This allows ESLint to understand TypeScript syntax
+plugins:
+  - '@typescript-eslint'
+  - prettier
+  - import
+extends:
+  - eslint:recommended
+  - plugin:@typescript-eslint/recommended # Uses the recommended rules from the @typescript-eslint/eslint-plugin
+  - plugin:@typescript-eslint/eslint-recommended
+  - prettier/@typescript-eslint
+  - plugin:prettier/recommended # Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Must be last configuration in the extends array
+parserOptions:
+  ecmaVersion: 6 # Allows for the parsing of modern ECMAScript features
+  sourceType: module # Allows for the use of imports
+  project: ./tsconfig.json
+  tsconfigRootDir: ./
+settings:
+  import/resolver:
+    typescript:
+      alwaysTryTypes: true # Always try to resolve types under `<roo/>@types` directory even it doesn't contain any source code, like `@types/unist`
+rules:
+  '@typescript-eslint/no-explicit-any': off
+  '@typescript-eslint/explicit-module-boundary-types': off # Disable error for any function where the return type is in any way explicitly typed
+  no-console: warn

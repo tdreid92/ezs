@@ -1,12 +1,9 @@
 # Yarn 2
 .yarn/*
-!.yarn/releases/
-!.yarn/plugins/
-!.yarn/versions/
-!.yarn/sdks/
 
-# Typescript
+# SDK Artifacts
 tsconfig.tsbuildinfo
+.eslintcache
 
 # NPM
 package.json
@@ -14,6 +11,9 @@ node_modules/*
 
 # AWS
 .aws-sam/*
+
+# Javascript
+**/*.js
 
 # Idea
 *.iml
