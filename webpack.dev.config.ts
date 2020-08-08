@@ -51,6 +51,7 @@ const baseConfig: Configuration = {
     }),
     new ProgressBarPlugin()
   ],
+  watch: true,
   target: 'node' // Target Node.js instead of web browsers
 };
 
