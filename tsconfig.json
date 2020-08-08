@@ -7,7 +7,6 @@
     "sourceMap": true,
     "outDir": "./dist", // Removing this for tsconfig.json file will place generated files along with original .ts files
     "removeComments": true,
-    // "baseUrl": "./", /* Currently unsupported by Yarn 2 */
     "rootDir": "./",
     "importHelpers": true, // By default, TypeScript inserts helper functions into the emitted JavaScript file if needed. When true, these helper functions are imported from the tslib module
     "downlevelIteration": true,
@@ -22,11 +21,11 @@
     "noImplicitAny": false,
     "forceConsistentCasingInFileNames": true,
     "typeRoots": [
-      // Add “./node_modules/@types” because TypeScript will search for the only directories in typeRoots
-      "node_modules/@types"
+      "node_modules/@types" // Add “./node_modules/@types” because TypeScript will search for the only directories in typeRoots
     ]
   },
     "include": [
+      "webpack.*",
       "src/**/*.ts",
       "src/**/*.js",
       "layers/**/*.ts",

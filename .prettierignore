@@ -1,19 +1,21 @@
-# Yarn 2
-.yarn/*
+# Javascript
+**/*.js
 
 # SDK Artifacts
 tsconfig.tsbuildinfo
 .eslintcache
 
 # NPM
-package.json
 node_modules/*
+package.json
 
-# AWS
+# AWS SAM
 .aws-sam/*
 
-# Javascript
-**/*.js
+# Yarn 2
+.yarn/*
+.yarnrc.yml
+yarn.lock
 
 # Idea
 *.iml

@@ -1,12 +1,26 @@
-# Ignoring files we don't want to lint and improve webpack efficiency
-# don't ever lint node_modules
+# NPM Libaries
+node_modules/*
+package.json
+
+# SDK Artifacts
+tsconfig.tsbuildinfo
+.eslintcache
+
+# AWS SAM
+.aws-sam/*
+template.yml
+buildspec.yml
 
 # Yarn 2
 .yarn/*
+.yarnrc.yml
+yarn.lock
 
-# NPM Libaries
-node_modules/*
+# Prettier
+.prettierrc
 
-# AWS
-.aws-sam/*
+# Idea
+*.iml
 
+# Visual Studio Code
+.vscode/*

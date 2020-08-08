@@ -1,19 +1,19 @@
+# NPM Libaries
+node_modules/*
+
+# SDK Artifacts
+tsconfig.tsbuildinfo
+.eslintcache
+
+# AWS SAM
+.aws-sam/*
+
 # Yarn 2
 .yarn/*
 !.yarn/releases/
 !.yarn/plugins/
 !.yarn/versions/
 !.yarn/sdks/
-
-# SDK Artifacts
-tsconfig.tsbuildinfo
-.eslintcache
-
-# NPM Libaries
-node_modules/*
-
-# AWS
-.aws-sam/*
 
 # Idea
 *.iml

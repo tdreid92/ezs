@@ -1,5 +1,5 @@
 import { resolve } from 'path';
-import webpack, { Configuration } from 'webpack';
+import { Configuration } from 'webpack';
 import TsCheckerPlugin from 'fork-ts-checker-webpack-plugin';
 import AwsSamPlugin from 'aws-sam-webpack-plugin';
 import ProgressBarPlugin from 'progress-bar-webpack-plugin';
@@ -7,19 +7,20 @@ const awsSamPlugin = new AwsSamPlugin();
 
 /** The base webpack config needed with a few optimizations. Some of this should explain itself. */
 const baseConfig: Configuration = {
-  devtool: 'source-map', // Provides the best quality with the complete result, but also the slowest option for webpack performance
+  devtool: 'eval-cheap-module-source-map',
   entry: () => awsSamPlugin.entry(), // Loads the entry object from the AWS::Serverless::Function resources in your SAM config
-  mode: 'production',
+  mode: 'development',
   module: {
     rules: [
       {
         test: /\.tsx?$/, // Look for ts or tsx files (future-proofing)
+        exclude: [[resolve('node_modules'), resolve('aws-sam')]],
         use: [
           {
             loader: 'ts-loader', // We use ts-loader because Webpack doesn't understand TypeScript by default.
             options: {
               configFile: resolve('tsconfig.json'), // Load our config file, not required, but should we move it, we have it already.
-              transpileOnly: true, // Disable because Fork-TS-Checker-Webpack-Plugin does the type-checking for us.
+              transpileOnly: true, // Fork-TS-Checker-Webpack-Plugin does the type-checking for us.
               experimentalWatchApi: true, // Consumes the internal TS watch mode APIs and dramatically decreases number of modules for rebuild per iteration. Equivalent to TS watch mode
               happyPackMode: true // Must be enabled in conjunction with transpileOnly for Fork-TS-Checker-Webpack-Plugin
             }
@@ -41,34 +42,16 @@ const baseConfig: Configuration = {
   plugins: [
     awsSamPlugin, // Add the AWS SAM Webpack plugin. Replaces the SAM build step for AWS SAM CLI projects
     new TsCheckerPlugin({
-      eslint: {
-        files: ['./src/**/*.ts', './layers/**/*.ts'],
-        options: {
-          cache: true,
-          cacheLocation: '.eslintcache'
-        }
-      },
       typescript: {
         build: true, // Build mode speeds up consequential builds (everything after the first build, based on the prior build)
         configFile: resolve('tsconfig.json'),
-        mode: 'write-tsbuildinfo'
+        mode: 'write-tsbuildinfo',
+        profile: true
       }
     }),
-    new ProgressBarPlugin(),
-    {
-      apply(compiler: webpack.Compiler): void {
-        // This is a custom plugin (not imported) that tells Webpack to exit when done, since it tends to hang on CI servers.
-        compiler.hooks.done.tap('DonePlugin', (_stats) => {
-          setTimeout(() => {
-            // eslint-disable-next-line no-console
-            console.log(`Compilation complete...`);
-            process.exit(0);
-          }, 0);
-        });
-      }
-    }
+    new ProgressBarPlugin()
   ],
-  target: 'node' // Target Node.js instead of web browsers.
+  target: 'node' // Target Node.js instead of web browsers
 };
 
 export default baseConfig;
