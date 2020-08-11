@@ -1,25 +1,40 @@
 #!/bin/bash
 
-abs_path_root="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/../
-abs_path_resources="${abs_path_root}"resources/values/
+# TODO: resolve better pathing properties
+abs_path_root="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/..
+abs_path_template="${abs_path_root}"/.aws-sam/build/template.yaml
+abs_path_yamlWarden="${abs_path_root}"/scripts/yamlWarden.sh
 
-read_port() {
-  yq r "${abs_path_resources}"parameters.yaml "ports.${1}"
+start_local() {
+  yarn concurrently "./scripts/bigBrotherSam.sh start-api --no-config" "./scripts/bigBrotherSam.sh start-lambda --no-config"
 }
 
-# Read yaml as key-value pairs
-read_parameter_overrides() {
-  yq r "${abs_path_resources}"parameters.yaml -j "parameterOverrides" | # Read with yq and pipe to jq
-  jq -j 'to_entries | map("\(.key)=\(.value|tostring),") | .[]' | # Split to single line, comma-separated output
-  sed 's/.\{1\}$//' # Remove last comma
+# shellcheck disable=SC2155
+set_configuration() {
+  export parameter_overrides=$($abs_path_yamlWarden -o development)
+  export environmentVariables=$($abs_path_yamlWarden -e development)
+  echo "Parameter Overrides: ${parameter_overrides}"
+  echo "Environment Variables: " && cat "${environmentVariables}"
 }
 
-# Generate temporary json file from development.yaml
-read_environment_variables() {
-  local output_path="${abs_path_resources}"envVars.json
-  yq r "${abs_path_resources}"parameters.yaml -jP "environmentVariables" > "${output_path}"
-  # TODO: check if last line was success
-  echo "${output_path}"
+sam_local_start() {
+    local type=${1}
+    local no_config=${2}
+
+    if [ -z "${no_config}" ]; then
+      set_configuration
+    fi
+
+    sam local start-"${type}" \
+    --port "$($abs_path_yamlWarden -p "${type}")" \
+    --parameter-overrides "${parameter_overrides}" \
+    --env-vars "${environmentVariables}" \
+    --template "${abs_path_template}"
+}
+
+show_help() {
+  # TODO: write this as product nears completion and all features are fleshed out
+  echo "Help me!"
 }
 
 require() {
@@ -37,14 +52,13 @@ require() {
 
 #------------------------------------------------------------------
 
-require jq
-require yq
+require sam
 
 CMD="$1"
 
 case $CMD in
-  -e | --env-vars ) read_environment_variables "$2" ;;
-  -o | --parameter-overrides ) read_parameter_overrides "$2" ;;
-  -p | --port ) read_port "$2" ;;
+  start-api ) sam_local_start "api" "${2}" ;;
+  start-lambda ) sam_local_start "lambda" "${2}" ;;
+  start-local ) set_configuration && start_local ;;
   *) show_help ;;
 esac

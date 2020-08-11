@@ -11,7 +11,7 @@ package.json
 
 # AWS SAM
 .aws-sam/*
-resources/envVars.json
+resources/values/envVars.json
 
 # Yarn 2
 .yarn/*
