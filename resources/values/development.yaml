@@ -1,0 +1,16 @@
+ports:
+  api: 3000
+  lambda: 3001
+  dynamoDb: 3002
+parameterOverrides:
+  NODE_ENV: development
+  Stage: dev
+  projectId: sfw
+  Application: SamFramework
+environmentVariables:
+  CryptocurrencyConversionController:
+    Foo: true
+    Bar: "http://some.example.com"
+  FindCryptocurrencyExchangeRate:
+    Boo: "Boop"
+    Far: 12345

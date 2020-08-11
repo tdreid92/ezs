@@ -10,9 +10,13 @@
     "build:prod": "NODE_ENV=production && webpack --config webpack.prod.config.ts",
     "build:dev": "NODE_ENV=development && webpack --config webpack.dev.config.ts",
     "eslint": "eslint --cache src/**/*.ts layers/**/*.ts",
-    "start:api": "sam local start-api -p 3000",
-    "start:lambda": "sam local start-lambda -p 3001",
-    "start:local": "concurrently \"yarn start:api\" \"yarn start:lambda\""
+    "start:api": "sam local start-api $(yarn _config -- api)",
+    "start:lambda": "sam local start-lambda $(yarn _config -- lambda)",
+    "start:local": "concurrently \"yarn start:api\" \"yarn start:lambda\"",
+    "_config": "echo \"$(yarn _port -- $1) $(yarn _parameterOverrides) $(yarn _environmentVariables)\"",
+    "_port": "echo \"--port $(scripts/yamlWarden.sh --port $1)\"",
+    "_parameterOverrides": "echo \"--parameter-overrides $(scripts/yamlWarden.sh --parameter-overrides)\"",
+    "_environmentVariables": "echo \"--env-vars $(scripts/yamlWarden.sh --env-vars)\""
   },
   "devDependencies": {
     "@types/concurrently": "^5",
@@ -58,5 +62,8 @@
     "aws-sdk": "^2.720.0",
     "aws-serverless-express": "^3.3.8",
     "express": "^4.17.1"
+  },
+  "config": {
+    "bigBrotherSam": "scripts/bigBrotherSam.sh"
   }
 }
