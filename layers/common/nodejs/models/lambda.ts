@@ -122,7 +122,6 @@ export class LambdaInvoker implements ILambdaInvoker {
     this._awsLambda = new AWS.Lambda({
       region: process.env.AWS_REGION
     });
-    console.log(process.env.SIMULATE_AWS);
     this._awsLambda.endpoint = new Endpoint('http://host.docker.internal:3001');
     if (process.env.SIMULATE_AWS) {
       // console.log(process.env.SIMULATE_AWS_ENDPOINT);
@@ -162,7 +161,7 @@ export class LambdaInvoker implements ILambdaInvoker {
     return this;
   };
 
-  /** LambdaResponse methods */
+  /** Response methods */
   getStatusCode = (): number | undefined => this._response?.getStatusCode();
 
   getExecutedVersion = (): string | undefined => this._response?.getExecutedVersion();
@@ -178,6 +177,7 @@ export class LambdaInvoker implements ILambdaInvoker {
     const invocationResponse: AWS.Lambda.InvocationResponse = await this._awsLambda
       .invoke(this._request.toInvocationRequest())
       .promise();
+    console.debug('InvocationResponse: %s', invocationResponse);
     this._response = new LambdaResponse()
       .setStatusCode(invocationResponse.StatusCode)
       .setExecutedVersion(invocationResponse.ExecutedVersion)

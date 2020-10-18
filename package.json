@@ -9,6 +9,7 @@
   "scripts": {
     "build:prod": "NODE_ENV=production && webpack --config webpack.prod.config.ts",
     "build:dev": "NODE_ENV=development && webpack --config webpack.dev.config.ts",
+    "watch:dev": "NODE_ENV=development && webpack --config webpack.dev.config.ts --watch",
     "eslint": "eslint --cache src/**/*.ts layers/**/*.ts",
     "start:api": "./scripts/bigBrotherSam.sh start-api",
     "start:lambda": "./scripts/bigBrotherSam.sh start-lambda",
@@ -37,6 +38,7 @@
     "eslint-plugin-jest": "^23.18.0",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-typescript": "^0.14.0",
+    "express-validator": "^6.6.1",
     "fork-ts-checker-webpack-plugin": "^5.0.11",
     "install-peers-cli": "^2.2.0",
     "pnp-webpack-plugin": "^1.6.4",
@@ -49,14 +51,17 @@
     "typescript": "^3.9.7",
     "typescript-eslint": "0.0.1-alpha.0",
     "webpack": "next",
-    "webpack-cli": "^3.3.12"
-  },
-  "dependencies": {
+    "webpack-cli": "^3.3.12",
     "@types/aws-sdk": "^2.7.0",
     "@types/aws-serverless-express": "^3",
-    "@types/express": "^4",
-    "aws-sdk": "^2.720.0",
+    "@types/express": "^4"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.734.0",
     "aws-serverless-express": "^3.3.8",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "express-async-handler": "^1.1.4",
+    "express-validation": "^3.0.5",
+    "lambda-logger-node": "^3.2.0"
   }
 }

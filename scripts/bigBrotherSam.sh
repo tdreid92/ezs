@@ -29,7 +29,8 @@ sam_local_start() {
     --port "$($abs_path_yamlWarden -p "${type}")" \
     --parameter-overrides "${parameter_overrides}" \
     --env-vars "${environmentVariables}" \
-    --template "${abs_path_template}"
+    --template "${abs_path_template}" \
+    --debug
 }
 
 show_help() {

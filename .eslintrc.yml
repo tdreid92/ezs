@@ -26,4 +26,3 @@ settings:
 rules:
   '@typescript-eslint/no-explicit-any': off
   '@typescript-eslint/explicit-module-boundary-types': off # Disable error for any function where the return type is in any way explicitly typed
-  no-console: warn

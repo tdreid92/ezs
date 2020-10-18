@@ -1,6 +1,6 @@
 export const enum FunctionNamespace {
-  CRYPTOCURRENCY_CONVERSION_CONTROLLER = 'CryptocurrencyConversionController',
-  FIND_CRYPTOCURRENCY_EXCHANGE_RATE = 'FindCryptocurrencyExchangeRate'
+  CRYPTOCURRENCY_RATE_CONTROLLER = 'CryptocurrencyRateController',
+  FIND_CRYPTOCURRENCY_RATE = 'FindCryptocurrencyRate'
 }
 
 export const enum InvocationType {
@@ -12,6 +12,20 @@ export const enum InvocationType {
 export enum LogType {
   NONE = 'None',
   TAIL = 'Tail'
+}
+
+export type RateRequestType = 'GET' | 'UPLOAD' | 'DELETE';
+
+export interface RateRequest {
+  type: RateRequestType;
+  ratePair: ExchangeRatePair;
+}
+
+export interface ExchangeRatePair {
+  baseCurr: string;
+  date: string;
+  quoteCurr: string;
+  rate?: number;
 }
 
 export const DynamoDbTables = Object.freeze({

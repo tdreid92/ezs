@@ -32,6 +32,58 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hapi/address@npm:^4.0.1":
+  version: 4.1.0
+  resolution: "@hapi/address@npm:4.1.0"
+  dependencies:
+    "@hapi/hoek": ^9.0.0
+  checksum: 2844aceeb993bb767ae2c34e75767e7eff1b0cf811c4655c6500206d8d06a7deacdf4cf4172901e3bcafcbd7e8892b5ff786d0469071b9ba5ec14d0896034497
+  languageName: node
+  linkType: hard
+
+"@hapi/formula@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@hapi/formula@npm:2.0.0"
+  checksum: 02d14257149799b478e21f2620639470efb152f09dd2083fb9a6f247f29760de4af6ceb938b2337ecdf2a0514c2edd5beca6df5415d5c2cea909977fb0da4eaf
+  languageName: node
+  linkType: hard
+
+"@hapi/hoek@npm:^9.0.0":
+  version: 9.0.4
+  resolution: "@hapi/hoek@npm:9.0.4"
+  checksum: d000f60d5e30db7ed2b838a7ec4a757542f04036c8eb431328fd1139f3f7dbd400a2c7d86acbbaf8b8da11dee6f8ae706f6d88bd71c02b3c5f16fd3f6223aa09
+  languageName: node
+  linkType: hard
+
+"@hapi/joi@npm:17.x.x":
+  version: 17.1.1
+  resolution: "@hapi/joi@npm:17.1.1"
+  dependencies:
+    "@hapi/address": ^4.0.1
+    "@hapi/formula": ^2.0.0
+    "@hapi/hoek": ^9.0.0
+    "@hapi/pinpoint": ^2.0.0
+    "@hapi/topo": ^5.0.0
+  checksum: 7547ccf2a8168e4f68f630069ab069f94d0689bd18a034a6dea40cc9c7e88776665670316f65bdd29068dccde111f3d7164504cfaf6db183110b64f36c5643dd
+  languageName: node
+  linkType: hard
+
+"@hapi/pinpoint@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@hapi/pinpoint@npm:2.0.0"
+  checksum: 445ca018999145dccff58ca1be71fa533c3124a1d0f256b8c3daf88067992a20aebfbdee49664741cfac160d924c76d24bd3e8eeb521af721e6f606f4bd64634
+  languageName: node
+  linkType: hard
+
+"@hapi/topo@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "@hapi/topo@npm:5.0.0"
+  dependencies:
+    "@hapi/hoek": ^9.0.0
+  checksum: f92797d5ef54bb801a3591a118ea483ed5a6b41cdd1aaa6f7bf427b64b5f76056bc7063447adf43be8f94b04408228cce12963ea498b8da8f9e01d01c78710ac
+  languageName: node
+  linkType: hard
+
 "@nodelib/fs.scandir@npm:2.1.3":
   version: 2.1.3
   resolution: "@nodelib/fs.scandir@npm:2.1.3"
@@ -216,7 +268,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express@npm:*, @types/express@npm:^4":
+"@types/express@npm:*, @types/express@npm:4.x.x, @types/express@npm:^4":
   version: 4.17.7
   resolution: "@types/express@npm:4.17.7"
   dependencies:
@@ -235,6 +287,13 @@ __metadata:
     "@types/minimatch": "*"
     "@types/node": "*"
   checksum: 28bc8b1c10b141173c0d8f287729e727bd864c652c8887fd471b2841de5227b08757a13dd7090133e915cd0e1753800cb69cb251525171972140655c390737b3
+  languageName: node
+  linkType: hard
+
+"@types/hapi__joi@npm:16.x.x":
+  version: 16.0.12
+  resolution: "@types/hapi__joi@npm:16.0.12"
+  checksum: 87a5f6767ad830e55ecc2f59a35971d4363fab9886ea9b7f4b78ef3ac247666aae035bcf67badc189d9c9616ca56e9a8523f27e1ea6c2b2d6337502ae0e583ff
   languageName: node
   linkType: hard
 
@@ -1194,7 +1253,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-sdk@npm:*, aws-sdk@npm:^2.720.0":
+"aws-sdk@npm:*":
   version: 2.720.0
   resolution: "aws-sdk@npm:2.720.0"
   dependencies:
@@ -1208,6 +1267,23 @@ __metadata:
     uuid: 3.3.2
     xml2js: 0.4.19
   checksum: 24f119745883e3857d2e669eb583711a5c57cb4d623355a606b58ecb6705a903213bf119635663cdd6adef5c2e5df2197de04ecc95999bc125be684d5a6dc4d7
+  languageName: node
+  linkType: hard
+
+"aws-sdk@npm:^2.734.0":
+  version: 2.734.0
+  resolution: "aws-sdk@npm:2.734.0"
+  dependencies:
+    buffer: 4.9.2
+    events: 1.1.1
+    ieee754: 1.1.13
+    jmespath: 0.15.0
+    querystring: 0.2.0
+    sax: 1.2.1
+    url: 0.10.3
+    uuid: 3.3.2
+    xml2js: 0.4.19
+  checksum: 347d2ea4d623a7ca69086e016d6f1cd79826309d8ce20176783986a567c5fb1d2c51837ac91813440555ebd60670f0a12bbfc93b949bf8cc19f24f6212234ff7
   languageName: node
   linkType: hard
 
@@ -2712,6 +2788,34 @@ __metadata:
   languageName: node
   linkType: hard
 
+"express-async-handler@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "express-async-handler@npm:1.1.4"
+  checksum: 0cc72e8be4d748d40c27b0049653d2143c75ddbce0d3e7d5319db4d1a364f3934cd8eeb77ea3a2919a80e1e5eb9666f3008328fbe70141d4ce0f0e11d368be18
+  languageName: node
+  linkType: hard
+
+"express-validation@npm:^3.0.5":
+  version: 3.0.5
+  resolution: "express-validation@npm:3.0.5"
+  dependencies:
+    "@hapi/joi": 17.x.x
+    "@types/express": 4.x.x
+    "@types/hapi__joi": 16.x.x
+  checksum: 64fcc2f602e12379b4ce0de2e991ed0a8a6cc93fce9b6d7abd6a9ba2ac7bd1732264472273915c0f908ed42ef4b6f336fa4e5f6bc5f777346a3f19a9558b3fca
+  languageName: node
+  linkType: hard
+
+"express-validator@npm:^6.6.1":
+  version: 6.6.1
+  resolution: "express-validator@npm:6.6.1"
+  dependencies:
+    lodash: ^4.17.19
+    validator: ^13.1.1
+  checksum: bfd67bec00aa93d98c71035012f30542f00370aa72976d2ab10c2a384d3b69fbe2256236da36608ee8877337b3333b0e380d939027743997bce44954ba875500
+  languageName: node
+  linkType: hard
+
 "express@npm:^4.17.1":
   version: 4.17.1
   resolution: "express@npm:4.17.1"
@@ -2841,6 +2945,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fast-safe-stringify@npm:^2.0.6":
+  version: 2.0.7
+  resolution: "fast-safe-stringify@npm:2.0.7"
+  checksum: 7bd22543263b707870d70c6f2336b6e8563e34d6807dc388cc0566895e31e0a8273af017a7eb1c9538d0ef54288284e1c0585b557bd856491295a847159fd929
+  languageName: node
+  linkType: hard
+
 "fastq@npm:^1.6.0":
   version: 1.8.0
   resolution: "fastq@npm:1.8.0"
@@ -2856,6 +2967,16 @@ __metadata:
   dependencies:
     flat-cache: ^2.0.1
   checksum: 7140588becf15f05ee956cfb359b5f23e0c73acbbd38ad14c7a76a0097342e6bfc0a8151cd2e481ea3cbb735190ba9a0df4b69055ebb5b0389c62339b1a2f86b
+  languageName: node
+  linkType: hard
+
+"fill-keys@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "fill-keys@npm:1.0.2"
+  dependencies:
+    is-object: ~1.0.1
+    merge-descriptors: ~1.0.0
+  checksum: 1c625a38f5b38dfe6cd941fb4e48a351d36a6b3ba40e926782d1a66ff151cc7f34966284365805fcadbfb4afa070f9f4eb1499a75927ab4cbd12607b4e1bd327
   languageName: node
   linkType: hard
 
@@ -3811,6 +3932,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"is-object@npm:~1.0.1":
+  version: 1.0.1
+  resolution: "is-object@npm:1.0.1"
+  checksum: deb32fdb99d599c6b8bbc3028143dc47c3dec1ba2ebabb2f9a5122588cb28b7b26c535de593fa7b8b86716cab1b96761c11c0aba9b812e20efdec1b55f8d0e95
+  languageName: node
+  linkType: hard
+
 "is-plain-object@npm:^2.0.3, is-plain-object@npm:^2.0.4":
   version: 2.0.4
   resolution: "is-plain-object@npm:2.0.4"
@@ -4101,6 +4229,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lambda-logger-node@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "lambda-logger-node@npm:3.2.0"
+  dependencies:
+    fast-safe-stringify: ^2.0.6
+    proxyquire: ^2.1.3
+  checksum: 33f0d096ffc315a6b4896bff015a97929d290f5e6c2b3e4a490eadbacaea2d39346f798a27bd8e3c16a21f8274950cee0143953b4a06c99af723e2fc82b927d8
+  languageName: node
+  linkType: hard
+
 "levn@npm:^0.4.1":
   version: 0.4.1
   resolution: "levn@npm:0.4.1"
@@ -4310,7 +4448,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"merge-descriptors@npm:1.0.1":
+"merge-descriptors@npm:1.0.1, merge-descriptors@npm:~1.0.0":
   version: 1.0.1
   resolution: "merge-descriptors@npm:1.0.1"
   checksum: 2d2a09eaac840a7ceac7a13b44b7c8abf3ecccd93a609c3525d8290cb5d814336cc7c0b1dd485ae3bc471ed354eeefb153475ce2e1604ccdf79eebe74021c192
@@ -4551,6 +4689,13 @@ __metadata:
   bin:
     mkdirp: bin/cmd.js
   checksum: 1aa3a6a2d7514f094a91329ec09994f5d32d2955a4985ecbb3d86f2aaeafc4aa11521f98d606144c1d49cd9835004d9a73342709b8c692c92e59eacf37412468
+  languageName: node
+  linkType: hard
+
+"module-not-found-error@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "module-not-found-error@npm:1.0.1"
+  checksum: dcf30a111dcb8ae6530a3724276c8ddcd55372d254fd6da03987e42628423ba4baf56b69db4171ed06e8621480f76df7b70aac7909fe0a69839562816b0a3570
   languageName: node
   linkType: hard
 
@@ -5323,6 +5468,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"proxyquire@npm:^2.1.3":
+  version: 2.1.3
+  resolution: "proxyquire@npm:2.1.3"
+  dependencies:
+    fill-keys: ^1.0.2
+    module-not-found-error: ^1.0.1
+    resolve: ^1.11.1
+  checksum: 5065f3db2ba0e080245050849582bae8c09559334c0ea419fa1ea45f0dbea20ead66db1496fd6209d4b2d56457d45a6ba755cc3882cc7e5b706b6b6bc588d380
+  languageName: node
+  linkType: hard
+
 "prr@npm:~1.0.1":
   version: 1.0.1
   resolution: "prr@npm:1.0.1"
@@ -5640,7 +5796,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"resolve@^1.10.0, resolve@^1.13.1, resolve@^1.17.0":
+"resolve@^1.10.0, resolve@^1.11.1, resolve@^1.13.1, resolve@^1.17.0":
   version: 1.17.0
   resolution: "resolve@npm:1.17.0"
   dependencies:
@@ -5649,7 +5805,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"resolve@patch:resolve@^1.10.0#builtin<compat/resolve>, resolve@patch:resolve@^1.13.1#builtin<compat/resolve>, resolve@patch:resolve@^1.17.0#builtin<compat/resolve>":
+"resolve@patch:resolve@^1.10.0#builtin<compat/resolve>, resolve@patch:resolve@^1.11.1#builtin<compat/resolve>, resolve@patch:resolve@^1.13.1#builtin<compat/resolve>, resolve@patch:resolve@^1.17.0#builtin<compat/resolve>":
   version: 1.17.0
   resolution: "resolve@patch:resolve@npm%3A1.17.0#builtin<compat/resolve>::version=1.17.0&hash=3388aa"
   dependencies:
@@ -5788,7 +5944,7 @@ __metadata:
     "@typescript-eslint/parser": ^3.6.0
     "@yarnpkg/pnpify": ^2.0.0-rc.25
     aws-sam-webpack-plugin: ^0.6.0
-    aws-sdk: ^2.720.0
+    aws-sdk: ^2.734.0
     aws-serverless-express: ^3.3.8
     concurrently: ^5.2.0
     eslint: ^7.5.0
@@ -5802,8 +5958,12 @@ __metadata:
     eslint-plugin-prettier: ^3.1.4
     eslint-plugin-typescript: ^0.14.0
     express: ^4.17.1
+    express-async-handler: ^1.1.4
+    express-validation: ^3.0.5
+    express-validator: ^6.6.1
     fork-ts-checker-webpack-plugin: ^5.0.11
     install-peers-cli: ^2.2.0
+    lambda-logger-node: ^3.2.0
     pnp-webpack-plugin: ^1.6.4
     prettier: ^2.0.5
     progress-bar-webpack-plugin: ^2.1.0
@@ -6923,6 +7083,13 @@ __metadata:
     spdx-correct: ^3.0.0
     spdx-expression-parse: ^3.0.0
   checksum: 940899bd4eacfa012ceecb10a5814ba0e8103da5243aa74d0d62f1f8a405efcd23e034fb7193e2d05b392870c53aabcb1f66439b062075cdcb28bc5d562a8ff6
+  languageName: node
+  linkType: hard
+
+"validator@npm:^13.1.1":
+  version: 13.1.1
+  resolution: "validator@npm:13.1.1"
+  checksum: deca81bd2e5debfa8f3c214658fb5a3df06c10f153ed0b2a332d2782090d47988a54d8c7bc7b743d47797157921ac3e5425b53f4bf02c89910b5e3bbb80e5ab5
   languageName: node
   linkType: hard
 

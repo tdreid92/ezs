@@ -2,7 +2,6 @@ import { resolve } from 'path';
 import { Configuration } from 'webpack';
 import TsCheckerPlugin from 'fork-ts-checker-webpack-plugin';
 import AwsSamPlugin from 'aws-sam-webpack-plugin';
-import ProgressBarPlugin from 'progress-bar-webpack-plugin';
 const awsSamPlugin = new AwsSamPlugin();
 
 /** The base webpack config needed with a few optimizations. Some of this should explain itself. */
@@ -48,10 +47,8 @@ const baseConfig: Configuration = {
         mode: 'write-tsbuildinfo',
         profile: true
       }
-    }),
-    new ProgressBarPlugin()
+    })
   ],
-  watch: true,
   target: 'node' // Target Node.js instead of web browsers
 };
 

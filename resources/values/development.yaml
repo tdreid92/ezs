@@ -1,16 +1,18 @@
-ports:
+Ports:
   api: 3000
   lambda: 3001
   dynamoDb: 3002
-parameterOverrides:
+ParameterOverrides:
   NODE_ENV: development
   Stage: dev
   projectId: sfw
   Application: SamFramework
-environmentVariables:
-  CryptocurrencyConversionController:
+  TableName: CryptocurrencyRates_DEV
+EnvironmentVariables:
+  CryptocurrencyRateController:
     Foo: true
     Bar: "http://some.example.com"
-  FindCryptocurrencyExchangeRate:
+  FindCryptocurrencyRate:
+    TableName: CryptocurrencyRates_DEV
     Boo: "Boop"
     Far: 12345

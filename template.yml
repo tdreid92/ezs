@@ -3,6 +3,18 @@ Transform:
 - AWS::Serverless-2016-10-31
 - AWS::CodeStar
 
+#Metadata:
+#  AWS::ServerlessRepo::Application:
+#    Name: CryptoExchangeRates
+#    Description: A simple PUT-GET Framework
+#    Author: Tyler Reid
+#    LicenseUrl: LICENSE
+#    ReadmeUrl: README.md
+#    Labels: ['some-label']
+#    HomePageUrl: https://github.com
+#    SemanticVersion: 0.0.1
+#    SourceCodeUrl: https://github.com
+
 Parameters:
   ProjectId:
     Type: String
@@ -17,6 +29,10 @@ Parameters:
   Application:
     Type: String
     Default: ''
+  TableName:
+    Type: String
+    Description: Table Name for DynamoDb Exchange Rates Table
+
 
 Globals:
   Function:
@@ -27,10 +43,10 @@ Globals:
       Role: !Ref CodeDeployRole
 
 Resources:
-  CryptocurrencyConversionController:
+  CryptocurrencyRateController:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub '${Application}-${ProjectId}-CryptocurrencyConversionController-${Stage}'
+      FunctionName: !Sub '${Application}-${ProjectId}-CryptocurrencyRateController-${Stage}'
       Handler: index.handler
       Runtime: nodejs12.x
       Environment:
@@ -41,34 +57,57 @@ Resources:
         - LambdaInvocationRole
         - Arn
       Events:
-        GetEvent:
+        GetRate:
           Type: Api
           Properties:
-            Path: /cryptocurrency/exchangerate/{fromCurr}/{toCurr}
-            Method: get
+            Path: /cryptocurrency/exchangerate/{baseCurr}/{date}/{quoteCurr}
+            Method: GET
+        UploadRate:
+          Type: Api
+          Properties:
+            Path: /cryptocurrency/exchangerate
+            Method: POST
       Timeout: 3
-      CodeUri: src/cryptocurrency-conversion-controller
-  FindCryptocurrencyExchangeRate:
+      CodeUri: src/cryptocurrency-rate-controller
+  FindCryptocurrencyRate:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub '${Application}-${ProjectId}-FindCryptocurrencyExchangeRate-${Stage}'
+      FunctionName: !Sub '${Application}-${ProjectId}-FindCryptocurrencyRate-${Stage}'
       Handler: index.handler
       Runtime: nodejs12.x
+      CodeUri: src/find-cryptocurrency-rate
       Environment:
         Variables:
-          NODE_ENV: !Sub '${Stage}'
-      Description: ''
+          NODE_ENV: !Sub ${Stage}
+          TableName: !Sub ${TableName}
       MemorySize: 128
       Timeout: 3
       Role:
         Fn::GetAtt:
           - LambdaInvocationRole
           - Arn
-      Tags:
-        Project: LPS
-      CodeUri: src/find-cryptocurrency-exchange-rate
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableName
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName:
+        Ref: TableName
+      AttributeDefinitions:
+        - AttributeName:
+            Fn::Sub: ${TableName}Id
+          AttributeType: S
+      KeySchema:
+        - AttributeName:
+            Fn::Sub: ${TableName}Id
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+      BillingMode: PAY_PER_REQUEST
   LambdaInvocationRole:
-    Description: Invoke Lambdas
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Sub '${Application}-${ProjectId}-LambdaInvocationRole-${Stage}'
