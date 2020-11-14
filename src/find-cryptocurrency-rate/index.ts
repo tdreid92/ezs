@@ -1,19 +1,20 @@
 import {
   FunctionNamespace,
-  ExchangeRatePair,
+  ExchangeRate,
   RateRequest
 } from '../../layers/common/nodejs/utils/common-constants';
 import { DynamoDB } from 'aws-sdk';
+import { LambdaResponse } from '../../layers/common/nodejs/models/lambda';
 
 const dynamo = new DynamoDB.DocumentClient({ endpoint: 'http://docker.for.mac.localhost:8000/' });
 const tableName = process.env.TableName != undefined ? process.env.TableName : 'test';
 const SEP = '_';
 
-const buildKey = (ratePair: ExchangeRatePair): string => {
+const buildKey = (ratePair: ExchangeRate): string => {
   return ratePair.baseCurr + SEP + ratePair.date + SEP + ratePair.quoteCurr;
 };
 
-const putItemInput = (ratePair: ExchangeRatePair): DynamoDB.DocumentClient.PutItemInput => {
+const putItemInput = (ratePair: ExchangeRate): DynamoDB.DocumentClient.PutItemInput => {
   return {
     TableName: tableName,
     Item: {
@@ -26,7 +27,7 @@ const putItemInput = (ratePair: ExchangeRatePair): DynamoDB.DocumentClient.PutIt
   };
 };
 
-const getItemInput = (ratePair: ExchangeRatePair): DynamoDB.DocumentClient.GetItemInput => {
+const getItemInput = (ratePair: ExchangeRate): DynamoDB.DocumentClient.GetItemInput => {
   return {
     Key: {
       RateKey: buildKey(ratePair) //Rename to HashKey
@@ -41,23 +42,20 @@ export const handler = (event: RateRequest, context: any, callback) => {
 
   const done = (err, res) => {
     console.timeEnd(FunctionNamespace.FIND_CRYPTOCURRENCY_RATE);
-    callback(null, {
-      statusCode: err ? '400' : '200',
-      body: err ? err.message : JSON.stringify(res)
-    });
+    const resp = new LambdaResponse()
+      .setStatusCode(err ? 500 : 200)
+      .setPayload(err ? err.message : res);
+    callback(null, resp);
   };
-  const data = putItemInput(event.ratePair);
 
-  switch (event.type) {
-    case 'GET':
-      dynamo.get(getItemInput(event.ratePair), (error, result) => {
-        if (error) {
-          console.error('STOP Event %s: %s', FunctionNamespace.FIND_CRYPTOCURRENCY_RATE, 'Error');
-          callback(new Error('FAIL'));
-          return;
-        }
-        let rate: ExchangeRatePair;
-        const item = result.Item;
+  const dynamoGet = (ratePair: ExchangeRate): void => {
+    dynamo.get(getItemInput(ratePair), (err, res) => {
+      if (err) {
+        console.error('STOP Event %s: %s', FunctionNamespace.FIND_CRYPTOCURRENCY_RATE, 'Error');
+        done(new Error('Error getting rate'), null);
+      } else {
+        let rate: ExchangeRate;
+        const item = res.Item;
         if (item != undefined) {
           rate = {
             baseCurr: item.BaseCurrency,
@@ -66,25 +64,44 @@ export const handler = (event: RateRequest, context: any, callback) => {
             rate: item.Rate
           };
           console.info('CLOSE Event %s: %s', FunctionNamespace.FIND_CRYPTOCURRENCY_RATE, rate);
-          callback(null, rate);
+          done(null, rate);
+        } else {
+          console.info(
+            'CLOSE Event %s: %s',
+            FunctionNamespace.FIND_CRYPTOCURRENCY_RATE,
+            'NOT FOUND'
+          );
+          done(null, {
+            baseCurr: ratePair.baseCurr,
+            date: ratePair.baseCurr,
+            quoteCurr: ratePair.baseCurr,
+            rate: -1
+          });
         }
-        callback(null, null); //??
-      });
+      }
+    });
+  };
+
+  const dynamoPut = (ratePair: ExchangeRate) => {
+    dynamo.put(putItemInput(ratePair), (err) => {
+      if (err) {
+        console.error('CLOSE Event %s: %s', FunctionNamespace.FIND_CRYPTOCURRENCY_RATE, 'Error');
+        done(new Error('Error uploading rate'), null);
+      } else {
+        console.info('CLOSE Event %s: %s', FunctionNamespace.FIND_CRYPTOCURRENCY_RATE, 'Success');
+        done(null, 'Success');
+      }
+    });
+  };
+
+  switch (event.type) {
+    case 'GET':
+      dynamoGet(event.ratePair);
       break;
     case 'UPLOAD':
-      console.debug('Commence PUT in table %s with value %j', tableName, data);
-      dynamo.put(data, (error, result) => {
-        if (error) {
-          console.error('CLOSE Event %s: %s', FunctionNamespace.FIND_CRYPTOCURRENCY_RATE, 'Error');
-          callback(new Error('FAIL'));
-          return;
-        }
-        console.info('CLOSE Event %s: %s', FunctionNamespace.FIND_CRYPTOCURRENCY_RATE, 'Success');
-        callback(null, result);
-      });
+      dynamoPut(event.ratePair);
       break;
     case 'DELETE':
-      break;
     default:
       done(new Error(`Unsupported method "${event.type}"`), 'x');
   }

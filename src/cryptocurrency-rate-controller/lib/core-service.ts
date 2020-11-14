@@ -1,30 +1,25 @@
 import { LambdaInvoker } from '../../../layers/common/nodejs/models/lambda';
 import {
   FunctionNamespace,
-  ExchangeRatePair,
-  RateRequest
+  ExchangeRate
 } from '../../../layers/common/nodejs/utils/common-constants';
 
-export const getRate = async (baseCurr: string, quoteCurr: string, date: string) => {
+export const getExchangeRate = async (ratePair: ExchangeRate) => {
   const invocation = await new LambdaInvoker(FunctionNamespace.FIND_CRYPTOCURRENCY_RATE)
     .setPayload({
       type: 'GET',
-      ratePair: {
-        baseCurr: baseCurr,
-        date: date,
-        quoteCurr: quoteCurr
-      }
+      ratePair
     })
     .invoke();
   return invocation.getPayload();
 };
 
-export const uploadRate = async (ratePair: ExchangeRatePair) => {
+export const uploadExchangeRate = async (ratePair: ExchangeRate) => {
   const invocation = await new LambdaInvoker(FunctionNamespace.FIND_CRYPTOCURRENCY_RATE)
     .setPayload({
       type: 'UPLOAD',
-      ratePair: ratePair
+      ratePairs: ratePair
     })
     .invoke();
-  return invocation.Payload;
+  return invocation.getPayload();
 };

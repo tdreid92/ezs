@@ -1,4 +1,5 @@
 import { body, check, param, ValidationChain, validationResult } from 'express-validator';
+import { StatusCode } from '../../../layers/common/nodejs/utils/common-constants';
 
 export const applyUploadRateValidationRules = () => {
   return [
@@ -43,7 +44,7 @@ export const validate = (req, res, next) => {
     } as any)
   );
 
-  return res.status(400).json({
+  return res.status(StatusCode.badRequest).json({
     errors: extractedErrors
   });
 };

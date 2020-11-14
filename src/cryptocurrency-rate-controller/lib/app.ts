@@ -1,12 +1,17 @@
 import express from 'express';
-import { getRate, uploadRate } from './core-service';
+import { getExchangeRate, uploadExchangeRate } from './core-service';
 import {
   FunctionNamespace,
-  ExchangeRatePair
+  ExchangeRate,
+  StatusCode
 } from '../../../layers/common/nodejs/utils/common-constants';
 export const app = express();
 import bodyParser from 'body-parser';
 import { applyGetRateValidationRules, applyUploadRateValidationRules, validate } from './validator';
+
+const headers = {
+  'Content-Type': 'application/json'
+};
 
 app.use(bodyParser.json()); // to support JSON-encoded bodies
 app.use(
@@ -35,18 +40,14 @@ app.get(
     console.info('START Request: %j', req.params);
     console.time(FunctionNamespace.CRYPTOCURRENCY_RATE_CONTROLLER + '-GET-RATE');
 
-    const baseCurr = req.params.baseCurr;
-    const quoteCurr = req.params.quoteCurr;
-    const date = req.params.date;
+    const response = await getExchangeRate({
+      baseCurr: req.params.baseCurr,
+      date: req.params.date,
+      quoteCurr: req.params.quoteCurr
+    });
 
-    const rate = await getRate(baseCurr, quoteCurr, date);
     console.timeEnd(FunctionNamespace.CRYPTOCURRENCY_RATE_CONTROLLER + '-GET-RATE');
-    res
-      .set({
-        'Content-Type': 'text/plain'
-      })
-      .status(200)
-      .send(rate);
+    res.set(headers).status(StatusCode.success).send(response);
   }
 );
 
@@ -67,14 +68,11 @@ app.post(
   ) => {
     console.info('START Request: %j', req.body);
     console.time(FunctionNamespace.CRYPTOCURRENCY_RATE_CONTROLLER + '-UPLOAD-RATE');
-    const ratePair: ExchangeRatePair = req.body;
-    const uploadRateResponse = await uploadRate(ratePair);
+
+    const rate: ExchangeRate = req.body;
+    const response = await uploadExchangeRate(rate);
+
     console.timeEnd(FunctionNamespace.CRYPTOCURRENCY_RATE_CONTROLLER + '-UPLOAD-RATE');
-    res
-      .set({
-        'Content-Type': 'text/plain'
-      })
-      .status(200)
-      .send(uploadRateResponse);
+    res.set(headers).status(StatusCode.success).send(response);
   }
 );

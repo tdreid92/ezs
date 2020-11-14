@@ -18,14 +18,19 @@ export type RateRequestType = 'GET' | 'UPLOAD' | 'DELETE';
 
 export interface RateRequest {
   type: RateRequestType;
-  ratePair: ExchangeRatePair;
+  ratePair: ExchangeRate;
 }
 
-export interface ExchangeRatePair {
+export interface ExchangeRate {
   baseCurr: string;
   date: string;
   quoteCurr: string;
   rate?: number;
+}
+
+export enum StatusCode {
+  success = 200,
+  badRequest = 400
 }
 
 export const DynamoDbTables = Object.freeze({
