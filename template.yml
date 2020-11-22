@@ -60,12 +60,17 @@ Resources:
         GetRate:
           Type: Api
           Properties:
-            Path: /cryptocurrency/exchangerate/{baseCurr}/{date}/{quoteCurr}
+            Path: /exchangerate/{baseCurr}/{date}/{quoteCurr}
             Method: GET
-        UploadRate:
+        ListRates:
           Type: Api
           Properties:
-            Path: /cryptocurrency/exchangerate
+            Path: /exchangerate/list
+            Method: GET
+        UploadRates:
+          Type: Api
+          Properties:
+            Path: /exchangerate
             Method: POST
       Timeout: 3
       CodeUri: src/cryptocurrency-rate-controller

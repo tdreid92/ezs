@@ -1270,9 +1270,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-sdk@npm:^2.734.0":
-  version: 2.734.0
-  resolution: "aws-sdk@npm:2.734.0"
+"aws-sdk@npm:^2.792.0":
+  version: 2.792.0
+  resolution: "aws-sdk@npm:2.792.0"
   dependencies:
     buffer: 4.9.2
     events: 1.1.1
@@ -1283,7 +1283,7 @@ __metadata:
     url: 0.10.3
     uuid: 3.3.2
     xml2js: 0.4.19
-  checksum: 347d2ea4d623a7ca69086e016d6f1cd79826309d8ce20176783986a567c5fb1d2c51837ac91813440555ebd60670f0a12bbfc93b949bf8cc19f24f6212234ff7
+  checksum: 99bf8e9e5ed23add678e73af90b4e51922193db257effabd0fd455150f4b98c020456b7e72b26880162a54ef581d795cc0b52243eead844624eed1f785c3bf3e
   languageName: node
   linkType: hard
 
@@ -5944,7 +5944,7 @@ __metadata:
     "@typescript-eslint/parser": ^3.6.0
     "@yarnpkg/pnpify": ^2.0.0-rc.25
     aws-sam-webpack-plugin: ^0.6.0
-    aws-sdk: ^2.734.0
+    aws-sdk: ^2.792.0
     aws-serverless-express: ^3.3.8
     concurrently: ^5.2.0
     eslint: ^7.5.0

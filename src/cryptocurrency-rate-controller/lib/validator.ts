@@ -1,36 +1,32 @@
-import { body, check, param, ValidationChain, validationResult } from 'express-validator';
+import { body, param, sanitize, validationResult } from 'express-validator';
 import { StatusCode } from '../../../layers/common/nodejs/utils/common-constants';
 
-export const applyUploadRateValidationRules = () => {
+const INVALID_SIZE_MSG = 'Size must be between 1 and 10';
+const INVALID_CURR_MSG = 'Must be 3 alphanumeric uppercase characters';
+const INVALID_DATE_MSG = 'Must be isISO8601 formatted';
+
+export const applyGetExchangeRateValidationRules = () => {
+  return [validateCurr('quoteCurr'), validateDate('date'), validateCurr('baseCurr')];
+};
+
+export const applyUploadExchangeRateValidationRules = () => {
   return [
-    currValidation('quoteCurr'),
-    body('date', 'Must be isISO8601 formatted').exists().isISO8601(),
-    currValidation('baseCurr'),
-    body('rate', 'Must be numeric').exists().isNumeric()
+    body('exchangeRates', INVALID_SIZE_MSG).isArray({ min: 1, max: 10 }),
+    validateCurr('exchangeRates.*.quoteCurr'),
+    validateDate('exchangeRates.*.date'),
+    validateCurr('exchangeRates.*.baseCurr'),
+    sanitize('exchangeRates.*.rate').toInt() //TODO remove sanitize as its deprecated
   ];
 };
 
-export const applyGetRateValidationRules = () => {
-  return [
-    currValidation('quoteCurr'),
-    param('date', 'Must be isISO8601 formatted').exists().isISO8601(),
-    currValidation('baseCurr')
-  ];
-};
-
-const currValidation = (curr: string) =>
-  check(curr, 'Must be 3 alphanumeric uppercase characters')
+const validateCurr = (curr: string) =>
+  param(curr, INVALID_CURR_MSG)
     .exists()
     .isLength({ min: 3, max: 3 })
     .isAlphanumeric('en-US')
     .isUppercase();
 
-const dateValidation = (date: string) =>
-  body(date, 'Must be isISO8601 formatted').exists().isISO8601();
-//
-// const rateValidation = (rate: string) => {
-//   body(rate).exists().withMessage('Is required').isNumeric().withMessage('Must be numeric');
-// };
+const validateDate = (date: string) => param(date, INVALID_DATE_MSG).exists().isISO8601();
 
 export const validate = (req, res, next) => {
   const errors = validationResult(req);

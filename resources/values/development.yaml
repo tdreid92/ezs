@@ -8,6 +8,7 @@ ParameterOverrides:
   projectId: sfw
   Application: SamFramework
   TableName: CryptocurrencyRates_DEV
+  IS_OFFLINE: true
 EnvironmentVariables:
   CryptocurrencyRateController:
     Foo: true

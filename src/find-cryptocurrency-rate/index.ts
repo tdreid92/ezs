@@ -1,108 +1,74 @@
 import {
+  CurrencyPair,
+  DbRequestType,
   FunctionNamespace,
-  ExchangeRate,
-  RateRequest
+  RateRequest,
+  StatusCode
 } from '../../layers/common/nodejs/utils/common-constants';
 import { DynamoDB } from 'aws-sdk';
-import { LambdaResponse } from '../../layers/common/nodejs/models/lambda';
+import { get } from './dynamodb/get';
+import { put } from './dynamodb/put';
+import { list } from './dynamodb/list';
 
-const dynamo = new DynamoDB.DocumentClient({ endpoint: 'http://docker.for.mac.localhost:8000/' });
-const tableName = process.env.TableName != undefined ? process.env.TableName : 'test';
-const SEP = '_';
+let options = {};
 
-const buildKey = (ratePair: ExchangeRate): string => {
-  return ratePair.baseCurr + SEP + ratePair.date + SEP + ratePair.quoteCurr;
-};
+// connect to local DB if running offline
 
-const putItemInput = (ratePair: ExchangeRate): DynamoDB.DocumentClient.PutItemInput => {
-  return {
-    TableName: tableName,
-    Item: {
-      RateKey: buildKey(ratePair), //Rename to HashKey
-      BaseCurrency: ratePair.baseCurr,
-      Date: ratePair.date,
-      QuoteCurrency: ratePair.quoteCurr,
-      Rate: ratePair.rate
-    }
+//TODO fix local config
+if (process.env.IS_OFFLINE == 'true') {
+  options = {
+    region: 'localhost',
+    endpoint: 'http://docker.for.mac.localhost:8000/'
   };
+  console.log('local configured');
+}
+
+export const dbClient = new DynamoDB.DocumentClient({
+  region: 'localhost',
+  endpoint: 'http://docker.for.mac.localhost:8000/'
+});
+export const tableName = process.env.TableName != undefined ? process.env.TableName : 'test';
+
+export interface DbPayload {
+  statusCode: number;
+  payload: any;
+}
+
+export const buildKey = (currPair: CurrencyPair): string => {
+  const sep = '.';
+  return currPair.baseCurr + sep + currPair.date + sep + currPair.quoteCurr;
 };
 
-const getItemInput = (ratePair: ExchangeRate): DynamoDB.DocumentClient.GetItemInput => {
-  return {
-    Key: {
-      RateKey: buildKey(ratePair) //Rename to HashKey
-    },
-    TableName: tableName
-  };
-};
-
-export const handler = (event: RateRequest, context: any, callback) => {
+export const handler = async (event: RateRequest, context): Promise<DbPayload> => {
   console.info('START Event %s %j: ', FunctionNamespace.FIND_CRYPTOCURRENCY_RATE, event);
   console.time(FunctionNamespace.FIND_CRYPTOCURRENCY_RATE);
 
-  const done = (err, res) => {
-    console.timeEnd(FunctionNamespace.FIND_CRYPTOCURRENCY_RATE);
-    const resp = new LambdaResponse()
-      .setStatusCode(err ? 500 : 200)
-      .setPayload(err ? err.message : res);
-    callback(null, resp);
+  let response: DbPayload = {
+    statusCode: StatusCode.internalServerError,
+    payload: ''
   };
 
-  const dynamoGet = (ratePair: ExchangeRate): void => {
-    dynamo.get(getItemInput(ratePair), (err, res) => {
-      if (err) {
-        console.error('STOP Event %s: %s', FunctionNamespace.FIND_CRYPTOCURRENCY_RATE, 'Error');
-        done(new Error('Error getting rate'), null);
-      } else {
-        let rate: ExchangeRate;
-        const item = res.Item;
-        if (item != undefined) {
-          rate = {
-            baseCurr: item.BaseCurrency,
-            date: item.Date,
-            quoteCurr: item.QuoteCurrency,
-            rate: item.Rate
-          };
-          console.info('CLOSE Event %s: %s', FunctionNamespace.FIND_CRYPTOCURRENCY_RATE, rate);
-          done(null, rate);
-        } else {
-          console.info(
-            'CLOSE Event %s: %s',
-            FunctionNamespace.FIND_CRYPTOCURRENCY_RATE,
-            'NOT FOUND'
-          );
-          done(null, {
-            baseCurr: ratePair.baseCurr,
-            date: ratePair.baseCurr,
-            quoteCurr: ratePair.baseCurr,
-            rate: -1
-          });
-        }
-      }
-    });
-  };
-
-  const dynamoPut = (ratePair: ExchangeRate) => {
-    dynamo.put(putItemInput(ratePair), (err) => {
-      if (err) {
-        console.error('CLOSE Event %s: %s', FunctionNamespace.FIND_CRYPTOCURRENCY_RATE, 'Error');
-        done(new Error('Error uploading rate'), null);
-      } else {
-        console.info('CLOSE Event %s: %s', FunctionNamespace.FIND_CRYPTOCURRENCY_RATE, 'Success');
-        done(null, 'Success');
-      }
-    });
-  };
-
-  switch (event.type) {
-    case 'GET':
-      dynamoGet(event.ratePair);
+  //TODO: fix logging
+  switch (event.requestType) {
+    case DbRequestType.GET:
+      console.debug('Enter GetRateRequest');
+      response = await get(event.getRateRequest);
+      console.debug('GetRateRequest: ' + response.statusCode);
       break;
-    case 'UPLOAD':
-      dynamoPut(event.ratePair);
+    case DbRequestType.PUT:
+      console.debug('Enter PutRatesRequest');
+      response = await put(event.putRatesRequest);
+      console.debug('PutRatesRequest: ' + response.statusCode);
       break;
-    case 'DELETE':
+    case DbRequestType.LIST:
+      console.debug('Enter ListRateRequest');
+      response = await list();
+      console.debug('ListRatesRequest: ' + response.statusCode);
+      break;
     default:
-      done(new Error(`Unsupported method "${event.type}"`), 'x');
+      console.log('do nothing');
   }
+  console.info('CLOSE Event %s %j: ', FunctionNamespace.FIND_CRYPTOCURRENCY_RATE, event);
+  console.timeEnd(FunctionNamespace.FIND_CRYPTOCURRENCY_RATE);
+  return response;
 };

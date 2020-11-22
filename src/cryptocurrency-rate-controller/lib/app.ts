@@ -1,13 +1,18 @@
 import express from 'express';
-import { getExchangeRate, uploadExchangeRate } from './core-service';
+import { getExchangeRate, listExchangeRates, putExchangeRates } from './core-service';
 import {
+  ExchangeRatePair,
   FunctionNamespace,
-  ExchangeRate,
   StatusCode
 } from '../../../layers/common/nodejs/utils/common-constants';
-export const app = express();
 import bodyParser from 'body-parser';
-import { applyGetRateValidationRules, applyUploadRateValidationRules, validate } from './validator';
+import {
+  applyGetExchangeRateValidationRules,
+  applyUploadExchangeRateValidationRules,
+  validate
+} from './validator';
+import { Request, Response } from 'express';
+export const app = express();
 
 const headers = {
   'Content-Type': 'application/json'
@@ -24,8 +29,8 @@ app.use(express.json()); // to support JSON-encoded bodies
 app.use(express.urlencoded()); // to support URL-encoded bodies
 
 app.get(
-  '/cryptocurrency/exchangerate/:baseCurr/:date/:quoteCurr',
-  applyGetRateValidationRules(),
+  '/exchangerate/:baseCurr/:date/:quoteCurr',
+  applyGetExchangeRateValidationRules(),
   validate,
   async (
     req: {
@@ -35,7 +40,7 @@ app.get(
         quoteCurr: string;
       };
     },
-    res
+    res: Response
   ) => {
     console.info('START Request: %j', req.params);
     console.time(FunctionNamespace.CRYPTOCURRENCY_RATE_CONTROLLER + '-GET-RATE');
@@ -45,34 +50,38 @@ app.get(
       date: req.params.date,
       quoteCurr: req.params.quoteCurr
     });
-
     console.timeEnd(FunctionNamespace.CRYPTOCURRENCY_RATE_CONTROLLER + '-GET-RATE');
     res.set(headers).status(StatusCode.success).send(response);
   }
 );
 
+app.get('/exchangerate/list', async (req, res) => {
+  console.info('START Request: %j');
+  console.time(FunctionNamespace.CRYPTOCURRENCY_RATE_CONTROLLER + '-LIST-RATE');
+
+  const response = await listExchangeRates();
+  console.timeEnd(FunctionNamespace.CRYPTOCURRENCY_RATE_CONTROLLER + '-LIST-RATE');
+  res.set(headers).status(StatusCode.success).send(response);
+});
+
 app.post(
-  '/cryptocurrency/exchangerate',
-  applyUploadRateValidationRules(),
+  '/exchangerate',
+  applyUploadExchangeRateValidationRules(),
   validate,
   async (
     req: {
       body: {
-        baseCurr: string;
-        date: string;
-        quoteCurr: string;
-        rate: number;
+        exchangeRates: ExchangeRatePair[];
       };
     },
-    res
+    res: Response
   ) => {
     console.info('START Request: %j', req.body);
-    console.time(FunctionNamespace.CRYPTOCURRENCY_RATE_CONTROLLER + '-UPLOAD-RATE');
+    console.time(FunctionNamespace.CRYPTOCURRENCY_RATE_CONTROLLER + '-PUT-RATES');
 
-    const rate: ExchangeRate = req.body;
-    const response = await uploadExchangeRate(rate);
+    const response = await putExchangeRates(req.body.exchangeRates);
 
-    console.timeEnd(FunctionNamespace.CRYPTOCURRENCY_RATE_CONTROLLER + '-UPLOAD-RATE');
+    console.timeEnd(FunctionNamespace.CRYPTOCURRENCY_RATE_CONTROLLER + '-PUT-RATES');
     res.set(headers).status(StatusCode.success).send(response);
   }
 );

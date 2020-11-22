@@ -6,7 +6,7 @@ abs_path_template="${abs_path_root}"/.aws-sam/build/template.yaml
 abs_path_yamlWarden="${abs_path_root}"/scripts/yamlWarden.sh
 
 start_local() {
-  yarn concurrently "./scripts/bigBrotherSam.sh start-api --no-config" "./scripts/bigBrotherSam.sh start-lambda --no-config"
+  yarn concurrently "./scripts/bigBrotherSam.sh start-lambda --no-config" "./scripts/bigBrotherSam.sh start-api --no-config"
 }
 
 # shellcheck disable=SC2155
