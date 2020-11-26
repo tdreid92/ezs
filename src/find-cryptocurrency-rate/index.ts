@@ -1,5 +1,4 @@
 import {
-  CurrencyPair,
   DbPayload,
   DbRequestType,
   FunctionNamespace,

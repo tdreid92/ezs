@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Response } from 'express';
 import { getExchangeRate, listExchangeRates, putExchangeRates } from './core-service';
 import {
   ExchangeRatePair,
@@ -11,7 +11,7 @@ import {
   applyUploadExchangeRateValidationRules,
   validate
 } from './validator';
-import { Request, Response } from 'express';
+
 export const app = express();
 
 const headers = {

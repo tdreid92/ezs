@@ -1,4 +1,4 @@
-import { LambdaInvoker, LambdaResponse } from '../../../layers/common/nodejs/models/lambda';
+import { LambdaInvoker } from '../../../layers/common/nodejs/models/lambda';
 import {
   CurrencyPair,
   DbRequestType,
