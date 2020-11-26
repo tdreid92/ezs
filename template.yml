@@ -33,7 +33,6 @@ Parameters:
     Type: String
     Description: Table Name for DynamoDb Exchange Rates Table
 
-
 Globals:
   Function:
     AutoPublishAlias: live
@@ -84,7 +83,9 @@ Resources:
       Environment:
         Variables:
           NODE_ENV: !Sub ${Stage}
-          TableName: !Sub ${TableName}
+          DYNAMODB_TABLE: !Sub ${DYNAMODB_TABLE}
+          DYNAMODB_ENDPOINT: !Sub ${DYNAMODB_ENDPOINT}
+          IS_OFFLINE: !Sub ${IS_OFFLINE}
       MemorySize: 128
       Timeout: 3
       Role:

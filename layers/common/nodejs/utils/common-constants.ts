@@ -20,6 +20,11 @@ export enum DbRequestType {
   LIST = 'LIST'
 }
 
+export interface DbPayload {
+  statusCode: number;
+  payload: any;
+}
+
 export interface RateRequest {
   requestType: DbRequestType;
   getRateRequest: CurrencyPair;

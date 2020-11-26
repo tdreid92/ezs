@@ -1,33 +1,30 @@
 import {
   CurrencyPair,
+  DbPayload,
   FunctionNamespace,
   StatusCode
 } from '../../../layers/common/nodejs/utils/common-constants';
-import { buildKey, dbClient, DbPayload, tableName } from '../index';
 import { GetItemOutput } from 'aws-sdk/clients/dynamodb';
 import { AWSError } from 'aws-sdk/lib/error';
+import { ddb } from '../config';
+import { buildKey } from '../utils';
 
 const eventType: string = FunctionNamespace.FIND_CRYPTOCURRENCY_RATE + '-GET';
 
 export const get = async (currPair: CurrencyPair): Promise<DbPayload> => {
   console.info('START Event %s %j: ', eventType, currPair);
   console.time(eventType);
-  console.info({
-    TableName: tableName,
-    Key: {
-      ExchangeRateKey: buildKey(currPair)
-    }
-  });
-  return await dbClient
+
+  return await ddb.client
     .get({
-      TableName: tableName,
+      TableName: ddb.tableName,
       Key: {
         ExchangeRateKey: buildKey(currPair)
       }
     })
     .promise()
     .then((output: GetItemOutput) => {
-      console.info('GET Item Success %s: %s', eventType, output.Item);
+      console.info('GET Item Success %s: %s', eventType, output);
       const statusCode: number = output.Item ? StatusCode.success : StatusCode.noContent;
       return {
         statusCode: statusCode,

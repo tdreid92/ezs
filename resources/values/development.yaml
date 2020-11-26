@@ -8,12 +8,10 @@ ParameterOverrides:
   projectId: sfw
   Application: SamFramework
   TableName: CryptocurrencyRates_DEV
-  IS_OFFLINE: true
 EnvironmentVariables:
   CryptocurrencyRateController:
-    Foo: true
     Bar: "http://some.example.com"
   FindCryptocurrencyRate:
-    TableName: CryptocurrencyRates_DEV
-    Boo: "Boop"
-    Far: 12345
+    DYNAMODB_TABLE: CryptocurrencyRates_DEV
+    DYNAMODB_ENDPOINT: 'http://docker.for.mac.localhost:8000/'
+    IS_OFFLINE: true

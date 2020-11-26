@@ -1870,6 +1870,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"conditional-reduce@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "conditional-reduce@npm:1.2.0"
+  checksum: 7987753f3042cc6aec6c2fe538648fff49209485cb9ea81283eb86355dd05ebe421d841c32bb8f2ae0dc7a6a3561a216b4989e41cc1041fa7d363e1acffe6275
+  languageName: node
+  linkType: hard
+
 "console-browserify@npm:^1.1.0":
   version: 1.2.0
   resolution: "console-browserify@npm:1.2.0"
@@ -5947,6 +5954,7 @@ __metadata:
     aws-sdk: ^2.792.0
     aws-serverless-express: ^3.3.8
     concurrently: ^5.2.0
+    conditional-reduce: ^1.2.0
     eslint: ^7.5.0
     eslint-config-prettier: ^6.11.0
     eslint-import-resolver-typescript: ^2.0.0
