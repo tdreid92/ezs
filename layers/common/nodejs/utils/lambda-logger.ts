@@ -14,7 +14,7 @@ const getElapsedTime = (startTime: [number, number]): number => {
   return elapsedHrTime[0] * 1000 + elapsedHrTime[1] / 1e6;
 };
 
-export const apiLoggingInterceptor = (req, res, next: NextFunction): void => {
+export const apiLogInterceptor = (req, res, next: NextFunction): void => {
   const startTime: [number, number] = process.hrtime();
 
   log.setKey(logConsts.requestMethod, req.method);
@@ -47,20 +47,20 @@ export const apiLoggingInterceptor = (req, res, next: NextFunction): void => {
   next();
 };
 
-export const lambdaLoggingInterceptor = (fn: (...args: any[]) => any) => {
-  return function (...args: any[]) {
+export const logInterceptor = (fn: (...args: any[]) => any) => {
+  return async (...args: any[]) => {
     const startTime: [number, number] = process.hrtime();
-    let result: any;
+    let response: any;
     try {
       log.setKey(logConsts.requestBody, args[0]);
       log.info('Request started for lambda');
-      result = fn(...args);
+      response = await fn(...args);
     } finally {
       log.setKey(logConsts.durationMs, getElapsedTime(startTime));
+      log.setKey(logConsts.requestBody, response);
       log.info('Request completed for lambda');
-      log.info(result);
     }
-    return result;
+    return response;
   };
 };
 
