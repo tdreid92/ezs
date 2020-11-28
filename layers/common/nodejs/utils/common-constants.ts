@@ -48,6 +48,7 @@ export interface ExchangeRateError {
   statusCode: StatusCode;
   statusMessage: string;
 }
+
 //TODO: implement response object
 export interface ExchangeRateResponse {
   exchangeRates: ExchangeRatePair | ExchangeRatePair[] | ExchangeRateError;
