@@ -6,7 +6,7 @@ import {
 import { GetItemOutput } from 'aws-sdk/clients/dynamodb';
 import { AWSError } from 'aws-sdk/lib/error';
 import { ddb } from '../config';
-import { buildKey } from '../utils';
+import { utils } from '../utils';
 import { log } from '../../../layers/common/nodejs/utils/lambda-logger';
 
 export const get = async (currPair: CurrencyPair): Promise<DbPayload> => {
@@ -18,7 +18,7 @@ export const get = async (currPair: CurrencyPair): Promise<DbPayload> => {
     .get({
       TableName: ddb.tableName,
       Key: {
-        ExchangeRateKey: buildKey(currPair)
+        ExchangeRateKey: utils.buildKey(currPair)
       }
     })
     .promise()

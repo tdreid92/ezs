@@ -7,7 +7,7 @@ import {
 import { BatchWriteItemOutput } from 'aws-sdk/clients/dynamodb';
 import { AWSError } from 'aws-sdk/lib/error';
 import { ddb } from '../config';
-import { buildKey } from '../utils';
+import { utils } from '../utils';
 
 const eventType: string = FunctionNamespace.FIND_CRYPTOCURRENCY_RATE + '-BATCH-WRITE';
 
@@ -17,22 +17,20 @@ export const batchWrite = async (ratePairs: ExchangeRatePair[]): Promise<DbPaylo
 
   const timeStamp = Date.now();
 
-  const putRequests = ratePairs.map((rp: ExchangeRatePair) => ({
-    PutRequest: {
-      Item: {
-        ExchangeRateKey: buildKey(rp),
-        BaseCurrency: rp.baseCurr,
-        Date: rp.date,
-        QuoteCurrency: rp.quoteCurr,
-        Rate: rp.rate,
-        CreatedAt: timeStamp
-      }
-    }
-  }));
-
   const params = {
     RequestItems: {
-      [ddb.tableName]: putRequests
+      [ddb.tableName]: ratePairs.map((rp: ExchangeRatePair) => ({
+        PutRequest: {
+          Item: {
+            ExchangeRateKey: utils.buildKey(rp),
+            BaseCurrency: rp.baseCurr,
+            Date: rp.date,
+            QuoteCurrency: rp.quoteCurr,
+            Rate: rp.rate,
+            CreatedAt: timeStamp
+          }
+        }
+      }))
     }
   };
 
