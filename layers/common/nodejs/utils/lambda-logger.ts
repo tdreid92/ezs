@@ -1,15 +1,45 @@
 import { Logger } from 'lambda-logger-node';
+import { NextFunction } from 'express';
 
-export const logger = Logger({
-  minimumLogLevel: 'DEBUG'
-});
-// export const getLambdaLogger = () => {
-//   if (logger == null) {
-//     logger = Logger({
-//       minimumLogLevel: 'INFO'
-//     });
-//     console.log(process.env.AWS_LAMBDA_FUNCTION_NAME);
-//     logger.setKey('Lambda', process.env.AWS_EXECUTION_ENV);
-//   }
-//   return logger;
-// };
+const buildLogger = () => {
+  const log = new Logger({
+    minimumLogLevel: 'DEBUG'
+  });
+  return log;
+};
+
+export const apiLoggingInterceptor = (req, res, next: NextFunction): void => {
+  const startHrTime = process.hrtime();
+  log.setKey('request.method', req.method);
+  log.setKey('request.url', req.url);
+  log.setKey('request.body', req.body);
+  log.info('Request started for API');
+
+  const oldWrite = res.write;
+  const oldEnd = res.end;
+  const chunks: Buffer[] = [];
+
+  res.write = (...restArgs) => {
+    chunks.push(Buffer.from(restArgs[0]));
+    oldWrite.apply(res, restArgs);
+  };
+
+  res.end = (...restArgs) => {
+    if (restArgs[0]) {
+      chunks.push(Buffer.from(restArgs[0]));
+    }
+    oldEnd.apply(res, restArgs);
+  };
+
+  res.on('finish', () => {
+    const elapsedHrTime = process.hrtime(startHrTime);
+    const elapsedTimeInMs = elapsedHrTime[0] * 1000 + elapsedHrTime[1] / 1e6;
+    log.setKey('duration_ms', elapsedTimeInMs);
+    log.setKey('response.body', JSON.parse(Buffer.concat(chunks).toString('utf8')));
+    log.info('Request completed for API');
+  });
+
+  next();
+};
+
+export const log = buildLogger();

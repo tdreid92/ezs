@@ -9,10 +9,13 @@ import { get } from './dynamoDb/get';
 import { batchWrite } from './dynamoDb/batchWrite';
 import { list } from './dynamoDb/list';
 import { reduce } from 'conditional-reduce';
+import { log } from '../../layers/common/nodejs/utils/lambda-logger';
+import { Context } from 'aws-lambda';
+log.setKey('FunctionNamespace', FunctionNamespace.FIND_CRYPTOCURRENCY_RATE);
 
-export const handler = async (event: RateRequest, context): Promise<DbPayload> => {
-  console.info('START Event %s %j: ', FunctionNamespace.FIND_CRYPTOCURRENCY_RATE, event);
-  console.time(FunctionNamespace.FIND_CRYPTOCURRENCY_RATE);
+const handler = async (event: RateRequest, context: Context): Promise<DbPayload> => {
+  log.info('Request started');
+  log.setKey('request.body', event);
 
   const response: DbPayload = await reduce<Promise<DbPayload>>(
     event.requestType,
@@ -22,15 +25,21 @@ export const handler = async (event: RateRequest, context): Promise<DbPayload> =
       [DbRequestType.LIST]: async () => list()
     },
     () => {
-      console.error('Request type not found');
-      return Promise.resolve({
+      const defaultResponse: Promise<DbPayload> = Promise.resolve({
         statusCode: StatusCode.internalServerError,
         payload: ''
       });
+      log.setKey('response.payload', response);
+      log.setKey('response.statusCode', response.statusCode);
+      log.error('Request failed');
+      return defaultResponse;
     }
   );
 
-  console.info('CLOSE Event %s %j: ', FunctionNamespace.FIND_CRYPTOCURRENCY_RATE, event);
-  console.timeEnd(FunctionNamespace.FIND_CRYPTOCURRENCY_RATE);
+  log.setKey('response.payload', response);
+  log.setKey('response.statusCode', response.statusCode);
+  log.info('Request completed');
   return response;
 };
+
+exports.handler = log.handler(handler);

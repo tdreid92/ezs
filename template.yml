@@ -71,7 +71,7 @@ Resources:
           Properties:
             Path: /exchangerate
             Method: POST
-      Timeout: 3
+      Timeout: 5
       CodeUri: src/cryptocurrency-rate-controller
   FindCryptocurrencyRate:
     Type: AWS::Serverless::Function

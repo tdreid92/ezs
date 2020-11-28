@@ -150,6 +150,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/aws-lambda@npm:^8.10.64":
+  version: 8.10.64
+  resolution: "@types/aws-lambda@npm:8.10.64"
+  checksum: 5511ed41369f4c3268cfb3f2e3293dbde0734ff47e1c46c38f73680f0501229e397f2b275302d7c7c7203e947ff9d0d8fd957c35fe2561b1443d4f5b503f0ece
+  languageName: node
+  linkType: hard
+
 "@types/aws-sdk@npm:^2.7.0":
   version: 2.7.0
   resolution: "@types/aws-sdk@npm:2.7.0"
@@ -5937,6 +5944,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "sam-framework@workspace:."
   dependencies:
+    "@types/aws-lambda": ^8.10.64
     "@types/aws-sdk": ^2.7.0
     "@types/aws-serverless-express": ^3
     "@types/concurrently": ^5

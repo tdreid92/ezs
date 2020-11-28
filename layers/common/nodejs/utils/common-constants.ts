@@ -9,12 +9,12 @@ export const enum InvocationType {
   DRYRUN = 'DryRun'
 }
 
-export enum LogType {
+export const enum LogType {
   NONE = 'None',
   TAIL = 'Tail'
 }
 
-export enum DbRequestType {
+export const enum DbRequestType {
   GET = 'GET',
   PUT = 'PUT',
   LIST = 'LIST'

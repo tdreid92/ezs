@@ -1,5 +1,6 @@
 import { body, param, sanitize, validationResult } from 'express-validator';
 import { StatusCode } from '../../../layers/common/nodejs/utils/common-constants';
+import { NextFunction } from 'express';
 
 const INVALID_SIZE_MSG = 'Size must be between 1 and 10';
 const INVALID_CURR_MSG = 'Must be 3 alphanumeric uppercase characters';
@@ -28,7 +29,7 @@ const validateCurr = (curr: string) =>
 
 const validateDate = (date: string) => param(date, INVALID_DATE_MSG).exists().isISO8601();
 
-export const validate = (req, res, next) => {
+export const validate = (req: Request, res, next: NextFunction) => {
   const errors = validationResult(req);
   if (errors.isEmpty()) {
     return next();
