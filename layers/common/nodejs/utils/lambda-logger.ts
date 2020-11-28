@@ -1,8 +1,8 @@
 import { Logger } from 'lambda-logger-node';
 import { NextFunction } from 'express';
 
-const buildLogger = () => {
-  const log = new Logger({
+const buildLogger = (): Logger => {
+  const log: Logger = new Logger({
     minimumLogLevel: 'DEBUG'
   });
   return log;
@@ -42,4 +42,4 @@ export const apiLoggingInterceptor = (req, res, next: NextFunction): void => {
   next();
 };
 
-export const log = buildLogger();
+export const log: Logger = buildLogger();

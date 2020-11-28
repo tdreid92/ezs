@@ -29,7 +29,7 @@ const validateCurr = (curr: string) =>
 
 const validateDate = (date: string) => param(date, INVALID_DATE_MSG).exists().isISO8601();
 
-export const validate = (req: Request, res, next: NextFunction) => {
+export const validate = (req: Request, res, next) => {
   const errors = validationResult(req);
   if (errors.isEmpty()) {
     return next();
