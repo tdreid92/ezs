@@ -7,10 +7,11 @@ import {
 import { utils } from './utils';
 import { BatchWriteItemOutput, GetItemOutput, ScanOutput } from 'aws-sdk/clients/dynamodb';
 import { AWSError } from 'aws-sdk/lib/error';
-import { log } from '../../layers/common/nodejs/utils/lambda-logger';
+import { dbLogWrapper } from '../../layers/common/nodejs/utils/lambda-logger';
 import { DynamoDB } from 'aws-sdk';
 
-const tableName = process.env.DYNAMODB_TABLE != undefined ? process.env.DYNAMODB_TABLE : 'test';
+const tableName: string =
+  process.env.DYNAMODB_TABLE != undefined ? process.env.DYNAMODB_TABLE : 'test';
 const dbClient: DynamoDB.DocumentClient = new DynamoDB.DocumentClient(
   process.env.IS_OFFLINE && process.env.DYNAMODB_ENDPOINT
     ? {
@@ -21,10 +22,6 @@ const dbClient: DynamoDB.DocumentClient = new DynamoDB.DocumentClient(
 );
 
 const get = async (currPair: CurrencyPair): Promise<DbPayload> => {
-  log.setKey('database.query.request', currPair);
-  log.setKey('database.query.type', 'GET');
-  log.info('Database request GET started');
-
   return await dbClient
     .get({
       TableName: tableName,
@@ -38,8 +35,6 @@ const get = async (currPair: CurrencyPair): Promise<DbPayload> => {
         statusCode: StatusCode.success,
         payload: output.Item
       };
-      log.setKey('database.payload', output);
-      log.info('Database request GET completed');
       return queryOutput;
     })
     .catch((error: AWSError) => {
@@ -47,9 +42,6 @@ const get = async (currPair: CurrencyPair): Promise<DbPayload> => {
         statusCode: error.statusCode || StatusCode.notImplemented,
         payload: error.message
       };
-      log.setKey('database.error.statusCode', error.statusCode);
-      log.setKey('database.error.message', error);
-      log.info('Database request GET failed');
       return queryError;
     });
 };
@@ -113,7 +105,7 @@ const batchWrite = async (ratePairs: ExchangeRatePair[]): Promise<DbPayload> => 
 };
 
 export const db = {
-  get: get,
-  list: list,
-  put: batchWrite
+  get: dbLogWrapper(get),
+  list: dbLogWrapper(list),
+  put: dbLogWrapper(batchWrite)
 };

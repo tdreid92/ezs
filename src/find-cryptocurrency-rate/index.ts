@@ -6,11 +6,11 @@ import {
   StatusCode
 } from '../../layers/common/nodejs/utils/common-constants';
 import { reduce } from 'conditional-reduce';
-import { logInterceptor, log } from '../../layers/common/nodejs/utils/lambda-logger';
-import { logConsts } from '../../layers/common/nodejs/utils/log-constants';
+import { logWrapper, log } from '../../layers/common/nodejs/utils/lambda-logger';
+import { loggerKeys } from '../../layers/common/nodejs/utils/log-constants';
 import { db } from './dynamoDb';
 
-log.setKey(logConsts.functionNamespace, FunctionNamespace.FIND_CRYPTOCURRENCY_RATE);
+log.setKey(loggerKeys.functionNamespace, FunctionNamespace.FIND_CRYPTOCURRENCY_RATE);
 
 const handler = async (event: RateRequest): Promise<DbPayload> => {
   return await reduce<Promise<DbPayload>>(
@@ -22,7 +22,7 @@ const handler = async (event: RateRequest): Promise<DbPayload> => {
     },
     () => {
       const defaultResponse: Promise<DbPayload> = Promise.resolve({
-        statusCode: StatusCode.internalServerError,
+        statusCode: StatusCode.notImplemented,
         payload: ''
       });
       log.error('Request failed');
@@ -31,4 +31,4 @@ const handler = async (event: RateRequest): Promise<DbPayload> => {
   );
 };
 
-exports.handler = log.handler(logInterceptor(handler));
+exports.handler = log.handler(logWrapper(handler));

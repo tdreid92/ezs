@@ -4,9 +4,9 @@ import { log } from '../../layers/common/nodejs/utils/lambda-logger';
 import { FunctionNamespace } from '../../layers/common/nodejs/utils/common-constants';
 import { Server } from 'http';
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { logConsts } from '../../layers/common/nodejs/utils/log-constants';
+import { loggerKeys } from '../../layers/common/nodejs/utils/log-constants';
 
-log.setKey(logConsts.functionNamespace, FunctionNamespace.CRYPTOCURRENCY_RATE_CONTROLLER);
+log.setKey(loggerKeys.functionNamespace, FunctionNamespace.CRYPTOCURRENCY_RATE_CONTROLLER);
 
 const server: Server = awsServerlessExpress.createServer(app);
 
@@ -14,7 +14,7 @@ const handler = async (
   event: APIGatewayProxyEvent,
   context: Context
 ): Promise<APIGatewayProxyResult> => {
-  log.setKey(logConsts.resource, event.resource);
+  log.setKey(loggerKeys.resource, event.resource);
   return awsServerlessExpress.proxy(server, event, context, 'PROMISE').promise;
 };
 
