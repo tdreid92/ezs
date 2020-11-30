@@ -1,7 +1,9 @@
 import { Logger } from 'lambda-logger-node';
 import { NextFunction } from 'express';
 import { loggerKeys, loggerMessages, subLogger } from './log-constants';
-import { DbPayload } from './common-constants';
+import { DbPayload, DynamoDbInput } from './common-constants';
+import { DynamoDB } from 'aws-sdk';
+import { GetItemInput } from 'aws-sdk/clients/dynamodb';
 
 const buildLogger = (): Logger => {
   const log: Logger = new Logger({
@@ -49,15 +51,15 @@ export const apiLogInterceptor = (req, res, next: NextFunction): void => {
   next();
 };
 
-export const logWrapper = (fn: (params: any) => any) => {
-  return async (params: any) => {
+export const logWrapper = (fn: (...args: any[]) => any) => {
+  return async (...args: any[]) => {
     const startTime: [number, number] = process.hrtime();
     let response: any;
     const subLog: Logger = log.createSubLogger(subLogger.LAMBDA);
     try {
-      log.setKey(loggerKeys.requestBody, params);
+      log.setKey(loggerKeys.requestBody, args[0]);
       subLog.info(loggerMessages.start);
-      response = await fn(params);
+      response = await fn(...args);
     } finally {
       log.setKey(loggerKeys.durationMs, getElapsedTime(startTime));
       log.setKey(loggerKeys.requestBody, response);
@@ -67,15 +69,15 @@ export const logWrapper = (fn: (params: any) => any) => {
   };
 };
 
-export const dbLogWrapper = (fn: (...args: any[]) => Promise<DbPayload>) => {
-  return async (...args: any[]) => {
+export const dbLogWrapper = (fn: (params: any) => Promise<DbPayload>) => {
+  return async (params: any): Promise<DbPayload> => {
     const startTime: [number, number] = process.hrtime();
     let response: any;
     const subLog: Logger = log.createSubLogger(subLogger.DATABASE);
     try {
-      log.setKey(loggerKeys.dbQuery, args[0]);
+      log.setKey(loggerKeys.dbQuery, params);
       subLog.info(loggerMessages.start);
-      response = await fn(...args);
+      response = await fn(params);
     } finally {
       log.setKey(loggerKeys.dbDurationMs, getElapsedTime(startTime));
       log.setKey(loggerKeys.dbResult, response);

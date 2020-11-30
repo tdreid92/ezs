@@ -37,8 +37,8 @@ const buildPutRequests = (ratePairs: ExchangeRatePair[]) =>
     }
   }));
 
-const buildBatchWriteParams = (ratePairs: ExchangeRatePair[]): DynamoDB.BatchWriteItemOutput => {
-  return <DynamoDB.BatchWriteItemOutput>{
+const buildBatchWriteParams = (ratePairs: ExchangeRatePair[]): DynamoDB.BatchWriteItemInput => {
+  return <DynamoDB.BatchWriteItemInput>{
     RequestItems: {
       [tableName]: buildPutRequests(ratePairs)
     }

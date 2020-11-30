@@ -1,3 +1,5 @@
+import { DynamoDB } from 'aws-sdk';
+
 export const enum FunctionNamespace {
   CRYPTOCURRENCY_RATE_CONTROLLER = 'CryptocurrencyRateController',
   FIND_CRYPTOCURRENCY_RATE = 'FindCryptocurrencyRate'
@@ -20,15 +22,24 @@ export const enum DbRequestType {
   LIST = 'LIST'
 }
 
+export type Next = () => void | Promise<void>;
+
 export interface DbPayload {
   statusCode: number;
   payload: any;
 }
 
+export type DynamoDbInput =
+  | DynamoDB.GetItemInput
+  | DynamoDB.ScanInput
+  | DynamoDB.BatchWriteItemInput
+  | DynamoDB.PutItemInput
+  | DynamoDB.BatchGetItemInput;
+
 export interface RateRequest {
   requestType: DbRequestType;
-  getRateRequest: CurrencyPair;
-  putRatesRequest: ExchangeRatePair[];
+  getRateRequest: CurrencyPair | undefined;
+  putRatesRequest: ExchangeRatePair[] | undefined;
 }
 
 export interface CurrencyPair {

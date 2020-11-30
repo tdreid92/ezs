@@ -1,4 +1,5 @@
 import {
+  CurrencyPair,
   DbPayload,
   DbRequestType,
   FunctionNamespace,
@@ -13,23 +14,27 @@ import { dbUtils } from './utils';
 
 log.setKey(loggerKeys.functionNamespace, FunctionNamespace.FIND_CRYPTOCURRENCY_RATE);
 
+const defaultCaseDbResult: Promise<DbPayload> = Promise.resolve({
+  statusCode: StatusCode.notImplemented,
+  payload: ''
+});
+
 const getDefaultCaseDbResult = async (): Promise<DbPayload> => {
   log.error('Default case');
-  return Promise.resolve({
-    statusCode: StatusCode.notImplemented,
-    payload: ''
-  });
+  return defaultCaseDbResult;
 };
 
-const handler = async (event: RateRequest): Promise<DbPayload> =>
-  await reduce<Promise<DbPayload>>(
-    event.requestType,
-    {
-      [DbRequestType.GET]: async () => db.get(dbUtils.buildGetItemParams(event.getRateRequest)),
-      [DbRequestType.LIST]: async () => db.list(dbUtils.buildListItemsParams()),
-      [DbRequestType.PUT]: async () => db.put(dbUtils.buildBatchWriteParams(event.putRatesRequest))
-    },
-    () => getDefaultCaseDbResult()
-  );
+export const handler = async (event: RateRequest): Promise<DbPayload> =>
+  event.requestType
+    ? await reduce<Promise<DbPayload>>(
+        event.requestType,
+        {
+          [DbRequestType.GET]: async () => db.get(event.getRateRequest),
+          [DbRequestType.LIST]: async () => db.list(),
+          [DbRequestType.PUT]: async () => db.put(event.putRatesRequest)
+        },
+        () => getDefaultCaseDbResult()
+      )
+    : defaultCaseDbResult;
 
 exports.handler = log.handler(logWrapper(handler));
