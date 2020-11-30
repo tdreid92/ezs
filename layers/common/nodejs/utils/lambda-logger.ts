@@ -1,10 +1,8 @@
 import { Logger } from 'lambda-logger-node';
 import { NextFunction } from 'express';
 import { loggerKeys, loggerMessages, subLogger } from './log-constants';
+import { DbPayload } from './common-constants';
 
-// export class MyLogger extends Logger {
-//   getAPISubLogger
-// }
 const buildLogger = (): Logger => {
   const log: Logger = new Logger({
     minimumLogLevel: 'DEBUG'
@@ -51,15 +49,15 @@ export const apiLogInterceptor = (req, res, next: NextFunction): void => {
   next();
 };
 
-export const logWrapper = (fn: (...args: any[]) => any) => {
-  return async (...args: any[]) => {
+export const logWrapper = (fn: (params: any) => any) => {
+  return async (params: any) => {
     const startTime: [number, number] = process.hrtime();
     let response: any;
     const subLog: Logger = log.createSubLogger(subLogger.LAMBDA);
     try {
-      log.setKey(loggerKeys.requestBody, args[0]);
+      log.setKey(loggerKeys.requestBody, params);
       subLog.info(loggerMessages.start);
-      response = await fn(...args);
+      response = await fn(params);
     } finally {
       log.setKey(loggerKeys.durationMs, getElapsedTime(startTime));
       log.setKey(loggerKeys.requestBody, response);
@@ -69,11 +67,10 @@ export const logWrapper = (fn: (...args: any[]) => any) => {
   };
 };
 
-export const dbLogWrapper = (fn: (...args: any[]) => any) => {
+export const dbLogWrapper = (fn: (...args: any[]) => Promise<DbPayload>) => {
   return async (...args: any[]) => {
     const startTime: [number, number] = process.hrtime();
     let response: any;
-    log.setKey(loggerKeys.dbQuery, args[0]);
     const subLog: Logger = log.createSubLogger(subLogger.DATABASE);
     try {
       log.setKey(loggerKeys.dbQuery, args[0]);
