@@ -1,5 +1,5 @@
 import express, { Express, Response } from 'express';
-import { ExchangeRatePair, StatusCode } from '../../../layers/common/nodejs/utils/common-constants';
+import { ExchangeRatePair, HttpStatus } from '../../../layers/common/nodejs/utils/common-constants';
 import bodyParser from 'body-parser';
 import {
   applyGetExchangeRateValidationRules,
@@ -41,7 +41,7 @@ app.get(
   ) => {
     res
       .set(headers)
-      .status(StatusCode.success)
+      .status(HttpStatus.success)
       .send(
         await service.getExchangeRate({
           baseCurr: req.params.baseCurr,
@@ -55,7 +55,7 @@ app.get(
 app.get('/exchangerate/list', async (req, res: Response) => {
   res
     .set(headers)
-    .status(StatusCode.success)
+    .status(HttpStatus.success)
     .send(await service.listExchangeRates());
 });
 
@@ -73,7 +73,7 @@ app.post(
   ) => {
     res
       .set(headers)
-      .status(StatusCode.success)
+      .status(HttpStatus.success)
       .send(await service.putExchangeRates(req.body.exchangeRates));
   }
 );

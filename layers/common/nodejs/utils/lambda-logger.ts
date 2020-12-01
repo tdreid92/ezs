@@ -1,15 +1,15 @@
 import { Logger } from 'lambda-logger-node';
 import { NextFunction } from 'express';
-import { loggerKeys, loggerMessages, subLogger } from './log-constants';
-import { DbPayload, DynamoDbInput } from './common-constants';
-import { DynamoDB } from 'aws-sdk';
-import { GetItemInput } from 'aws-sdk/clients/dynamodb';
+import { mdcKey, loggerMessages, subLogger } from './log-constants';
+import { DbPayload } from './common-constants';
+import { Context } from 'aws-lambda';
+import { commonUtils } from './commonUtils';
 
 const buildLogger = (): Logger => {
-  const log: Logger = new Logger({
+  const logContext: Logger = new Logger({
     minimumLogLevel: 'DEBUG'
   });
-  return log;
+  return logContext;
 };
 
 const getElapsedTime = (startTime: [number, number]): number => {
@@ -17,10 +17,26 @@ const getElapsedTime = (startTime: [number, number]): number => {
   return elapsedHrTime[0] * 1000 + elapsedHrTime[1] / 1e6;
 };
 
+export const setMdcKeys = (logContext: Logger, lambdaEvent: any, lambdaContext: Context): void => {
+  let traceIndex = 0;
+
+  logContext.setKey(mdcKey.traceId, lambdaContext.awsRequestId);
+  logContext.setKey(mdcKey.date, commonUtils.getFormattedDate);
+  logContext.setKey(mdcKey.appName, lambdaContext.functionName);
+  logContext.setKey(mdcKey.version, lambdaContext.functionVersion);
+  logContext.setKey(mdcKey.requestBody, lambdaEvent);
+  logContext.setKey(mdcKey.traceIndex, () => traceIndex++);
+  // logContext.setKey(
+  //   'apigTraceId',
+  //   (lambdaEvent && lambdaEvent.awsRequestId) ||
+  //     (lambdaContext && lambdaContext.requestContext && lambdaContext.requestContext.requestId)
+  // );
+};
+
 export const apiLogInterceptor = (req, res, next: NextFunction): void => {
-  log.setKey(loggerKeys.requestMethod, req.method);
-  log.setKey(loggerKeys.requestPath, req.url);
-  log.setKey(loggerKeys.requestBody, req.body);
+  log.setKey(mdcKey.requestMethod, req.method);
+  log.setKey(mdcKey.requestPath, req.url);
+  log.setKey(mdcKey.requestBody, req.body);
 
   const subLog: Logger = log.createSubLogger(subLogger.API);
   subLog.info(loggerMessages.start);
@@ -43,8 +59,8 @@ export const apiLogInterceptor = (req, res, next: NextFunction): void => {
   };
 
   res.on('finish', () => {
-    log.setKey(loggerKeys.durationMs, getElapsedTime(startTime));
-    log.setKey(loggerKeys.responseBody, JSON.parse(Buffer.concat(chunks).toString('utf8')));
+    log.setKey(mdcKey.durationMs, getElapsedTime(startTime));
+    log.setKey(mdcKey.responseBody, JSON.parse(Buffer.concat(chunks).toString('utf8')));
     subLog.info(loggerMessages.complete);
   });
 
@@ -57,12 +73,12 @@ export const logWrapper = (fn: (...args: any[]) => any) => {
     let response: any;
     const subLog: Logger = log.createSubLogger(subLogger.LAMBDA);
     try {
-      log.setKey(loggerKeys.requestBody, args[0]);
+      log.setKey(mdcKey.requestBody, args[0]);
       subLog.info(loggerMessages.start);
       response = await fn(...args);
     } finally {
-      log.setKey(loggerKeys.durationMs, getElapsedTime(startTime));
-      log.setKey(loggerKeys.requestBody, response);
+      log.setKey(mdcKey.durationMs, getElapsedTime(startTime));
+      log.setKey(mdcKey.requestBody, response);
       subLog.info(loggerMessages.complete);
     }
     return response;
@@ -75,12 +91,12 @@ export const dbLogWrapper = (fn: (params: any) => Promise<DbPayload>) => {
     let response: any;
     const subLog: Logger = log.createSubLogger(subLogger.DATABASE);
     try {
-      log.setKey(loggerKeys.dbQuery, params);
+      log.setKey(mdcKey.dbQuery, params);
       subLog.info(loggerMessages.start);
       response = await fn(params);
     } finally {
-      log.setKey(loggerKeys.dbDurationMs, getElapsedTime(startTime));
-      log.setKey(loggerKeys.dbResult, response);
+      log.setKey(mdcKey.dbDurationMs, getElapsedTime(startTime));
+      log.setKey(mdcKey.dbResult, response);
       subLog.info(loggerMessages.complete);
     }
     return response;

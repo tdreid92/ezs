@@ -63,6 +63,8 @@
   },
   "dependencies": {
     "@middy/core": "^1.4.0",
+    "@middy/http-error-handler": "^1.4.0",
+    "@middy/validator": "^1.4.0",
     "aws-sdk": "^2.792.0",
     "aws-serverless-express": "^3.3.8",
     "conditional-reduce": "^1.2.0",
@@ -70,6 +72,7 @@
     "express-async-handler": "^1.1.4",
     "express-validation": "^3.0.5",
     "jest": "^26.6.3",
-    "lambda-logger-node": "^3.2.0"
+    "lambda-logger-node": "^3.2.0",
+    "wrap-ware": "^1.0.11"
   }
 }

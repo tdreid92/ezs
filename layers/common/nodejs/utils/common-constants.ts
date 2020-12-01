@@ -26,7 +26,7 @@ export type Next = () => void | Promise<void>;
 
 export interface DbPayload {
   statusCode: number;
-  payload: any;
+  body: any;
 }
 
 export type DynamoDbInput =
@@ -56,7 +56,7 @@ export interface ExchangeRatePair {
 }
 
 export interface ExchangeRateError {
-  statusCode: StatusCode;
+  statusCode: HttpStatus;
   statusMessage: string;
 }
 
@@ -65,10 +65,16 @@ export interface ExchangeRateResponse {
   exchangeRates: ExchangeRatePair | ExchangeRatePair[] | ExchangeRateError;
 }
 
-export enum StatusCode {
+export enum HttpStatus {
   success = 200,
   noContent = 204,
   badRequest = 400,
+  unauthorized = 401,
+  forbidden = 403,
+  methodNotAllowed = 405,
+  payloadTooLarge = 413,
+  unprocessableEntity = 422,
   internalServerError = 500,
-  notImplemented = 501
+  notImplemented = 501,
+  serviceUnavailable = 503
 }

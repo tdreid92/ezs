@@ -2,7 +2,7 @@ import {
   CurrencyPair,
   DbPayload,
   ExchangeRatePair,
-  StatusCode
+  HttpStatus
 } from '../../layers/common/nodejs/utils/common-constants';
 import { AWSError } from 'aws-sdk/lib/error';
 import { dbLogWrapper } from '../../layers/common/nodejs/utils/lambda-logger';
@@ -20,8 +20,8 @@ const dbClient: DynamoDB.DocumentClient = new DynamoDB.DocumentClient(
 
 //TODO remove this default case
 const defaultCaseDbResult: Promise<DbPayload> = Promise.resolve({
-  statusCode: StatusCode.notImplemented,
-  payload: ''
+  statusCode: HttpStatus.notImplemented,
+  body: ''
 });
 
 const get = async (currPair: CurrencyPair | undefined): Promise<DbPayload> => {
@@ -52,15 +52,15 @@ const getItem = dbLogWrapper(
       .promise()
       .then((output: DynamoDB.GetItemOutput) => {
         const queryOutput: DbPayload = {
-          statusCode: StatusCode.success,
-          payload: output.Item
+          statusCode: HttpStatus.success,
+          body: output.Item
         };
         return queryOutput;
       })
       .catch((error: AWSError) => {
         const queryError: DbPayload = {
-          statusCode: error.statusCode || StatusCode.notImplemented,
-          payload: error.message
+          statusCode: error.statusCode || HttpStatus.notImplemented,
+          body: error.message
         };
         return queryError;
       })
@@ -73,14 +73,14 @@ const scanItems = dbLogWrapper(
       .promise()
       .then((output: DynamoDB.DocumentClient.ScanOutput) => {
         return {
-          statusCode: output.Items ? StatusCode.success : StatusCode.noContent,
-          payload: output
+          statusCode: output.Items ? HttpStatus.success : HttpStatus.noContent,
+          body: output
         };
       })
       .catch((error: AWSError) => {
         return {
-          statusCode: error.statusCode || StatusCode.notImplemented,
-          payload: error.message
+          statusCode: error.statusCode || HttpStatus.notImplemented,
+          body: error.message
         };
       })
 );
@@ -92,14 +92,14 @@ const batchWriteItems = dbLogWrapper(
       .promise()
       .then((output: DynamoDB.BatchWriteItemOutput) => {
         return {
-          statusCode: StatusCode.success,
-          payload: output
+          statusCode: HttpStatus.success,
+          body: output
         };
       })
       .catch((error: AWSError) => {
         return {
-          statusCode: error.statusCode || StatusCode.notImplemented,
-          payload: error.message
+          statusCode: error.statusCode || HttpStatus.notImplemented,
+          body: error.message
         };
       })
 );

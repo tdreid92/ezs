@@ -6,7 +6,7 @@ import {
   ValidationChain,
   validationResult
 } from 'express-validator';
-import { StatusCode } from '../../../layers/common/nodejs/utils/common-constants';
+import { HttpStatus } from '../../../layers/common/nodejs/utils/common-constants';
 
 const INVALID_SIZE_MSG = 'Size must be between 1 and 10';
 const INVALID_CURR_MSG = 'Must be 3 alphanumeric uppercase characters';
@@ -50,7 +50,7 @@ export const validate = (req: Request, res, next): Response => {
     } as any)
   );
 
-  return res.status(StatusCode.badRequest).json({
+  return res.status(HttpStatus.badRequest).json({
     errors: extractedErrors
   });
 };

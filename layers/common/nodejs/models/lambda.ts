@@ -3,7 +3,7 @@ import { InvocationRequest, InvocationResponse } from 'aws-sdk/clients/lambda';
 import { FunctionNamespace, LogType, InvocationType } from '../utils/common-constants';
 import { log } from '../utils/lambda-logger';
 import { Logger } from 'lambda-logger-node';
-import { loggerKeys, loggerMessages, subLogger } from '../utils/log-constants';
+import { mdcKey, loggerMessages, subLogger } from '../utils/log-constants';
 
 /** Refer to https://docs.aws.amazon.com/lambda/latest/dg/API_Invoke.html for more information. */
 export class Lambda implements InvocationRequest {
@@ -178,14 +178,14 @@ export class LambdaInvoker implements ILambdaInvoker {
   /** LambdaInvoker methods */
   async invoke(): Promise<LambdaResponse> {
     const invocationRequest = this._request.toInvocationRequest();
-    log.setKey(loggerKeys.invocationRequest, invocationRequest);
+    log.setKey(mdcKey.invocationRequest, invocationRequest);
     const subLog: Logger = log.createSubLogger(subLogger.INVOCATION);
     subLog.info(loggerMessages.start);
 
     const invocationResponse: AWS.Lambda.InvocationResponse = await this._awsLambda
       .invoke(this._request.toInvocationRequest())
       .promise();
-    log.setKey(loggerKeys.invocationResponse);
+    log.setKey(mdcKey.invocationResponse, invocationResponse);
     subLog.info(loggerMessages.complete);
     this._response = new LambdaResponse()
       .setStatusCode(invocationResponse.StatusCode)

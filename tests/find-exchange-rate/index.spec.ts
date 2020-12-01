@@ -3,7 +3,7 @@ import {
   CurrencyPair,
   DbRequestType,
   ExchangeRatePair,
-  StatusCode
+  HttpStatus
 } from '../../layers/common/nodejs/utils/common-constants';
 const context = {
   callbackWaitsForEmptyEventLoop: true,
