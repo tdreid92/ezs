@@ -134,32 +134,32 @@ export class LambdaInvoker implements ILambdaInvoker {
   }
 
   /** Lambda methods */
-  getFunctionName = (): FunctionNamespace => this._request?.getFunctionName();
+  public getFunctionName = (): FunctionNamespace => this._request?.getFunctionName();
 
-  getInvocationType = (): InvocationType | undefined => this._request.getInvocationType();
+  public getInvocationType = (): InvocationType | undefined => this._request.getInvocationType();
 
-  getLogType = (): LogType | undefined => this._request.getLogType();
+  public getLogType = (): LogType | undefined => this._request.getLogType();
 
-  getRequestPayload = (): AWS.Lambda._Blob | undefined => this._request.getPayload();
+  public getRequestPayload = (): AWS.Lambda._Blob | undefined => this._request.getPayload();
 
-  getQualifier = (): string | undefined => this._request.getQualifier();
+  public getQualifier = (): string | undefined => this._request.getQualifier();
 
-  setInvocationType = (invocationType: InvocationType): this => {
+  public setInvocationType = (invocationType: InvocationType): this => {
     this._request.setInvocationType(invocationType);
     return this;
   };
 
-  setLogType = (logType: LogType): this => {
+  public setLogType = (logType: LogType): this => {
     this._request.setLogType(logType);
     return this;
   };
 
-  setPayload = (payload: AWS.Lambda._Blob): this => {
+  public setPayload = (payload: AWS.Lambda._Blob): this => {
     this._request.setPayload(payload);
     return this;
   };
 
-  setQualifier = (qualifier: string): this => {
+  public setQualifier = (qualifier: string): this => {
     this._request.setQualifier(qualifier);
     return this;
   };

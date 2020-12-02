@@ -23,7 +23,7 @@ app.use(bodyParser.json()); // to support JSON-encoded bodies
 app.use(bodyParserOptions); // to support URL-encoded bodies
 app.use(express.json()); // to support JSON-encoded bodies
 app.use(express.urlencoded()); // to support URL-encoded bodies
-app.use(apiLogInterceptor);
+// app.use(apiLogInterceptor);
 
 app.get(
   '/exchangerate/:baseCurr/:date/:quoteCurr',

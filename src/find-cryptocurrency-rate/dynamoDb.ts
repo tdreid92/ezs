@@ -8,6 +8,7 @@ import { AWSError } from 'aws-sdk/lib/error';
 import { dbLogWrapper } from '../../layers/common/nodejs/utils/lambda-logger';
 import { DynamoDB } from 'aws-sdk';
 import { dbUtils } from './utils';
+import { log } from '../../layers/common/nodejs/utils/lambda-logger';
 
 const dbClient: DynamoDB.DocumentClient = new DynamoDB.DocumentClient(
   process.env.IS_OFFLINE && process.env.DYNAMODB_ENDPOINT
@@ -46,6 +47,7 @@ const put = async (ratePairs: ExchangeRatePair[] | undefined): Promise<DbPayload
 };
 
 const getItem = dbLogWrapper(
+  log,
   async (params: DynamoDB.GetItemInput): Promise<DbPayload> =>
     await dbClient
       .get(params)
@@ -67,6 +69,7 @@ const getItem = dbLogWrapper(
 );
 
 const scanItems = dbLogWrapper(
+  log,
   async (params: DynamoDB.DocumentClient.ScanInput): Promise<DbPayload> =>
     await dbClient
       .scan(params)
@@ -86,6 +89,7 @@ const scanItems = dbLogWrapper(
 );
 
 const batchWriteItems = dbLogWrapper(
+  log,
   async (params: DynamoDB.BatchWriteItemInput): Promise<DbPayload> =>
     await dbClient
       .batchWrite(params)
