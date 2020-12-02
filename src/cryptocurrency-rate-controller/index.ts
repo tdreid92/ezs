@@ -6,7 +6,7 @@ import { Server } from 'http';
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { mdcKey } from '../../layers/common/nodejs/utils/log-constants';
 
-log.setKey(mdcKey.functionNamespace, FunctionNamespace.CRYPTOCURRENCY_RATE_CONTROLLER);
+log.setKey(mdcKey.functionNamespace, FunctionNamespace.ExchangeRateController);
 
 const server: Server = awsServerlessExpress.createServer(app);
 

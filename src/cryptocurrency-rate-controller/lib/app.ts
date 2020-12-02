@@ -41,7 +41,7 @@ app.get(
   ) => {
     res
       .set(headers)
-      .status(HttpStatus.success)
+      .status(HttpStatus.Success)
       .send(
         await service.getExchangeRate({
           baseCurr: req.params.baseCurr,
@@ -55,7 +55,7 @@ app.get(
 app.get('/exchangerate/list', async (req, res: Response) => {
   res
     .set(headers)
-    .status(HttpStatus.success)
+    .status(HttpStatus.Success)
     .send(await service.listExchangeRates());
 });
 
@@ -73,7 +73,7 @@ app.post(
   ) => {
     res
       .set(headers)
-      .status(HttpStatus.success)
+      .status(HttpStatus.Success)
       .send(await service.putExchangeRates(req.body.exchangeRates));
   }
 );

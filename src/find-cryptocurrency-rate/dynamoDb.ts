@@ -21,7 +21,7 @@ const dbClient: DynamoDB.DocumentClient = new DynamoDB.DocumentClient(
 
 //TODO remove this default case
 const defaultCaseDbResult: Promise<DbPayload> = Promise.resolve({
-  statusCode: HttpStatus.notImplemented,
+  statusCode: HttpStatus.NotImplemented,
   body: ''
 });
 
@@ -54,14 +54,14 @@ const getItem = dbLogWrapper(
       .promise()
       .then((output: DynamoDB.GetItemOutput) => {
         const queryOutput: DbPayload = {
-          statusCode: HttpStatus.success,
+          statusCode: HttpStatus.Success,
           body: output.Item
         };
         return queryOutput;
       })
       .catch((error: AWSError) => {
         const queryError: DbPayload = {
-          statusCode: error.statusCode || HttpStatus.notImplemented,
+          statusCode: error.statusCode || HttpStatus.NotImplemented,
           body: error.message
         };
         return queryError;
@@ -76,13 +76,13 @@ const scanItems = dbLogWrapper(
       .promise()
       .then((output: DynamoDB.DocumentClient.ScanOutput) => {
         return {
-          statusCode: output.Items ? HttpStatus.success : HttpStatus.noContent,
+          statusCode: output.Items ? HttpStatus.Success : HttpStatus.NoContent,
           body: output
         };
       })
       .catch((error: AWSError) => {
         return {
-          statusCode: error.statusCode || HttpStatus.notImplemented,
+          statusCode: error.statusCode || HttpStatus.NotImplemented,
           body: error.message
         };
       })
@@ -96,13 +96,13 @@ const batchWriteItems = dbLogWrapper(
       .promise()
       .then((output: DynamoDB.BatchWriteItemOutput) => {
         return {
-          statusCode: HttpStatus.success,
+          statusCode: HttpStatus.Success,
           body: output
         };
       })
       .catch((error: AWSError) => {
         return {
-          statusCode: error.statusCode || HttpStatus.notImplemented,
+          statusCode: error.statusCode || HttpStatus.NotImplemented,
           body: error.message
         };
       })

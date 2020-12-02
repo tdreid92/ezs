@@ -1,7 +1,7 @@
 import { handler } from '../../src/find-cryptocurrency-rate/index';
 import {
   CurrencyPair,
-  DbRequestType,
+  DbRequest,
   ExchangeRatePair,
   HttpStatus
 } from '../../layers/common/nodejs/utils/common-constants';
@@ -28,7 +28,7 @@ describe('find-exchange-rate-index', () => {
   });
   test('should return data', async () => {
     const res = await handler({
-      requestType: DbRequestType.GET,
+      requestType: DbRequest.Get,
       getRateRequest: undefined,
       putRatesRequest: undefined
     });

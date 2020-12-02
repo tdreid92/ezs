@@ -2,15 +2,15 @@ import { LambdaInvoker } from '../../../layers/common/nodejs/models/lambda';
 import {
   CurrencyPair,
   DbPayload,
-  DbRequestType,
+  DbRequest,
   ExchangeRatePair,
   FunctionNamespace
 } from '../../../layers/common/nodejs/utils/common-constants';
 
 const getExchangeRate = async (currPair: CurrencyPair): Promise<DbPayload> => {
-  const invocation = await new LambdaInvoker(FunctionNamespace.FIND_CRYPTOCURRENCY_RATE)
+  const invocation = await new LambdaInvoker(FunctionNamespace.ExchangeRateCrudService)
     .setPayload({
-      requestType: DbRequestType.GET,
+      requestType: DbRequest.Get,
       getRateRequest: currPair
     })
     .invoke();
@@ -19,9 +19,9 @@ const getExchangeRate = async (currPair: CurrencyPair): Promise<DbPayload> => {
 };
 
 const listExchangeRates = async (): Promise<DbPayload> => {
-  const invocation = await new LambdaInvoker(FunctionNamespace.FIND_CRYPTOCURRENCY_RATE)
+  const invocation = await new LambdaInvoker(FunctionNamespace.ExchangeRateCrudService)
     .setPayload({
-      requestType: DbRequestType.LIST
+      requestType: DbRequest.List
     })
     .invoke();
   const response = <DbPayload>invocation.getPayload();
@@ -29,9 +29,9 @@ const listExchangeRates = async (): Promise<DbPayload> => {
 };
 
 const putExchangeRates = async (ratePairs: ExchangeRatePair[]): Promise<DbPayload> => {
-  const invocation = await new LambdaInvoker(FunctionNamespace.FIND_CRYPTOCURRENCY_RATE)
+  const invocation = await new LambdaInvoker(FunctionNamespace.ExchangeRateCrudService)
     .setPayload({
-      requestType: DbRequestType.PUT,
+      requestType: DbRequest.Put,
       putRatesRequest: ratePairs
     })
     .invoke();

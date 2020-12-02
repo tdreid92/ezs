@@ -1,25 +1,25 @@
 import { DynamoDB } from 'aws-sdk';
 
 export const enum FunctionNamespace {
-  CRYPTOCURRENCY_RATE_CONTROLLER = 'CryptocurrencyRateController',
-  FIND_CRYPTOCURRENCY_RATE = 'FindCryptocurrencyRate'
+  ExchangeRateController = 'CryptocurrencyRateController',
+  ExchangeRateCrudService = 'FindCryptocurrencyRate'
 }
 
 export const enum InvocationType {
   RequestResponse = 'RequestResponse',
-  EVENT = 'Event',
-  DRYRUN = 'DryRun'
+  Event = 'Event',
+  Dryrun = 'DryRun'
 }
 
 export const enum LogType {
-  NONE = 'None',
-  TAIL = 'Tail'
+  None = 'None',
+  Tail = 'Tail'
 }
 
-export const enum DbRequestType {
-  GET = 'GET',
-  PUT = 'PUT',
-  LIST = 'LIST'
+export const enum DbRequest {
+  Get = 'Get',
+  Put = 'Put',
+  List = 'List'
 }
 
 export type Next = () => void | Promise<void>;
@@ -37,7 +37,7 @@ export type DynamoDbInput =
   | DynamoDB.BatchGetItemInput;
 
 export interface RateRequest {
-  requestType: DbRequestType;
+  requestType: DbRequest;
   getRateRequest: CurrencyPair | undefined;
   putRatesRequest: ExchangeRatePair[] | undefined;
 }
@@ -66,15 +66,15 @@ export interface ExchangeRateResponse {
 }
 
 export enum HttpStatus {
-  success = 200,
-  noContent = 204,
-  badRequest = 400,
-  unauthorized = 401,
-  forbidden = 403,
-  methodNotAllowed = 405,
-  payloadTooLarge = 413,
-  unprocessableEntity = 422,
-  internalServerError = 500,
-  notImplemented = 501,
-  serviceUnavailable = 503
+  Success = 200,
+  NoContent = 204,
+  BadRequest = 400,
+  Unauthorized = 401,
+  Forbidden = 403,
+  MethodNotAllowed = 405,
+  PayloadTooLarge = 413,
+  UnprocessableEntity = 422,
+  InternalServerError = 500,
+  NotImplemented = 501,
+  ServiceUnavailable = 503
 }

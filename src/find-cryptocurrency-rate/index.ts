@@ -12,7 +12,7 @@ import { middleware } from '../../layers/common/nodejs/utils/middleware';
 import { service } from './service';
 import { inputSchema } from './models/input-schema';
 
-log.setKey(mdcKey.functionNamespace, FunctionNamespace.FIND_CRYPTOCURRENCY_RATE);
+log.setKey(mdcKey.functionNamespace, FunctionNamespace.ExchangeRateCrudService);
 
 const handler: middy.Middy<RateRequest, DbPayload> = middy(service.findExchangeRate);
 

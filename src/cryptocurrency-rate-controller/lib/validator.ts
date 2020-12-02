@@ -50,7 +50,7 @@ export const validate = (req: Request, res, next): Response => {
     } as any)
   );
 
-  return res.status(HttpStatus.badRequest).json({
+  return res.status(HttpStatus.BadRequest).json({
     errors: extractedErrors
   });
 };

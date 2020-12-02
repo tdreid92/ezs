@@ -23,15 +23,15 @@ interface LoggerOptions {
 }
 
 interface ILoggerWrapper extends Logger {
-  info(message: any): void;
-
   debug(message: any): void;
+
+  info(message: any): void;
 
   warn(message: any): void;
 
   error(message: any): void;
 
-  setKey(key: string, value: any): void;
+  setKey(key: string, value: any): this;
 
   handler(logContext: any): any;
 
@@ -45,12 +45,12 @@ class LoggerWrapper implements ILoggerWrapper {
     this._logger = new Logger(options);
   }
 
-  public info(message: any): void {
-    this._logger.info(message);
-  }
-
   public debug(message: any): void {
     this._logger.debug(message);
+  }
+
+  public info(message: any): void {
+    this._logger.info(message);
   }
 
   public warn(message: any): void {
@@ -61,8 +61,8 @@ class LoggerWrapper implements ILoggerWrapper {
     this._logger(message);
   }
 
-  public setKey(key: string, value: any): void {
-    this._logger.setKey(key, value);
+  public setKey(key: string, value: any): this {
+    return this._logger.setKey(key, value);
   }
 
   public handler(logContext: any): any {
@@ -82,12 +82,13 @@ export class LambdaLogger extends LoggerWrapper {
   public setBeforeHandlerMdcKeys = (lambdaEvent: any, lambdaContext: Context): void => {
     let traceIndex = 0;
 
-    super.setKey(mdcKey.traceId, lambdaContext.awsRequestId);
-    super.setKey(mdcKey.date, commonUtils.getFormattedDate);
-    super.setKey(mdcKey.appName, lambdaContext.functionName);
-    super.setKey(mdcKey.version, lambdaContext.functionVersion);
-    super.setKey(mdcKey.requestBody, lambdaEvent);
-    super.setKey(mdcKey.traceIndex, () => traceIndex++);
+    super
+      .setKey(mdcKey.traceId, lambdaContext.awsRequestId)
+      .setKey(mdcKey.date, commonUtils.getFormattedDate)
+      .setKey(mdcKey.appName, lambdaContext.functionName)
+      .setKey(mdcKey.version, lambdaContext.functionVersion)
+      .setKey(mdcKey.requestBody, lambdaEvent)
+      .setKey(mdcKey.traceIndex, () => traceIndex++);
     // super.setKey(
     //   'apigTraceId',
     //   (lambdaEvent && lambdaEvent.awsRequestId) ||
@@ -100,15 +101,17 @@ export class LambdaLogger extends LoggerWrapper {
     statusCode: number,
     startTime: [number, number]
   ): void => {
-    super.setKey(mdcKey.requestBody, responseBody);
-    super.setKey(mdcKey.responseStatusCode, statusCode);
-    super.setKey(mdcKey.durationMs, commonUtils.getElapsedTime(startTime));
+    super
+      .setKey(mdcKey.requestBody, responseBody)
+      .setKey(mdcKey.responseStatusCode, statusCode)
+      .setKey(mdcKey.durationMs, commonUtils.getElapsedTime(startTime));
   };
 
   public setErrorMdcKeys = (error: Error): void => {
-    super.setKey(mdcKey.errorName, error.name);
-    super.setKey(mdcKey.errorMessage, error.message);
-    super.setKey(mdcKey.errorStacktrace, error.stack);
+    super
+      .setKey(mdcKey.errorName, error.name)
+      .setKey(mdcKey.errorMessage, error.message)
+      .setKey(mdcKey.errorStacktrace, error.stack);
   };
 }
 
@@ -119,39 +122,39 @@ const buildLogger = (): LambdaLogger => {
   return logContext;
 };
 
-export const apiLogInterceptor = (log: LambdaLogger, req, res, next: NextFunction): void => {
-  log.setKey(mdcKey.requestMethod, req.method);
-  log.setKey(mdcKey.requestPath, req.url);
-  log.setKey(mdcKey.requestBody, req.body);
-
-  const subLog: Logger = log.createSubLogger(subLogger.API);
-  subLog.info(loggerMessages.start);
-
-  const startTime: [number, number] = process.hrtime();
-  const oldWrite = res.write;
-  const oldEnd = res.end;
-  const chunks: Buffer[] = [];
-
-  res.write = (...restArgs: (ArrayBuffer | SharedArrayBuffer)[]) => {
-    chunks.push(Buffer.from(restArgs[0]));
-    oldWrite.apply(res, restArgs);
-  };
-
-  res.end = (...restArgs) => {
-    if (restArgs[0]) {
-      chunks.push(Buffer.from(restArgs[0]));
-    }
-    oldEnd.apply(res, restArgs);
-  };
-
-  res.on('finish', () => {
-    log.setKey(mdcKey.durationMs, commonUtils.getElapsedTime(startTime));
-    log.setKey(mdcKey.responseBody, JSON.parse(Buffer.concat(chunks).toString('utf8')));
-    subLog.info(loggerMessages.complete);
-  });
-
-  next();
-};
+// export const apiLogInterceptor = (log: LambdaLogger, req, res, next: NextFunction): void => {
+//   log.setKey(mdcKey.requestMethod, req.method);
+//   log.setKey(mdcKey.requestPath, req.url);
+//   log.setKey(mdcKey.requestBody, req.body);
+//
+//   const subLog: Logger = log.createSubLogger(subLogger.API);
+//   subLog.info(loggerMessages.start);
+//
+//   const startTime: [number, number] = process.hrtime();
+//   const oldWrite = res.write;
+//   const oldEnd = res.end;
+//   const chunks: Buffer[] = [];
+//
+//   res.write = (...restArgs: (ArrayBuffer | SharedArrayBuffer)[]) => {
+//     chunks.push(Buffer.from(restArgs[0]));
+//     oldWrite.apply(res, restArgs);
+//   };
+//
+//   res.end = (...restArgs) => {
+//     if (restArgs[0]) {
+//       chunks.push(Buffer.from(restArgs[0]));
+//     }
+//     oldEnd.apply(res, restArgs);
+//   };
+//
+//   res.on('finish', () => {
+//     log.setKey(mdcKey.durationMs, commonUtils.getElapsedTime(startTime));
+//     log.setKey(mdcKey.responseBody, JSON.parse(Buffer.concat(chunks).toString('utf8')));
+//     subLog.info(loggerMessages.complete);
+//   });
+//
+//   next();
+// };
 
 export const dbLogWrapper = (log: LambdaLogger, fn: (params: any) => Promise<DbPayload>) => {
   return async (params: any): Promise<DbPayload> => {

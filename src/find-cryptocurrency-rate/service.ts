@@ -1,6 +1,6 @@
 import {
   DbPayload,
-  DbRequestType,
+  DbRequest,
   RateRequest,
   HttpStatus
 } from '../../layers/common/nodejs/utils/common-constants';
@@ -9,7 +9,7 @@ import { db } from './dynamoDb';
 import { log } from '../../layers/common/nodejs/utils/lambda-logger';
 
 const defaultCaseDbResult: Promise<DbPayload> = Promise.resolve({
-  statusCode: HttpStatus.notImplemented,
+  statusCode: HttpStatus.NotImplemented,
   body: ''
 });
 
@@ -24,9 +24,9 @@ const findExchangeRate = async (event: RateRequest): Promise<DbPayload> =>
     ? await reduce<Promise<DbPayload>>(
         event.requestType,
         {
-          [DbRequestType.GET]: async () => db.get(event.getRateRequest),
-          [DbRequestType.LIST]: async () => db.list(),
-          [DbRequestType.PUT]: async () => db.put(event.putRatesRequest)
+          [DbRequest.Get]: async () => db.get(event.getRateRequest),
+          [DbRequest.List]: async () => db.list(),
+          [DbRequest.Put]: async () => db.put(event.putRatesRequest)
         },
         () => getDefaultCaseDbResult()
       )
