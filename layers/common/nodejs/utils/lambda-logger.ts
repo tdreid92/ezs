@@ -5,7 +5,24 @@ import { DbPayload } from './common-constants';
 import { Context } from 'aws-lambda';
 import { commonUtils } from './commonUtils';
 
-interface ILogger extends Logger {
+const enum MinimumLogLevel {
+  Debug = 'DEBUG',
+  Info = 'INFO',
+  Warn = 'WARN',
+  Error = 'ERROR'
+}
+
+interface LoggerOptions {
+  minimumLogLevel?: MinimumLogLevel;
+  formatter?: boolean;
+  useBearerRedactor?: boolean;
+  useGlobalErrorHandler?: boolean;
+  forceGlobalErrorHandler?: boolean;
+  redactors?: any;
+  testMode?: boolean;
+}
+
+interface ILoggerWrapper extends Logger {
   info(message: any): void;
 
   debug(message: any): void;
@@ -21,10 +38,10 @@ interface ILogger extends Logger {
   createSubLogger(contextPath: string): Logger;
 }
 
-class LambdaLoggerAbstract implements ILogger {
+class LoggerWrapper implements ILoggerWrapper {
   private readonly _logger: Logger;
 
-  protected constructor(options: any) {
+  protected constructor(options: LoggerOptions) {
     this._logger = new Logger(options);
   }
 
@@ -57,8 +74,8 @@ class LambdaLoggerAbstract implements ILogger {
   }
 }
 
-export class LambdaLogger extends LambdaLoggerAbstract {
-  public constructor(options: any) {
+export class LambdaLogger extends LoggerWrapper {
+  public constructor(options: LoggerOptions) {
     super(options);
   }
 
@@ -97,7 +114,7 @@ export class LambdaLogger extends LambdaLoggerAbstract {
 
 const buildLogger = (): LambdaLogger => {
   const logContext: LambdaLogger = new LambdaLogger({
-    minimumLogLevel: 'DEBUG'
+    minimumLogLevel: MinimumLogLevel.Debug
   });
   return logContext;
 };
