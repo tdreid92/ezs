@@ -1,5 +1,5 @@
 import {
-  DbPayload,
+  PayloadResponse,
   DbRequest,
   RateRequest,
   HttpStatus
@@ -8,20 +8,20 @@ import { reduce } from 'conditional-reduce';
 import { db } from './dynamoDb';
 import { log } from '../../layers/common/nodejs/utils/lambda-logger';
 
-const defaultCaseDbResult: Promise<DbPayload> = Promise.resolve({
+const defaultCaseDbResult: Promise<PayloadResponse> = Promise.resolve({
   statusCode: HttpStatus.NotImplemented,
   body: ''
 });
 
-const getDefaultCaseDbResult = async (): Promise<DbPayload> => {
+const getDefaultCaseDbResult = async (): Promise<PayloadResponse> => {
   log.error('Default case');
   return defaultCaseDbResult;
   // createError;
 };
 
-const findExchangeRate = async (event: RateRequest): Promise<DbPayload> =>
+const findExchangeRate = async (event: RateRequest): Promise<PayloadResponse> =>
   event.requestType
-    ? await reduce<Promise<DbPayload>>(
+    ? await reduce<Promise<PayloadResponse>>(
         event.requestType,
         {
           [DbRequest.Get]: async () => db.get(event.getRateRequest),

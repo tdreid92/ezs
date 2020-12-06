@@ -40,9 +40,9 @@ export const loggerMessages = {
   failed: 'Request failed'
 };
 
-export const enum subLogger {
-  API = 'API',
-  DATABASE = 'Database',
-  LAMBDA = 'Lambda',
-  INVOCATION = 'Invocation'
+export const enum SubLogger {
+  Database = 'Database',
+  Invoker = 'Invoker',
+  Lambda = 'Lambda',
+  Gateway = 'Gateway'
 }

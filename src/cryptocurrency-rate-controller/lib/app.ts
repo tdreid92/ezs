@@ -6,11 +6,11 @@ import {
   applyUploadExchangeRateValidationRules,
   validate
 } from './validator';
-import { apiLogInterceptor } from '../../../layers/common/nodejs/utils/lambda-logger';
 import { service } from './service';
 
 const headers = {
-  'Content-Type': 'application/json'
+  'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*' // required for CORS and AWS API Gateway Proxy integration
 };
 
 const bodyParserOptions = bodyParser.urlencoded({
@@ -18,11 +18,12 @@ const bodyParserOptions = bodyParser.urlencoded({
 });
 
 export const app: Express = express();
+3;
 
-app.use(bodyParser.json()); // to support JSON-encoded bodies
-app.use(bodyParserOptions); // to support URL-encoded bodies
-app.use(express.json()); // to support JSON-encoded bodies
-app.use(express.urlencoded()); // to support URL-encoded bodies
+app.use(bodyParser.json()); // supports JSON-encoded bodies
+app.use(bodyParserOptions); // supports URL-encoded bodies
+app.use(express.json()); // supports JSON-encoded bodies
+app.use(express.urlencoded()); // supports URL-encoded bodies
 // app.use(apiLogInterceptor);
 
 app.get(

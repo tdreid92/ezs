@@ -22,9 +22,9 @@ export const enum DbRequest {
   List = 'List'
 }
 
-export type Next = () => void | Promise<void>;
+export type NextFunction = () => void | Promise<void>;
 
-export interface DbPayload {
+export interface PayloadResponse {
   statusCode: number;
   body: any;
 }

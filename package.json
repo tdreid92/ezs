@@ -62,7 +62,9 @@
     "webpack-cli": "^4.2.0"
   },
   "dependencies": {
+    "@keboola/middy-error-logger": "^1.0.3",
     "@middy/core": "^1.4.0",
+    "@middy/do-not-wait-for-empty-event-loop": "^1.4.0",
     "@middy/http-error-handler": "^1.4.0",
     "@middy/validator": "^1.4.0",
     "aws-sdk": "^2.792.0",
@@ -72,7 +74,6 @@
     "express-async-handler": "^1.1.4",
     "express-validation": "^3.0.5",
     "jest": "^26.6.3",
-    "lambda-logger-node": "^3.2.0",
-    "wrap-ware": "^1.0.11"
+    "lambda-logger-node": "^3.2.0"
   }
 }

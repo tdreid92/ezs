@@ -1,5 +1,5 @@
 import {
-  DbPayload,
+  PayloadResponse,
   FunctionNamespace,
   RateRequest
 } from '../../layers/common/nodejs/utils/common-constants';
@@ -11,13 +11,15 @@ import httpErrorHandler from '@middy/http-error-handler';
 import { middleware } from '../../layers/common/nodejs/utils/middleware';
 import { service } from './service';
 import { inputSchema } from './models/input-schema';
+import doNotWaitForEmptyEventLoop from '@middy/do-not-wait-for-empty-event-loop';
 
 log.setKey(mdcKey.functionNamespace, FunctionNamespace.ExchangeRateCrudService);
 
-const handler: middy.Middy<RateRequest, DbPayload> = middy(service.findExchangeRate);
+const handler: middy.Middy<RateRequest, PayloadResponse> = middy(service.findExchangeRate);
 
 // add middleware sequence to exported handler
 exports.handler = handler
+  .use(doNotWaitForEmptyEventLoop({ runOnBefore: true, runOnAfter: true, runOnError: false }))
+  .use(middleware.lambdaLoggerHandler(log))
   .use(validator({ inputSchema: inputSchema }))
-  .use(httpErrorHandler())
-  .use(middleware.loggingHandler(log));
+  .use(httpErrorHandler());

@@ -704,6 +704,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@keboola/middy-error-logger@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@keboola/middy-error-logger@npm:1.0.3"
+  dependencies:
+    http-errors: ^1.7.1
+    lodash: ^4.17.10
+  checksum: 0d3428cbe811126778e2a784e9751192d70d8710ae291fa978e358a84f7f9ec67e61de5b5dafea13350f484eb78f1583847f0ec8f62b0f99cee1c83df41ed33f
+  languageName: node
+  linkType: hard
+
 "@middy/core@npm:^1.4.0":
   version: 1.4.0
   resolution: "@middy/core@npm:1.4.0"
@@ -712,6 +722,15 @@ __metadata:
   peerDependencies:
     "@types/aws-lambda": ^8.10.3
   checksum: 27ca25d4e33614b5a262cc38aaa3b73f044896cad3aaa939c8aebc780b8b4dcc2be35e26a704301ee7f23f5b40bf657fa8005b2236558bffe8b5258a902fe9d0
+  languageName: node
+  linkType: hard
+
+"@middy/do-not-wait-for-empty-event-loop@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "@middy/do-not-wait-for-empty-event-loop@npm:1.4.0"
+  peerDependencies:
+    "@middy/core": ">=1.0.0-alpha"
+  checksum: ffb332f71950f4341b03faea29c6231fbc93675dbc61f0a833f031a2bad094a94459d17326152e46ddd0ede9439755e068afc7c922f1cd1a4b355171444d42fc
   languageName: node
   linkType: hard
 
@@ -5266,7 +5285,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"http-errors@npm:^1.6.3":
+"http-errors@npm:^1.6.3, http-errors@npm:^1.7.1":
   version: 1.8.0
   resolution: "http-errors@npm:1.8.0"
   dependencies:
@@ -6699,7 +6718,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"lodash@npm:^4.17.11, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20":
+"lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20":
   version: 4.17.20
   resolution: "lodash@npm:4.17.20"
   checksum: c62101d2500c383b5f174a7e9e6fe8098149ddd6e9ccfa85f36d4789446195f5c4afd3cfba433026bcaf3da271256566b04a2bf2618e5a39f6e67f8c12030cb6
@@ -8509,7 +8528,9 @@ fsevents@^2.1.2:
   resolution: "sam-framework@workspace:."
   dependencies:
     "@babel/preset-typescript": ^7.12.7
+    "@keboola/middy-error-logger": ^1.0.3
     "@middy/core": ^1.4.0
+    "@middy/do-not-wait-for-empty-event-loop": ^1.4.0
     "@middy/http-error-handler": ^1.4.0
     "@middy/validator": ^1.4.0
     "@types/aws-lambda": ^8.10.64
@@ -8562,7 +8583,6 @@ fsevents@^2.1.2:
     typescript-eslint: 0.0.1-alpha.0
     webpack: next
     webpack-cli: ^4.2.0
-    wrap-ware: ^1.0.11
   languageName: unknown
   linkType: soft
 
@@ -10310,13 +10330,6 @@ fsevents@^2.1.2:
     string-width: ^4.1.0
     strip-ansi: ^6.0.0
   checksum: ee4ed8b2994cfbdcd571f4eadde9d8ba00b8a74113483fe5d0c5f9e84054e43df8e9092d7da35c5b051faeca8fe32bd6cea8bf5ae8ad4896d6ea676a347e90af
-  languageName: node
-  linkType: hard
-
-"wrap-ware@npm:^1.0.11":
-  version: 1.0.11
-  resolution: "wrap-ware@npm:1.0.11"
-  checksum: 9ae4d251b6cf3faeeafc3783e4b9e1a8bf217730f1db97d20dc47fe672f5466f30230ba37213ea0864aca50504cb78f2f32c43ebffa6775d77bb0a2bf815ff78
   languageName: node
   linkType: hard
 

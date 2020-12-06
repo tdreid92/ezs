@@ -1,7 +1,6 @@
 import { Logger } from 'lambda-logger-node';
-import { NextFunction } from 'express';
-import { mdcKey, loggerMessages, subLogger } from './log-constants';
-import { DbPayload } from './common-constants';
+import { mdcKey, loggerMessages, SubLogger } from './log-constants';
+import { PayloadResponse } from './common-constants';
 import { Context } from 'aws-lambda';
 import { commonUtils } from './commonUtils';
 
@@ -69,7 +68,7 @@ class LoggerWrapper implements ILoggerWrapper {
     return this._logger.handler(logContext);
   }
 
-  public createSubLogger(contextPath: string): Logger {
+  public createSubLogger(contextPath: keyof typeof SubLogger): Logger {
     return this._logger.createSubLogger(contextPath);
   }
 }
@@ -79,15 +78,21 @@ export class LambdaLogger extends LoggerWrapper {
     super(options);
   }
 
-  public setBeforeHandlerMdcKeys = (lambdaEvent: any, lambdaContext: Context): void => {
-    let traceIndex = 0;
+  public setKey = (key: string, value: any): this => {
+    super.setKey(key, value);
+    return this;
+  };
 
-    super
-      .setKey(mdcKey.traceId, lambdaContext.awsRequestId)
+  public setKeyIfPresent = (key: string, value: any): this => {
+    return value ? this.setKey(key, value) : this;
+  };
+
+  public setOnBeforeMdcKeys = (lambdaContext: Context): void => {
+    let traceIndex = 0;
+    this.setKey(mdcKey.traceId, lambdaContext.awsRequestId)
       .setKey(mdcKey.date, commonUtils.getFormattedDate)
       .setKey(mdcKey.appName, lambdaContext.functionName)
       .setKey(mdcKey.version, lambdaContext.functionVersion)
-      .setKey(mdcKey.requestBody, lambdaEvent)
       .setKey(mdcKey.traceIndex, () => traceIndex++);
     // super.setKey(
     //   'apigTraceId',
@@ -96,20 +101,18 @@ export class LambdaLogger extends LoggerWrapper {
     // );
   };
 
-  public setAfterHandlerMdcKeys = (
+  public setOnAfterMdcKeys = (
     responseBody: any,
     statusCode: number,
     startTime: [number, number]
   ): void => {
-    super
-      .setKey(mdcKey.requestBody, responseBody)
+    this.setKey(mdcKey.requestBody, responseBody)
       .setKey(mdcKey.responseStatusCode, statusCode)
       .setKey(mdcKey.durationMs, commonUtils.getElapsedTime(startTime));
   };
 
   public setErrorMdcKeys = (error: Error): void => {
-    super
-      .setKey(mdcKey.errorName, error.name)
+    this.setKey(mdcKey.errorName, error.name)
       .setKey(mdcKey.errorMessage, error.message)
       .setKey(mdcKey.errorStacktrace, error.stack);
   };
@@ -156,11 +159,11 @@ const buildLogger = (): LambdaLogger => {
 //   next();
 // };
 
-export const dbLogWrapper = (log: LambdaLogger, fn: (params: any) => Promise<DbPayload>) => {
-  return async (params: any): Promise<DbPayload> => {
+export const dbLogWrapper = (log: LambdaLogger, fn: (params: any) => Promise<PayloadResponse>) => {
+  return async (params: any): Promise<PayloadResponse> => {
     const startTime: [number, number] = process.hrtime();
     let response: any;
-    const subLog: Logger = log.createSubLogger(subLogger.DATABASE);
+    const subLog: Logger = log.createSubLogger(SubLogger.Database);
     try {
       log.setKey(mdcKey.dbQuery, params);
       subLog.info(loggerMessages.start);
