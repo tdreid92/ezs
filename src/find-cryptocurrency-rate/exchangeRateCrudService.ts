@@ -1,8 +1,8 @@
 import {
+  HttpStatus,
   PayloadResponse,
   Query,
-  RateRequest,
-  HttpStatus
+  RateRequest
 } from '../../layers/common/nodejs/utils/common-constants';
 import { reduce } from 'conditional-reduce';
 import { db } from './dynamoDb';

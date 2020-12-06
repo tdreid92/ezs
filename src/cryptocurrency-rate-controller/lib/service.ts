@@ -1,10 +1,10 @@
 import { Invoker } from '../../../layers/common/nodejs/models/invoker';
 import {
   CurrencyPair,
-  PayloadResponse,
-  Query,
   ExchangeRatePair,
-  FunctionNamespace
+  FunctionNamespace,
+  PayloadResponse,
+  Query
 } from '../../../layers/common/nodejs/utils/common-constants';
 
 const getExchangeRate = async (currPair: CurrencyPair): Promise<PayloadResponse> => {

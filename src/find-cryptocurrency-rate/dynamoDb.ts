@@ -1,14 +1,13 @@
 import {
   CurrencyPair,
-  PayloadResponse,
   ExchangeRatePair,
-  HttpStatus
+  HttpStatus,
+  PayloadResponse
 } from '../../layers/common/nodejs/utils/common-constants';
 import { AWSError } from 'aws-sdk/lib/error';
-import { dbLogWrapper } from '../../layers/common/nodejs/utils/lambda-logger';
+import { dbLogWrapper, log } from '../../layers/common/nodejs/utils/lambda-logger';
 import { DynamoDB } from 'aws-sdk';
 import { dbUtils } from './utils';
-import { log } from '../../layers/common/nodejs/utils/lambda-logger';
 
 const dbClient: DynamoDB.DocumentClient = new DynamoDB.DocumentClient(
   process.env.IS_OFFLINE && process.env.DYNAMODB_ENDPOINT

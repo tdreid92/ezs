@@ -1,5 +1,5 @@
 import { Logger } from 'lambda-logger-node';
-import { mdcKey, loggerMessages, SubLogger } from './log-constants';
+import { loggerMessages, mdcKey, SubLogger } from './log-constants';
 import { PayloadResponse } from './common-constants';
 import { Context } from 'aws-lambda';
 import { commonUtils } from './commonUtils';

@@ -1,10 +1,10 @@
-import { PayloadResponse, NextFunction, RateRequest } from './common-constants';
+import { NextFunction, PayloadResponse, RateRequest } from './common-constants';
 import { LambdaLogger } from './lambda-logger';
 import { loggerMessages, mdcKey, SubLogger } from './log-constants';
 import middy from '@middy/core';
 import { Logger } from 'lambda-logger-node';
-import HandlerLambda = middy.HandlerLambda;
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
+import HandlerLambda = middy.HandlerLambda;
 
 type PayloadRequest = RateRequest;
 

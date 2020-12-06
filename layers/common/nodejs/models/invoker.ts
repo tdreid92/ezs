@@ -1,9 +1,9 @@
 import AWS, { Endpoint } from 'aws-sdk';
 import { InvocationRequest, InvocationResponse } from 'aws-sdk/clients/lambda';
-import { FunctionNamespace, LogType, InvocationType } from '../utils/common-constants';
+import { FunctionNamespace, InvocationType, LogType } from '../utils/common-constants';
 import { log } from '../utils/lambda-logger';
 import { Logger } from 'lambda-logger-node';
-import { mdcKey, loggerMessages, SubLogger } from '../utils/log-constants';
+import { loggerMessages, mdcKey, SubLogger } from '../utils/log-constants';
 
 /** Refer to https://docs.aws.amazon.com/lambda/latest/dg/API_Invoke.html for more information. */
 class InvokerRequest implements InvocationRequest {

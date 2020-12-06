@@ -1,6 +1,6 @@
 import {
-  PayloadResponse,
   FunctionNamespace,
+  PayloadResponse,
   RateRequest
 } from '../../layers/common/nodejs/utils/common-constants';
 import { log } from '../../layers/common/nodejs/utils/lambda-logger';

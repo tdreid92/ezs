@@ -1,4 +1,4 @@
-import { handler } from '../../src/find-cryptocurrency-rate/index';
+import {} from '../../src/find-cryptocurrency-rate/index';
 import {
   CurrencyPair,
   Query,
@@ -27,12 +27,12 @@ describe('find-exchange-rate-index', () => {
     jest.restoreAllMocks();
   });
   test('should return data', async () => {
-    const res = await handler({
-      query: Query.Get,
-      getRateRequest: undefined,
-      putRatesRequest: undefined
-    });
-    console.log(res);
+    // const res = await handler({
+    //   query: Query.Get,
+    //   getRateRequest: undefined,
+    //   putRatesRequest: undefined
+    // });
+    // console.log(res);
   });
   //   // const mResponse = { code: 200, data: 'mocked data' };
   //   // const mEvent = { id: 1 };
