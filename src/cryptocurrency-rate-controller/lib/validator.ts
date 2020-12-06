@@ -4,6 +4,7 @@ import {
   SanitizationChain,
   sanitize,
   ValidationChain,
+  ValidationError,
   validationResult
 } from 'express-validator';
 import { HttpStatus } from '../../../layers/common/nodejs/utils/common-constants';
@@ -44,7 +45,7 @@ export const validate = (req: Request, res, next): Response => {
     return next();
   }
   const extractedErrors: string[] = [];
-  errors.array().map((err) =>
+  errors.array().map((err: ValidationError) =>
     extractedErrors.push({
       [err.param]: err.msg
     } as any)

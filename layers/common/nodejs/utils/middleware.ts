@@ -16,7 +16,7 @@ const lambdaLoggerHandler = (
 
   return {
     before: (
-      handler: HandlerLambda<RateRequest, PayloadResponse, Context>,
+      handler: HandlerLambda<PayloadRequest, PayloadResponse, Context>,
       next: NextFunction
     ): void => {
       log.setKeyIfPresent(mdcKey.requestBody, handler.event).setOnBeforeMdcKeys(handler.context);
@@ -24,12 +24,10 @@ const lambdaLoggerHandler = (
       next();
     },
     after: (
-      handler: HandlerLambda<RateRequest, PayloadResponse, Context>,
+      handler: HandlerLambda<PayloadRequest, PayloadResponse, Context>,
       next: NextFunction
     ): void => {
-      log
-        .setKeyIfPresent(mdcKey.responseStatusCode, handler.response.statusCode)
-        .setOnAfterMdcKeys(handler.response, handler.response.statusCode, startTime);
+      log.setOnAfterMdcKeys(handler.response, handler.response.statusCode, startTime);
       subLog.info(loggerMessages.complete);
       next();
     }
@@ -59,9 +57,7 @@ const apiGatewayLoggerHandler = (
       handler: HandlerLambda<APIGatewayProxyEvent, APIGatewayProxyResult, Context>,
       next: NextFunction
     ): void => {
-      log
-        .setKeyIfPresent(mdcKey.responseStatusCode, handler.response.statusCode)
-        .setOnAfterMdcKeys(handler.response, handler.response.statusCode, startTime);
+      log.setOnAfterMdcKeys(handler.response, handler.response.statusCode, startTime);
       subLog.info(loggerMessages.complete);
       next();
     }

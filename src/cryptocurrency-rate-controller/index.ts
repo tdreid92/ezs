@@ -30,6 +30,7 @@ const handler: middy.Middy<APIGatewayProxyEvent, APIGatewayProxyResult> = middy(
   apiGatewayProxyHandler
 );
 
+/** Add middleware sequence to exported handler */
 exports.handler = handler
   .use(doNotWaitForEmptyEventLoop({ runOnAfter: true, runOnError: true }))
   .use(middleware.apiGatewayLoggerHandler(log))

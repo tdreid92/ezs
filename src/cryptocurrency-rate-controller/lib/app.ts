@@ -6,7 +6,7 @@ import {
   applyUploadExchangeRateValidationRules,
   validate
 } from './validator';
-import { service } from './service';
+import { exchangeRateService } from './service';
 
 const headers = {
   'Content-Type': 'application/json',
@@ -39,12 +39,12 @@ app.get(
       };
     },
     res: Response
-  ) => {
+  ): Promise<any> => {
     res
       .set(headers)
       .status(HttpStatus.Success)
       .send(
-        await service.getExchangeRate({
+        await exchangeRateService.getExchangeRate({
           baseCurr: req.params.baseCurr,
           date: req.params.date,
           quoteCurr: req.params.quoteCurr
@@ -53,12 +53,15 @@ app.get(
   }
 );
 
-app.get('/exchangerate/list', async (req, res: Response) => {
-  res
-    .set(headers)
-    .status(HttpStatus.Success)
-    .send(await service.listExchangeRates());
-});
+app.get(
+  '/exchangerate/list',
+  async (req, res: Response): Promise<any> => {
+    res
+      .set(headers)
+      .status(HttpStatus.Success)
+      .send(await exchangeRateService.listExchangeRates());
+  }
+);
 
 app.post(
   '/exchangerate',
@@ -71,10 +74,10 @@ app.post(
       };
     },
     res: Response
-  ) => {
+  ): Promise<any> => {
     res
       .set(headers)
-      .status(HttpStatus.Success)
-      .send(await service.putExchangeRates(req.body.exchangeRates));
+      .status(HttpStatus.Forbidden)
+      .send(await exchangeRateService.putExchangeRates(req.body.exchangeRates));
   }
 );

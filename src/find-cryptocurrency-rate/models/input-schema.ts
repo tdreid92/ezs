@@ -1,4 +1,4 @@
 export const inputSchema = {
-  required: ['requestType'],
+  required: ['query'],
   type: 'object'
 };

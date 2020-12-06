@@ -1,6 +1,6 @@
 import {
   PayloadResponse,
-  DbRequest,
+  Query,
   RateRequest,
   HttpStatus
 } from '../../layers/common/nodejs/utils/common-constants';
@@ -20,18 +20,18 @@ const getDefaultCaseDbResult = async (): Promise<PayloadResponse> => {
 };
 
 const findExchangeRate = async (event: RateRequest): Promise<PayloadResponse> =>
-  event.requestType
+  event.query
     ? await reduce<Promise<PayloadResponse>>(
-        event.requestType,
+        event.query,
         {
-          [DbRequest.Get]: async () => db.get(event.getRateRequest),
-          [DbRequest.List]: async () => db.list(),
-          [DbRequest.Put]: async () => db.put(event.putRatesRequest)
+          [Query.Get]: async () => db.get(event.getRateRequest),
+          [Query.List]: async () => db.list(),
+          [Query.Put]: async () => db.put(event.putRatesRequest)
         },
         () => getDefaultCaseDbResult()
       )
     : defaultCaseDbResult;
 
-export const service = {
+export const exchangeRateCrudService = {
   findExchangeRate: findExchangeRate
 };

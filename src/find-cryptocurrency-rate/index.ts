@@ -9,15 +9,17 @@ import middy from '@middy/core';
 import validator from '@middy/validator';
 import httpErrorHandler from '@middy/http-error-handler';
 import { middleware } from '../../layers/common/nodejs/utils/middleware';
-import { service } from './service';
+import { exchangeRateCrudService } from './exchangeRateCrudService';
 import { inputSchema } from './models/input-schema';
 import doNotWaitForEmptyEventLoop from '@middy/do-not-wait-for-empty-event-loop';
 
 log.setKey(mdcKey.functionNamespace, FunctionNamespace.ExchangeRateCrudService);
 
-const handler: middy.Middy<RateRequest, PayloadResponse> = middy(service.findExchangeRate);
+const handler: middy.Middy<RateRequest, PayloadResponse> = middy(
+  exchangeRateCrudService.findExchangeRate
+);
 
-// add middleware sequence to exported handler
+/** Add middleware sequence to exported handler */
 exports.handler = handler
   .use(doNotWaitForEmptyEventLoop({ runOnBefore: true, runOnAfter: true, runOnError: false }))
   .use(middleware.lambdaLoggerHandler(log))

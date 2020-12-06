@@ -6,7 +6,7 @@ import { Logger } from 'lambda-logger-node';
 import { mdcKey, loggerMessages, SubLogger } from '../utils/log-constants';
 
 /** Refer to https://docs.aws.amazon.com/lambda/latest/dg/API_Invoke.html for more information. */
-export class Lambda implements InvocationRequest {
+class InvokerRequest implements InvocationRequest {
   public FunctionName: FunctionNamespace;
   public Payload?: AWS.Lambda._Blob;
   public InvocationType?: InvocationType;
@@ -64,7 +64,7 @@ export class Lambda implements InvocationRequest {
   };
 }
 
-export class LambdaResponse implements InvocationResponse {
+class InvokerResponse implements InvocationResponse {
   public StatusCode?: AWS.Lambda.Integer | undefined;
   public ExecutedVersion?: string;
   public FunctionError?: string;
@@ -107,21 +107,13 @@ export class LambdaResponse implements InvocationResponse {
   };
 }
 
-export interface ILambdaInvoker {
-  _request: InvocationRequest;
-  _response: InvocationResponse | undefined;
-  _awsLambda: AWS.Lambda;
-
-  invoke(): Promise<InvocationResponse>;
-}
-
-export class LambdaInvoker implements ILambdaInvoker {
-  _request: Lambda;
-  _response: LambdaResponse | undefined;
-  _awsLambda: AWS.Lambda;
+export class Invoker {
+  private readonly _request: InvokerRequest;
+  private _response: InvokerResponse | undefined;
+  private readonly _awsLambda: AWS.Lambda;
 
   constructor(functionName: FunctionNamespace) {
-    this._request = new Lambda(functionName);
+    this._request = new InvokerRequest(functionName);
     this._awsLambda = new AWS.Lambda({
       region: process.env.AWS_REGION
     });
@@ -133,7 +125,7 @@ export class LambdaInvoker implements ILambdaInvoker {
     return this;
   }
 
-  /** Lambda methods */
+  /** Request methods */
   public getFunctionName = (): FunctionNamespace => this._request?.getFunctionName();
 
   public getInvocationType = (): InvocationType | undefined => this._request.getInvocationType();
@@ -175,24 +167,24 @@ export class LambdaInvoker implements ILambdaInvoker {
 
   getResponsePayload = (): AWS.Lambda._Blob | undefined => this._response?.getPayload();
 
-  /** LambdaInvoker methods */
-  async invoke(): Promise<LambdaResponse> {
-    const invocationRequest = this._request.toInvocationRequest();
-    log.setKey(mdcKey.invocationRequest, invocationRequest);
+  /** Invoker methods */
+  async invoke(): Promise<InvokerResponse> {
+    const request = this._request.toInvocationRequest();
+    log.setKey(mdcKey.invokerRequestBody, request);
     const subLog: Logger = log.createSubLogger(SubLogger.Invoker);
     subLog.info(loggerMessages.start);
 
-    const invocationResponse: AWS.Lambda.InvocationResponse = await this._awsLambda
+    const response: AWS.Lambda.InvocationResponse = await this._awsLambda
       .invoke(this._request.toInvocationRequest())
       .promise();
-    log.setKey(mdcKey.invocationResponse, invocationResponse);
+    log.setKey(mdcKey.invokerResponseBody, response);
     subLog.info(loggerMessages.complete);
-    this._response = new LambdaResponse()
-      .setStatusCode(invocationResponse.StatusCode)
-      .setExecutedVersion(invocationResponse.ExecutedVersion)
-      .setFunctionError(invocationResponse.FunctionError)
-      .setLogResult(invocationResponse.LogResult)
-      .setPayload(invocationResponse.Payload);
+    this._response = new InvokerResponse()
+      .setStatusCode(response.StatusCode)
+      .setExecutedVersion(response.ExecutedVersion)
+      .setFunctionError(response.FunctionError)
+      .setLogResult(response.LogResult)
+      .setPayload(response.Payload);
     return this._response;
   }
 }

@@ -1,34 +1,34 @@
 export const mdcKey = {
-  // general bucket
+  /** General bucket */
   traceId: 'traceId',
   traceIndex: 'traceIndex',
   date: 'date',
   appName: 'appName',
   version: 'version',
-  durationMs: 'duration_ms',
+  elapsedTime: 'duration_ms',
   functionNamespace: 'functionNamespace',
   resource: 'resource',
 
-  // request bucket
+  /** Request bucket */
   requestBody: 'request.body',
   requestMethod: 'request.method',
   requestPath: 'request.path',
 
-  // response bucket
+  /** Response bucket */
   responseBody: 'response.body',
   responseStatusCode: 'response.statusCode',
 
-  // database bucket
-  dbQuery: 'db.query',
-  dbResult: 'db.result',
-  dbDurationMs: 'db.duration_ms',
+  /** Database bucket */
+  databaseQuery: 'db.query',
+  databaseResult: 'db.result',
+  databaseElapsedTime: 'db.duration_ms',
 
-  // invocation bucket
-  invocationRequest: 'invocation.request',
-  invocationResponse: 'invocation.response',
-  invocationDurationMs: 'invocation.duration_ms',
+  /** Invoker bucket */
+  invokerRequestBody: 'invoker.request.body',
+  invokerResponseBody: 'invoker.response.body',
+  invokerElapsedTime: 'invoker.duration_ms',
 
-  // error bucket
+  /** Error bucket */
   errorName: 'error.name',
   errorMessage: 'error.message',
   errorStacktrace: 'error.stacktrace'

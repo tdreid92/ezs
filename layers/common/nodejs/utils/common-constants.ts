@@ -16,7 +16,7 @@ export const enum LogType {
   Tail = 'Tail'
 }
 
-export const enum DbRequest {
+export const enum Query {
   Get = 'Get',
   Put = 'Put',
   List = 'List'
@@ -37,7 +37,7 @@ export type DynamoDbInput =
   | DynamoDB.BatchGetItemInput;
 
 export interface RateRequest {
-  requestType: DbRequest;
+  query: Query;
   getRateRequest: CurrencyPair | undefined;
   putRatesRequest: ExchangeRatePair[] | undefined;
 }

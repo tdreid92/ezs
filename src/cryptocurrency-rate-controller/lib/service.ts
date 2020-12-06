@@ -1,16 +1,16 @@
-import { LambdaInvoker } from '../../../layers/common/nodejs/models/lambda';
+import { Invoker } from '../../../layers/common/nodejs/models/invoker';
 import {
   CurrencyPair,
   PayloadResponse,
-  DbRequest,
+  Query,
   ExchangeRatePair,
   FunctionNamespace
 } from '../../../layers/common/nodejs/utils/common-constants';
 
 const getExchangeRate = async (currPair: CurrencyPair): Promise<PayloadResponse> => {
-  const invocation = await new LambdaInvoker(FunctionNamespace.ExchangeRateCrudService)
+  const invocation = await new Invoker(FunctionNamespace.ExchangeRateCrudService)
     .setPayload({
-      requestType: DbRequest.Get,
+      query: Query.Get,
       getRateRequest: currPair
     })
     .invoke();
@@ -19,9 +19,9 @@ const getExchangeRate = async (currPair: CurrencyPair): Promise<PayloadResponse>
 };
 
 const listExchangeRates = async (): Promise<PayloadResponse> => {
-  const invocation = await new LambdaInvoker(FunctionNamespace.ExchangeRateCrudService)
+  const invocation = await new Invoker(FunctionNamespace.ExchangeRateCrudService)
     .setPayload({
-      requestType: DbRequest.List
+      query: Query.List
     })
     .invoke();
   const response = <PayloadResponse>invocation.getPayload();
@@ -29,9 +29,9 @@ const listExchangeRates = async (): Promise<PayloadResponse> => {
 };
 
 const putExchangeRates = async (ratePairs: ExchangeRatePair[]): Promise<PayloadResponse> => {
-  const invocation = await new LambdaInvoker(FunctionNamespace.ExchangeRateCrudService)
+  const invocation = await new Invoker(FunctionNamespace.ExchangeRateCrudService)
     .setPayload({
-      requestType: DbRequest.Put,
+      query: Query.Put,
       putRatesRequest: ratePairs
     })
     .invoke();
@@ -39,7 +39,7 @@ const putExchangeRates = async (ratePairs: ExchangeRatePair[]): Promise<PayloadR
   return response;
 };
 
-export const service = {
+export const exchangeRateService = {
   getExchangeRate: getExchangeRate,
   putExchangeRates: putExchangeRates,
   listExchangeRates: listExchangeRates

@@ -23,8 +23,8 @@ const buildListItemsParams = (): DynamoDB.DocumentClient.ScanInput => {
   };
 };
 
-const buildPutRequests = (ratePairs: ExchangeRatePair[]) =>
-  ratePairs.map((rp: ExchangeRatePair) => ({
+const buildPutRequests = (ratePairs: ExchangeRatePair[]): DynamoDB.BatchWriteItemRequestMap =>
+  <DynamoDB.BatchWriteItemRequestMap>(<unknown>ratePairs.map((rp: ExchangeRatePair) => ({
     PutRequest: {
       Item: {
         ExchangeRateKey: buildKey(rp),
@@ -35,14 +35,15 @@ const buildPutRequests = (ratePairs: ExchangeRatePair[]) =>
         CreatedAt: Date.now()
       }
     }
-  }));
+  })));
 
 const buildBatchWriteParams = (ratePairs: ExchangeRatePair[]): DynamoDB.BatchWriteItemInput => {
-  return <DynamoDB.BatchWriteItemInput>{
+  return <DynamoDB.BatchWriteItemInput>(<unknown>{
     RequestItems: {
       [tableName]: buildPutRequests(ratePairs)
     }
-  };
+    //ReturnItemCollectionMetrics: 'SIZE'
+  });
 };
 
 export const dbUtils = {
