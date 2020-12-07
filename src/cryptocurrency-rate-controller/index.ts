@@ -12,7 +12,6 @@ import {
 import { mdcKey } from '../../layers/common/nodejs/utils/log-constants';
 import middy from '@middy/core';
 import cors from '@middy/http-cors';
-import httpJsonBodyParser from '@middy/http-json-body-parser';
 import httpSecurityHeaders from '@middy/http-security-headers';
 import doNotWaitForEmptyEventLoop from '@middy/do-not-wait-for-empty-event-loop';
 import { middleware } from '../../layers/common/nodejs/utils/middleware';
