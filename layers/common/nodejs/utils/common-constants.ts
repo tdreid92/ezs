@@ -1,4 +1,5 @@
 import { DynamoDB } from 'aws-sdk';
+import { from, IEnv } from 'env-var';
 
 export const enum FunctionNamespace {
   ExchangeRateController = 'CryptocurrencyRateController',
@@ -22,7 +23,26 @@ export const enum Query {
   List = 'List'
 }
 
+type ImmutablePrimitive = undefined | null | boolean | string | number;
+
+export type Immutable<T> = T extends ImmutablePrimitive
+  ? T
+  : T extends Array<infer U>
+  ? ImmutableArray<U>
+  : T extends Map<infer K, infer V>
+  ? ImmutableMap<K, V>
+  : T extends Set<infer M>
+  ? ImmutableSet<M>
+  : ImmutableObject<T>;
+
+export type ImmutableArray<T> = ReadonlyArray<Immutable<T>>;
+export type ImmutableMap<K, V> = ReadonlyMap<Immutable<K>, Immutable<V>>;
+export type ImmutableSet<T> = ReadonlySet<Immutable<T>>;
+export type ImmutableObject<T> = { readonly [K in keyof T]: Immutable<T[K]> };
+
 export type NextFunction = () => void | Promise<void>;
+
+export type PayloadRequest = RateRequest | undefined;
 
 export interface PayloadResponse {
   statusCode: number;
@@ -38,8 +58,8 @@ export type DynamoDbInput =
 
 export interface RateRequest {
   query: Query;
-  getRateRequest: CurrencyPair | undefined;
-  putRatesRequest: ExchangeRatePair[] | undefined;
+  getRateRequest?: CurrencyPair;
+  putRatesRequest?: ExchangeRatePair[];
 }
 
 export interface CurrencyPair {

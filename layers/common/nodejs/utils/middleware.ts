@@ -1,14 +1,13 @@
-import { NextFunction, PayloadResponse, RateRequest } from './common-constants';
+import { NextFunction, PayloadRequest, PayloadResponse } from './common-constants';
 import { LambdaLogger } from './lambda-logger';
 import { loggerMessages, mdcKey, SubLogger } from './log-constants';
 import middy from '@middy/core';
 import { Logger } from 'lambda-logger-node';
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import HandlerLambda = middy.HandlerLambda;
+import { commonUtils } from './commonUtils';
 
-type PayloadRequest = RateRequest;
-
-const lambdaLoggerHandler = (
+const requestResponseLogger = (
   log: LambdaLogger
 ): middy.MiddlewareObject<PayloadRequest, PayloadResponse> => {
   const startTime: [number, number] = process.hrtime();
@@ -34,7 +33,7 @@ const lambdaLoggerHandler = (
   };
 };
 
-const apiGatewayLoggerHandler = (
+const gatewayLogger = (
   log: LambdaLogger
 ): middy.MiddlewareObject<APIGatewayProxyEvent, APIGatewayProxyResult> => {
   const startTime: [number, number] = process.hrtime();
@@ -48,7 +47,7 @@ const apiGatewayLoggerHandler = (
       log
         .setKey(mdcKey.requestMethod, handler.event.httpMethod)
         .setKey(mdcKey.requestPath, handler.event.path)
-        .setKeyIfPresent(mdcKey.requestBody, handler.event.body)
+        .setKeyIfPresent(mdcKey.requestBody, commonUtils.tryParse(handler.event.body))
         .setOnBeforeMdcKeys(handler.context);
       subLog.info(loggerMessages.start);
       next();
@@ -57,6 +56,7 @@ const apiGatewayLoggerHandler = (
       handler: HandlerLambda<APIGatewayProxyEvent, APIGatewayProxyResult, Context>,
       next: NextFunction
     ): void => {
+      //todo find best way to remove headers from response optionally
       log.setOnAfterMdcKeys(handler.response, handler.response.statusCode, startTime);
       subLog.info(loggerMessages.complete);
       next();
@@ -64,7 +64,12 @@ const apiGatewayLoggerHandler = (
   };
 };
 
+//const databaseCheck() => {
+//
+// }
+
 export const middleware = {
-  lambdaLoggerHandler: lambdaLoggerHandler,
-  apiGatewayLoggerHandler: apiGatewayLoggerHandler
+  requestResponseLogger: requestResponseLogger,
+  gatewayLogger: gatewayLogger
+  // databaseCheck: databaseCheck,
 };

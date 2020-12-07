@@ -5,7 +5,7 @@ import {
   RateRequest
 } from '../../layers/common/nodejs/utils/common-constants';
 import { reduce } from 'conditional-reduce';
-import { db } from './dynamoDb';
+import { repository } from './dynamoDb';
 import { log } from '../../layers/common/nodejs/utils/lambda-logger';
 
 const defaultCaseDbResult: Promise<PayloadResponse> = Promise.resolve({
@@ -24,14 +24,14 @@ const findExchangeRate = async (event: RateRequest): Promise<PayloadResponse> =>
     ? await reduce<Promise<PayloadResponse>>(
         event.query,
         {
-          [Query.Get]: async () => db.get(event.getRateRequest),
-          [Query.List]: async () => db.list(),
-          [Query.Put]: async () => db.put(event.putRatesRequest)
+          [Query.Get]: async () => repository.get(event.getRateRequest),
+          [Query.List]: async () => repository.list(),
+          [Query.Put]: async () => repository.put(event.putRatesRequest)
         },
         () => getDefaultCaseDbResult()
       )
     : defaultCaseDbResult;
 
-export const exchangeRateCrudService = {
+export const crudService = {
   findExchangeRate: findExchangeRate
 };

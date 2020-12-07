@@ -29,12 +29,22 @@ const getFormattedDate = (): string => {
 };
 
 function cast<T>(obj: any, cl: { new (...args): T }): T {
+  //todo: can arrow?
   obj.__proto__ = cl.prototype;
   return obj;
 }
 
+const tryParse = (input: any) => {
+  try {
+    JSON.parse(input);
+  } catch (e) {
+    return undefined;
+  }
+};
+
 export const commonUtils = {
   cast: cast,
+  tryParse: tryParse,
   getElapsedTime: getElapsedTime,
   getFormattedDate: getFormattedDate
 };

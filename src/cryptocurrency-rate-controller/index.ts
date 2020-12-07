@@ -11,7 +11,9 @@ import {
 } from 'aws-lambda';
 import { mdcKey } from '../../layers/common/nodejs/utils/log-constants';
 import middy from '@middy/core';
-import errorLogger from '@keboola/middy-error-logger';
+import cors from '@middy/http-cors';
+import httpJsonBodyParser from '@middy/http-json-body-parser';
+import httpSecurityHeaders from '@middy/http-security-headers';
 import doNotWaitForEmptyEventLoop from '@middy/do-not-wait-for-empty-event-loop';
 import { middleware } from '../../layers/common/nodejs/utils/middleware';
 
@@ -33,5 +35,6 @@ const handler: middy.Middy<APIGatewayProxyEvent, APIGatewayProxyResult> = middy(
 /** Add middleware sequence to exported handler */
 exports.handler = handler
   .use(doNotWaitForEmptyEventLoop({ runOnAfter: true, runOnError: true }))
-  .use(middleware.apiGatewayLoggerHandler(log))
-  .use(errorLogger());
+  .use(middleware.gatewayLogger(log))
+  .use(cors())
+  .use(httpSecurityHeaders());

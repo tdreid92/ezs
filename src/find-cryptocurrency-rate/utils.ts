@@ -1,8 +1,6 @@
 import { CurrencyPair, ExchangeRatePair } from '../../layers/common/nodejs/utils/common-constants';
 import { DynamoDB } from 'aws-sdk';
-
-const tableName: string =
-  process.env.DYNAMODB_TABLE != undefined ? process.env.DYNAMODB_TABLE : 'test';
+import { config } from './models/config';
 
 const buildKey = (currPair: CurrencyPair): string => {
   const sep = '.';
@@ -11,7 +9,7 @@ const buildKey = (currPair: CurrencyPair): string => {
 
 const buildGetItemParams = (currPair: CurrencyPair): DynamoDB.GetItemInput =>
   <DynamoDB.GetItemInput>{
-    TableName: tableName,
+    TableName: config.tableName,
     Key: {
       ExchangeRateKey: buildKey(currPair)
     }
@@ -19,7 +17,7 @@ const buildGetItemParams = (currPair: CurrencyPair): DynamoDB.GetItemInput =>
 
 const buildListItemsParams = (): DynamoDB.DocumentClient.ScanInput => {
   return {
-    TableName: tableName
+    TableName: config.tableName
   };
 };
 
@@ -40,7 +38,7 @@ const buildPutRequests = (ratePairs: ExchangeRatePair[]): DynamoDB.BatchWriteIte
 const buildBatchWriteParams = (ratePairs: ExchangeRatePair[]): DynamoDB.BatchWriteItemInput => {
   return <DynamoDB.BatchWriteItemInput>(<unknown>{
     RequestItems: {
-      [tableName]: buildPutRequests(ratePairs)
+      [config.tableName]: buildPutRequests(ratePairs)
     }
     //ReturnItemCollectionMetrics: 'SIZE'
   });

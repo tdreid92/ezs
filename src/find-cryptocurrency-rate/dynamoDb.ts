@@ -8,12 +8,13 @@ import { AWSError } from 'aws-sdk/lib/error';
 import { dbLogWrapper, log } from '../../layers/common/nodejs/utils/lambda-logger';
 import { DynamoDB } from 'aws-sdk';
 import { dbUtils } from './utils';
+import { config } from './models/config';
 
 const dbClient: DynamoDB.DocumentClient = new DynamoDB.DocumentClient(
-  process.env.IS_OFFLINE && process.env.DYNAMODB_ENDPOINT
+  config.isOffline
     ? {
         region: 'localhost',
-        endpoint: process.env.DYNAMODB_ENDPOINT
+        endpoint: config.tableEndpoint
       }
     : {}
 );
@@ -107,7 +108,7 @@ const batchWriteItems = dbLogWrapper(
       })
 );
 
-export const db = {
+export const repository = {
   get: get,
   list: list,
   put: put
