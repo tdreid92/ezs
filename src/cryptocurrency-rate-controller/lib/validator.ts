@@ -7,7 +7,7 @@ import {
   ValidationError,
   validationResult
 } from 'express-validator';
-import { HttpStatus } from '../../../layers/common/nodejs/utils/common-constants';
+import { HttpStatus } from '../../../layers/common/nodejs/utils/http-status';
 
 const INVALID_SIZE_MSG = 'Size must be between 1 and 10';
 const INVALID_CURR_MSG = 'Must be 3 alphanumeric uppercase characters';

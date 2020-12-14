@@ -4,7 +4,7 @@ import {
   Query,
   ExchangeRatePair,
   HttpStatus
-} from '../../layers/common/nodejs/utils/common-constants';
+} from '../../layers/common/nodejs/utils/common-types';
 const context = {
   callbackWaitsForEmptyEventLoop: true,
   functionVersion: '$LATEST',

@@ -1,6 +1,7 @@
-import { CurrencyPair, ExchangeRatePair } from '../../layers/common/nodejs/utils/common-constants';
 import { DynamoDB } from 'aws-sdk';
-import { config } from './models/config';
+import { config } from './config';
+import { ExchangeRatePair } from '../../../layers/common/nodejs/models/exchange-rate-pair';
+import { CurrencyPair } from '../../../layers/common/nodejs/models/currency-pair';
 
 const buildKey = (currPair: CurrencyPair): string => {
   const sep = '.';

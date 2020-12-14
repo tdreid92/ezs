@@ -1,5 +1,5 @@
 import { from, IEnv, IOptionalVariable, IPresentVariable } from 'env-var';
-import { Immutable } from '../../../layers/common/nodejs/utils/common-constants';
+import { Immutable } from '../../../layers/common/nodejs/types/immutable';
 
 //todo test failures
 class Config {

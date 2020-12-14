@@ -1,7 +1,6 @@
 import awsServerlessExpress from 'aws-serverless-express';
 import { app } from './lib/app';
-import { log } from '../../layers/common/nodejs/utils/lambda-logger';
-import { FunctionNamespace } from '../../layers/common/nodejs/utils/common-constants';
+import { log } from '../../layers/common/nodejs/log/lambda-logger';
 import { Server } from 'http';
 import {
   APIGatewayProxyEvent,
@@ -9,14 +8,15 @@ import {
   APIGatewayProxyResult,
   Context
 } from 'aws-lambda';
-import { mdcKey } from '../../layers/common/nodejs/utils/log-constants';
+import { mdcKeys } from '../../layers/common/nodejs/log/log-constants';
 import middy from '@middy/core';
 import cors from '@middy/http-cors';
 import httpSecurityHeaders from '@middy/http-security-headers';
 import doNotWaitForEmptyEventLoop from '@middy/do-not-wait-for-empty-event-loop';
-import { middleware } from '../../layers/common/nodejs/utils/middleware';
+import { middleware } from '../../layers/common/nodejs/middleware/middleware';
+import { FunctionNamespace } from '../../layers/common/nodejs/models/invoker/invoker-options';
 
-log.setKey(mdcKey.functionNamespace, FunctionNamespace.ExchangeRateController);
+log.setKey(mdcKeys.functionNamespace, FunctionNamespace.ExchangeRateController);
 
 const server: Server = awsServerlessExpress.createServer(app);
 

@@ -1,5 +1,4 @@
 import express, { Express, Response } from 'express';
-import { ExchangeRatePair, HttpStatus } from '../../../layers/common/nodejs/utils/common-constants';
 import bodyParser from 'body-parser';
 import {
   applyGetExchangeRateValidationRules,
@@ -7,6 +6,8 @@ import {
   validate
 } from './validator';
 import { exchangeRateService } from './service';
+import { HttpStatus } from '../../../layers/common/nodejs/utils/http-status';
+import { ExchangeRatePair } from '../../../layers/common/nodejs/models/exchange-rate-pair';
 
 const headers = {
   'Content-Type': 'application/json',

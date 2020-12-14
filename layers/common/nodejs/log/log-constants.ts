@@ -1,4 +1,4 @@
-export const mdcKey = {
+export const mdcKeys = {
   /** General bucket */
   traceId: 'traceId',
   traceIndex: 'traceIndex',
@@ -17,6 +17,7 @@ export const mdcKey = {
   /** Response bucket */
   responseBody: 'response.body',
   responseStatusCode: 'response.statusCode',
+  responseHeaders: 'response.headers',
 
   /** Database bucket */
   databaseQuery: 'db.query',

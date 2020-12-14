@@ -1,8 +1,8 @@
 import { Logger } from 'lambda-logger-node';
-import { loggerMessages, mdcKey, SubLogger } from './log-constants';
-import { PayloadResponse } from './common-constants';
+import { loggerMessages, mdcKeys, SubLogger } from './log-constants';
 import { Context } from 'aws-lambda';
-import { commonUtils } from './commonUtils';
+import { commonUtils } from '../utils/common-utils';
+import { PayloadResponse } from '../models/invoker/payload';
 
 const enum MinimumLogLevel {
   Debug = 'DEBUG',
@@ -85,11 +85,11 @@ export class LambdaLogger extends LoggerWrapper {
 
   public setOnBeforeMdcKeys = (context: Context): this => {
     let traceIndex = 0;
-    return this.setKey(mdcKey.traceId, context.awsRequestId)
-      .setKey(mdcKey.date, commonUtils.getFormattedDate)
-      .setKey(mdcKey.appName, context.functionName)
-      .setKey(mdcKey.version, context.functionVersion)
-      .setKey(mdcKey.traceIndex, () => traceIndex++);
+    return this.setKey(mdcKeys.traceId, context.awsRequestId)
+      .setKey(mdcKeys.date, commonUtils.getFormattedDate)
+      .setKey(mdcKeys.appName, context.functionName)
+      .setKey(mdcKeys.version, context.functionVersion)
+      .setKey(mdcKeys.traceIndex, () => traceIndex++);
     // super.setKey(
     //   'apigTraceId',
     //   (lambdaEvent && lambdaEvent.awsRequestId) ||
@@ -102,14 +102,14 @@ export class LambdaLogger extends LoggerWrapper {
     statusCode: number,
     startTime: [number, number]
   ): this =>
-    this.setKey(mdcKey.responseBody, responseBody)
-      .setKey(mdcKey.elapsedTime, commonUtils.getElapsedTime(startTime))
-      .setKeyIfPresent(mdcKey.responseStatusCode, statusCode);
+    this.setKey(mdcKeys.responseBody, responseBody)
+      .setKey(mdcKeys.elapsedTime, commonUtils.getElapsedTime(startTime))
+      .setKeyIfPresent(mdcKeys.responseStatusCode, statusCode);
 
   public setOnErrorMdcKeys = (error: Error): this =>
-    this.setKey(mdcKey.errorName, error.name)
-      .setKey(mdcKey.errorMessage, error.message)
-      .setKey(mdcKey.errorStacktrace, error.stack);
+    this.setKey(mdcKeys.errorName, error.name)
+      .setKey(mdcKeys.errorMessage, error.message)
+      .setKey(mdcKeys.errorStacktrace, error.stack);
 }
 
 const buildLogger = (): LambdaLogger => {
@@ -124,12 +124,12 @@ export const dbLogWrapper = (log: LambdaLogger, fn: (params: any) => Promise<Pay
     const startTime: [number, number] = process.hrtime();
     const subLog: Logger = log.createSubLogger(SubLogger.Database);
 
-    log.setKey(mdcKey.databaseQuery, params);
+    log.setKey(mdcKeys.databaseQuery, params);
     subLog.info(loggerMessages.start);
 
     return await fn(params)
       .then((response: PayloadResponse) => {
-        log.setKey(mdcKey.databaseResult, response);
+        log.setKey(mdcKeys.databaseResult, response);
         subLog.info(loggerMessages.complete);
         return response;
       })
@@ -138,7 +138,9 @@ export const dbLogWrapper = (log: LambdaLogger, fn: (params: any) => Promise<Pay
         subLog.info(loggerMessages.failed);
         throw error;
       })
-      .finally(() => log.setKey(mdcKey.databaseElapsedTime, commonUtils.getElapsedTime(startTime)));
+      .finally(() =>
+        log.setKey(mdcKeys.databaseElapsedTime, commonUtils.getElapsedTime(startTime))
+      );
   };
 };
 

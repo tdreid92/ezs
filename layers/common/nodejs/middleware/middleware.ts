@@ -1,11 +1,13 @@
-import { NextFunction, PayloadRequest, PayloadResponse } from './common-constants';
-import { LambdaLogger } from './lambda-logger';
-import { loggerMessages, mdcKey, SubLogger } from './log-constants';
+import { LambdaLogger } from '../log/lambda-logger';
+import { loggerMessages, mdcKeys, SubLogger } from '../log/log-constants';
 import middy from '@middy/core';
 import { Logger } from 'lambda-logger-node';
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import HandlerLambda = middy.HandlerLambda;
-import { commonUtils } from './commonUtils';
+import { commonUtils } from '../utils/common-utils';
+import { PayloadRequest, PayloadResponse } from '../models/invoker/payload';
+import { NextFunction } from '../types/next';
+import { response } from 'express';
 
 const requestResponseLogger = (
   log: LambdaLogger
@@ -18,7 +20,7 @@ const requestResponseLogger = (
       handler: HandlerLambda<PayloadRequest, PayloadResponse, Context>,
       next: NextFunction
     ): void => {
-      log.setKeyIfPresent(mdcKey.requestBody, handler.event).setOnBeforeMdcKeys(handler.context);
+      log.setKeyIfPresent(mdcKeys.requestBody, handler.event).setOnBeforeMdcKeys(handler.context);
       subLog.info(loggerMessages.start);
       next();
     },
@@ -45,9 +47,9 @@ const gatewayLogger = (
       next: NextFunction
     ): void => {
       log
-        .setKey(mdcKey.requestMethod, handler.event.httpMethod)
-        .setKey(mdcKey.requestPath, handler.event.path)
-        .setKeyIfPresent(mdcKey.requestBody, commonUtils.tryParse(handler.event.body))
+        .setKey(mdcKeys.requestMethod, handler.event.httpMethod)
+        .setKey(mdcKeys.requestPath, handler.event.path)
+        .setKeyIfPresent(mdcKeys.requestBody, commonUtils.tryParse(handler.event.body))
         .setOnBeforeMdcKeys(handler.context);
       subLog.info(loggerMessages.start);
       next();
@@ -57,7 +59,14 @@ const gatewayLogger = (
       next: NextFunction
     ): void => {
       //todo find best way to remove headers from response optionally
-      log.setOnAfterMdcKeys(handler.response, handler.response.statusCode, startTime);
+      log.setOnAfterMdcKeys(
+        JSON.parse(handler.response.body),
+        handler.response.statusCode,
+        startTime
+      );
+      if (process.env.NODE_ENV == 'development') {
+        log.setKeyIfPresent(mdcKeys.responseHeaders, handler.response.headers);
+      }
       subLog.info(loggerMessages.complete);
       next();
     }

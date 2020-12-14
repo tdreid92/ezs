@@ -1,13 +1,13 @@
-import { Invoker, InvokerResponse } from '../../../layers/common/nodejs/models/invoker';
-import {
-  CurrencyPair,
-  ExchangeRatePair,
-  FunctionNamespace,
-  PayloadResponse,
-  Query
-} from '../../../layers/common/nodejs/utils/common-constants';
+import { Invoker } from '../../../layers/common/nodejs/models/invoker/invoker';
+
 import createHttpError from 'http-errors';
 import { response } from 'express';
+import { InvokerResponse } from '../../../layers/common/nodejs/models/invoker/invoker-response';
+import { Query } from '../../../layers/common/nodejs/models/rate-request';
+import { FunctionNamespace } from '../../../layers/common/nodejs/models/invoker/invoker-options';
+import { CurrencyPair } from '../../../layers/common/nodejs/models/currency-pair';
+import { PayloadResponse } from '../../../layers/common/nodejs/models/invoker/payload';
+import { ExchangeRatePair } from '../../../layers/common/nodejs/models/exchange-rate-pair';
 
 const getExchangeRate = async (currPair: CurrencyPair): Promise<undefined> => {
   const invocation = await new Invoker({ functionName: FunctionNamespace.ExchangeRateCrudService })
@@ -30,7 +30,7 @@ const getExchangeRate = async (currPair: CurrencyPair): Promise<undefined> => {
 const listExchangeRates = async (): Promise<PayloadResponse> => {
   const invocation = await new Invoker({ functionName: FunctionNamespace.ExchangeRateCrudService })
     .setPayloadRequest({
-      query: Query.List
+      query: Query.Scan
     })
     .invoke();
   const response = <PayloadResponse>invocation.payloadResponse;
@@ -40,7 +40,7 @@ const listExchangeRates = async (): Promise<PayloadResponse> => {
 const putExchangeRates = async (ratePairs: ExchangeRatePair[]): Promise<PayloadResponse> => {
   const invocation = await new Invoker({ functionName: FunctionNamespace.ExchangeRateCrudService })
     .setPayloadRequest({
-      query: Query.Put,
+      query: Query.BatchWrite,
       putRatesRequest: ratePairs
     })
     .invoke();
