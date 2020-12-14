@@ -3,11 +3,10 @@ import { loggerMessages, mdcKeys, SubLogger } from '../log/log-constants';
 import middy from '@middy/core';
 import { Logger } from 'lambda-logger-node';
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import HandlerLambda = middy.HandlerLambda;
 import { commonUtils } from '../utils/common-utils';
 import { PayloadRequest, PayloadResponse } from '../models/invoker/payload';
 import { NextFunction } from '../types/next';
-import { response } from 'express';
+import HandlerLambda = middy.HandlerLambda;
 
 const requestResponseLogger = (
   log: LambdaLogger
