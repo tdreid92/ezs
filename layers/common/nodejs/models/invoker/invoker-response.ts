@@ -1,5 +1,5 @@
 import { Lambda } from 'aws-sdk';
-import { PayloadResponse } from './payload';
+import { ResponseEntity } from './payload';
 import { Immutable } from '../../types/immutable';
 
 export class InvokerResponse {
@@ -7,7 +7,7 @@ export class InvokerResponse {
   public executedVersion?: Immutable<string>;
   public functionError?: Immutable<string>;
   public logResult?: Immutable<Lambda.LogType>;
-  public payloadResponse?: Immutable<PayloadResponse>;
+  public payloadResponse?: Immutable<ResponseEntity>;
 
   constructor(response: Lambda.InvocationResponse) {
     this.statusCode = response.StatusCode;
@@ -15,7 +15,7 @@ export class InvokerResponse {
     this.functionError = response.FunctionError;
     this.logResult = response.LogResult;
     if (response.Payload && typeof response.Payload === 'string') {
-      this.payloadResponse = <PayloadResponse>JSON.parse(response.Payload);
+      this.payloadResponse = <ResponseEntity>JSON.parse(response.Payload);
     } else {
       throw Error('Unexpected Lambda Response');
     }

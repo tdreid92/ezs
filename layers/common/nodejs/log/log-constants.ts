@@ -38,7 +38,7 @@ export const mdcKeys = {
 export const loggerMessages = {
   start: 'Request Started',
   complete: 'Request Completed',
-  failed: 'Request failed'
+  failed: 'Request Failed'
 };
 
 export const enum SubLogger {

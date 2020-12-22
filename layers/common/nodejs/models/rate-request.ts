@@ -10,5 +10,6 @@ export interface RateRequest {
 export const enum Query {
   Get = 'Get',
   Scan = 'Scan',
-  BatchWrite = 'BatchWrite'
+  BatchWrite = 'BatchWrite',
+  Barf = 'Barf'
 }

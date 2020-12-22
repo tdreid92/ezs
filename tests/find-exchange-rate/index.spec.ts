@@ -1,10 +1,10 @@
 import {} from '../../src/find-cryptocurrency-rate/index';
-import {
-  CurrencyPair,
-  Query,
-  ExchangeRatePair,
-  HttpStatus
-} from '../../layers/common/nodejs/utils/common-types';
+// import {
+//   CurrencyPair,
+//   Query,
+//   ExchangeRatePair,
+//   HttpStatus
+// } from '../../layers/common/nodejs/utils/common-types';
 const context = {
   callbackWaitsForEmptyEventLoop: true,
   functionVersion: '$LATEST',

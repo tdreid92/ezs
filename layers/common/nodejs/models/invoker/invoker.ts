@@ -1,11 +1,12 @@
 import { Lambda } from 'aws-sdk';
-import { log } from '../../log/lambda-logger';
+import { log } from '../../log/sam-logger';
 import { Logger } from 'lambda-logger-node';
 import { loggerMessages, mdcKeys, SubLogger } from '../../log/log-constants';
 import { InvokerOptions } from './invoker-options';
 import { InvokerRequest } from './invoker-request';
 import { InvokerResponse } from './invoker-response';
-import { PayloadResponse } from './payload';
+import { ResponseEntity } from './payload';
+import createHttpError from 'http-errors';
 
 /** Refer to https://docs.aws.amazon.com/lambda/latest/dg/API_Invoke.html for more information. */
 export class Invoker extends InvokerRequest {
@@ -31,7 +32,7 @@ export class Invoker extends InvokerRequest {
 
   getLogResult = (): string | undefined => this._response?.logResult;
 
-  getPayloadResponse = (): PayloadResponse | undefined => this._response?.payloadResponse;
+  getPayloadResponse = (): ResponseEntity | undefined => this._response?.payloadResponse;
 
   /** Invoker methods */
   async invoke(): Promise<InvokerResponse> {
@@ -44,6 +45,7 @@ export class Invoker extends InvokerRequest {
     const response: Lambda.InvocationResponse = await this._lambda.invoke(request).promise();
 
     this._response = new InvokerResponse(response);
+
     log.setKey(mdcKeys.invokerResponseBody, this._response.toJSON());
     subLog.info(loggerMessages.complete);
 

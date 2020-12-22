@@ -2,7 +2,7 @@ import { Logger } from 'lambda-logger-node';
 import { loggerMessages, mdcKeys, SubLogger } from './log-constants';
 import { Context } from 'aws-lambda';
 import { commonUtils } from '../utils/common-utils';
-import { PayloadResponse } from '../models/invoker/payload';
+import { ResponseEntity } from '../models/invoker/payload';
 
 const enum MinimumLogLevel {
   Debug = 'DEBUG',
@@ -69,7 +69,7 @@ abstract class LoggerWrapper implements ILoggerWrapper {
   abstract setOnErrorMdcKeys(error: Error): this;
 }
 
-export class LambdaLogger extends LoggerWrapper {
+export class SamLogger extends LoggerWrapper {
   public constructor(options: LoggerOptions) {
     super(options);
   }
@@ -112,15 +112,15 @@ export class LambdaLogger extends LoggerWrapper {
       .setKey(mdcKeys.errorStacktrace, error.stack);
 }
 
-const buildLogger = (): LambdaLogger => {
-  const logContext: LambdaLogger = new LambdaLogger({
+const buildLogger = (): SamLogger => {
+  const logContext: SamLogger = new SamLogger({
     minimumLogLevel: MinimumLogLevel.Debug
   });
   return logContext;
 };
 
-export const dbLogWrapper = (log: LambdaLogger, fn: (params: any) => Promise<PayloadResponse>) => {
-  return async (params: any): Promise<PayloadResponse> => {
+export const dbLogWrapper = (log: SamLogger, fn: (params: any) => Promise<ResponseEntity>) => {
+  return async (params: any): Promise<ResponseEntity> => {
     const startTime: [number, number] = process.hrtime();
     const subLog: Logger = log.createSubLogger(SubLogger.Database);
 
@@ -128,7 +128,7 @@ export const dbLogWrapper = (log: LambdaLogger, fn: (params: any) => Promise<Pay
     subLog.info(loggerMessages.start);
 
     return await fn(params)
-      .then((response: PayloadResponse) => {
+      .then((response: ResponseEntity) => {
         log.setKey(mdcKeys.databaseResult, response);
         subLog.info(loggerMessages.complete);
         return response;
@@ -144,4 +144,4 @@ export const dbLogWrapper = (log: LambdaLogger, fn: (params: any) => Promise<Pay
   };
 };
 
-export const log: LambdaLogger = buildLogger();
+export const log: SamLogger = buildLogger();

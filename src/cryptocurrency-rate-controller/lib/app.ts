@@ -5,14 +5,13 @@ import {
   applyUploadExchangeRateValidationRules,
   validate
 } from './validator';
-import { exchangeRateService } from './service';
-import { HttpStatus } from '../../../layers/common/nodejs/utils/http-status';
+import { exchangeRateService } from './exchange-rate-service';
 import { ExchangeRatePair } from '../../../layers/common/nodejs/models/exchange-rate-pair';
 
-const headers = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*' // required for CORS and AWS API Gateway Proxy integration
-};
+// const headers = {
+//   'Content-Type': 'application/json',
+//   'Access-Control-Allow-Origin': '*' // required for CORS and AWS API Gateway Proxy integration
+// };
 
 const bodyParserOptions = bodyParser.urlencoded({
   extended: true
@@ -25,7 +24,6 @@ app.use(bodyParser.json()); // supports JSON-encoded bodies
 app.use(bodyParserOptions); // supports URL-encoded bodies
 app.use(express.json()); // supports JSON-encoded bodies
 app.use(express.urlencoded()); // supports URL-encoded bodies
-// app.use(apiLogInterceptor);
 
 app.get(
   '/exchangerate/:baseCurr/:date/:quoteCurr',
@@ -40,27 +38,21 @@ app.get(
       };
     },
     res: Response
-  ): Promise<any> => {
-    res
-      .set(headers)
-      .status(HttpStatus.Success)
-      .send(
-        await exchangeRateService.getExchangeRate({
-          baseCurr: req.params.baseCurr,
-          date: req.params.date,
-          quoteCurr: req.params.quoteCurr
-        })
-      );
+  ): Promise<void> => {
+    const payloadResponse = await exchangeRateService.getExchangeRate({
+      baseCurr: req.params.baseCurr,
+      date: req.params.date,
+      quoteCurr: req.params.quoteCurr
+    });
+    res.status(payloadResponse.statusCode).send({ payload: payloadResponse.body });
   }
 );
 
 app.get(
   '/exchangerate/list',
-  async (req, res: Response): Promise<any> => {
-    res
-      .set(headers)
-      .status(HttpStatus.Success)
-      .send(await exchangeRateService.listExchangeRates());
+  async (req, res: Response): Promise<void> => {
+    const payloadResponse = await exchangeRateService.listExchangeRates();
+    res.status(payloadResponse.statusCode).send({ payload: payloadResponse.body });
   }
 );
 
@@ -75,10 +67,8 @@ app.post(
       };
     },
     res: Response
-  ): Promise<any> => {
-    res
-      .set(headers)
-      .status(HttpStatus.Forbidden)
-      .send(await exchangeRateService.putExchangeRates(req.body.exchangeRates));
+  ): Promise<void> => {
+    const payloadResponse = await exchangeRateService.putExchangeRates(req.body.exchangeRates);
+    res.status(payloadResponse.statusCode).send({ payload: payloadResponse.body });
   }
 );

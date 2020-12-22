@@ -10,7 +10,7 @@ class Config {
 
   public constructor() {
     this.isOffline = this._env.get('IS_OFFLINE').default('false').asBool();
-    this.tableName = this._env.get('DYNAMODB_TABLE').required().asString();
+    this.tableName = this._env.get('DYNAMODB_TABLE').default('').asString();
     this.tableEndpoint = this._env.get('DYNAMODB_ENDPOINT').required().asString();
     Object.freeze(this);
   }

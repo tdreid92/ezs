@@ -1,6 +1,6 @@
 import awsServerlessExpress from 'aws-serverless-express';
 import { app } from './lib/app';
-import { log } from '../../layers/common/nodejs/log/lambda-logger';
+import { log } from '../../layers/common/nodejs/log/sam-logger';
 import { Server } from 'http';
 import {
   APIGatewayProxyEvent,
@@ -13,8 +13,14 @@ import middy from '@middy/core';
 import cors from '@middy/http-cors';
 import httpSecurityHeaders from '@middy/http-security-headers';
 import doNotWaitForEmptyEventLoop from '@middy/do-not-wait-for-empty-event-loop';
-import { middleware } from '../../layers/common/nodejs/middleware/middleware';
 import { FunctionNamespace } from '../../layers/common/nodejs/models/invoker/invoker-options';
+import { ApiGatewayHeaders } from '../../layers/common/nodejs/types/next';
+import { customHeaderAppender } from '../../layers/common/nodejs/middleware/custom-headers-appender';
+import { gatewayLogger } from '../../layers/common/nodejs/middleware/gateway-logger';
+
+const headers: ApiGatewayHeaders = {
+  'Content-Type': 'application/json'
+};
 
 log.setKey(mdcKeys.functionNamespace, FunctionNamespace.ExchangeRateController);
 
@@ -26,7 +32,6 @@ const apiGatewayProxyHandler: APIGatewayProxyHandler = async (
 ): Promise<APIGatewayProxyResult> =>
   awsServerlessExpress.proxy(server, event, context, 'PROMISE').promise;
 
-//http-errors
 const handler: middy.Middy<APIGatewayProxyEvent, APIGatewayProxyResult> = middy(
   apiGatewayProxyHandler
 );
@@ -34,6 +39,7 @@ const handler: middy.Middy<APIGatewayProxyEvent, APIGatewayProxyResult> = middy(
 /** Add middleware sequence to exported handler */
 exports.handler = handler
   .use(doNotWaitForEmptyEventLoop({ runOnAfter: true, runOnError: true }))
-  .use(middleware.gatewayLogger(log))
+  .use(gatewayLogger({ logger: log }))
+  .use(customHeaderAppender({ headers: headers }))
   .use(cors())
   .use(httpSecurityHeaders());
