@@ -1,12 +1,7 @@
 import { reduce } from 'conditional-reduce';
 import { repository } from './rate-repository';
-import { log } from '../../../layers/common/nodejs/log/sam-logger';
 import { Query, RateRequest } from '../../../layers/common/nodejs/models/rate-request';
-import {
-  PayloadResponse,
-  ResponseEntity
-} from '../../../layers/common/nodejs/models/invoker/payload';
-import { HttpStatus } from '../../../layers/common/nodejs/utils/http-status';
+import { ResponseEntity } from '../../../layers/common/nodejs/models/invoker/payload';
 import { DynamoDB } from 'aws-sdk';
 import { CurrencyPair } from '../../../layers/common/nodejs/models/currency-pair';
 import { dbUtils } from './db-utils';

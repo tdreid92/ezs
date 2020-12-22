@@ -6,7 +6,6 @@ import { InvokerOptions } from './invoker-options';
 import { InvokerRequest } from './invoker-request';
 import { InvokerResponse } from './invoker-response';
 import { ResponseEntity } from './payload';
-import createHttpError from 'http-errors';
 
 /** Refer to https://docs.aws.amazon.com/lambda/latest/dg/API_Invoke.html for more information. */
 export class Invoker extends InvokerRequest {
