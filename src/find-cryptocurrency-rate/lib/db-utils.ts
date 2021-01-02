@@ -8,7 +8,7 @@ const buildKey = (currPair: CurrencyPair): string => {
   return currPair.baseCurr + sep + currPair.date + sep + currPair.quoteCurr;
 };
 
-const isTableUndefined: boolean = config.tableName == '';
+const isTableUndefined = (): boolean => config.tableName == '';
 
 const buildGetItemParams = (currPair: CurrencyPair): DynamoDB.GetItemInput =>
   <DynamoDB.GetItemInput>{

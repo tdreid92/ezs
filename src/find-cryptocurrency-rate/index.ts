@@ -13,7 +13,9 @@ import { RateRequest } from '../../layers/common/nodejs/models/rate-request';
 
 log.setKey(mdcKeys.functionNamespace, FunctionNamespace.ExchangeRateCrudService);
 
-const handler: middy.Middy<RateRequest, ResponseEntity> = middy(crudRateService.handleCrudEvent);
+export const handler: middy.Middy<RateRequest, ResponseEntity> = middy(
+  crudRateService.handleCrudEvent
+);
 
 /** Add middleware sequence to exported handler */
 exports.handler = handler

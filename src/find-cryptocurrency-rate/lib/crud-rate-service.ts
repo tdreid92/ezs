@@ -11,43 +11,50 @@ import { ExchangeRatePair } from '../../../layers/common/nodejs/models/exchange-
 type Predicate<T> = (x: T) => boolean;
 type Transformation<T> = (x: T) => any;
 type MatchContext<T> = {
-  on: (pred?: Predicate<T>, fn?: Transformation<T>) => MatchContext<T | any>;
+  on: (predicate?: Predicate<T>, fn?: Transformation<T>) => MatchContext<T | any>;
   otherwise: (fn: Transformation<T>) => any;
 };
 
-function matched<T>(x: T): MatchContext<T> {
+function matched<T>(value: T): MatchContext<T> {
   return {
-    on: () => matched(x),
-    otherwise: () => x
+    on: () => matched(value),
+    otherwise: () => value
   };
 }
 
-function match<T>(x: T): MatchContext<T> {
+function match<T>(value: T): MatchContext<T> {
   return {
-    on: (pred, fn) => (!pred || pred(x) ? matched(fn ? fn(x) : undefined) : match(x)),
-    otherwise: (fn) => fn(x)
+    on: (predicate: Predicate<any> | undefined, fn: Transformation<any> | undefined) =>
+      !predicate || predicate(value) ? matched(fn ? fn(value) : undefined) : match(value),
+    otherwise: (fn) => fn(value)
   };
 }
 
 const handleCrudEvent = async (event: RateRequest): Promise<ResponseEntity> => {
-  if (dbUtils.isTableUndefined) {
-    throw new createError.ServiceUnavailable('Database unavailable');
+  if (dbUtils.isTableUndefined()) {
+    throw new createError.ServiceUnavailable('Database is unavailable');
   }
-  // throw new createError.BadRequest('Query type [' + event.query + '] not permitted');
-  try {
-    return await reduce<Promise<ResponseEntity>>(event.query, {
-      [Query.Get]: async () => get(event.getRateRequest),
-      [Query.Scan]: async () => scan(),
-      [Query.BatchWrite]: async () => batchWrite(event.putRatesRequest)
+  return await match(event.query)
+    .on(
+      (q: Query) => q == Query.Get,
+      async () => get(event.getRateRequest)
+    )
+    .on(
+      (q: Query) => q == Query.Scan,
+      async () => scan()
+    )
+    .on(
+      (q: Query) => q == Query.BatchWrite,
+      async () => batchWrite(event.putRatesRequest)
+    )
+    .otherwise(() => {
+      throw new createError.BadRequest('Query type [' + event.query + '] not permitted');
     });
-  } catch (e) {
-    throw new createError.BadRequest('Query type [' + event.query + '] not permitted');
-  }
 };
 
 const get = async (currPair: CurrencyPair | undefined): Promise<ResponseEntity> => {
   if (!currPair) {
-    throw new createError.BadRequest('HUH');
+    throw new createError.BadRequest('GetRateRequest is undefined or null');
   }
   const input: DynamoDB.GetItemInput = dbUtils.buildGetItemParams(currPair);
   return repository.get(input);
@@ -60,7 +67,7 @@ const scan = async (): Promise<ResponseEntity> => {
 
 const batchWrite = async (ratePairs: ExchangeRatePair[] | undefined): Promise<ResponseEntity> => {
   if (!ratePairs) {
-    throw new createError.BadRequest('HUH');
+    throw new createError.BadRequest('PutRatesRequest is undefined or null');
   }
   const input: DynamoDB.BatchWriteItemInput = dbUtils.buildBatchWriteParams(ratePairs);
   return repository.batchWrite(input);

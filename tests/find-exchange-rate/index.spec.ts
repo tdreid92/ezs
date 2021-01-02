@@ -1,38 +1,51 @@
-import {} from '../../src/find-cryptocurrency-rate/index';
-// import {
-//   CurrencyPair,
-//   Query,
-//   ExchangeRatePair,
-//   HttpStatus
-// } from '../../layers/common/nodejs/utils/common-types';
-const context = {
-  callbackWaitsForEmptyEventLoop: true,
-  functionVersion: '$LATEST',
-  functionName: 'test',
-  memoryLimitInMB: '128',
-  logGroupName: '/aws/lambda/test',
-  logStreamName: '2020/11/30/[$LATEST]db9d556738ee6798b8bd5daa3725907d',
-  invokedFunctionArn: 'arn:aws:lambda:us-east-1:1945946315:function:test',
-  awsRequestId: '41c8e19e-1cfe-155d-81fd-31719b71bfa2',
-  logger: {
-    events: {
-      _events: {},
-      _eventsCount: 1
-    }
-  }
-};
+import { handler } from '../../src/find-cryptocurrency-rate';
+import { Query, RateRequest } from '../../layers/common/nodejs/models/rate-request';
+import { Context } from 'aws-lambda';
+import { crudRateService } from '../../src/find-cryptocurrency-rate/lib/crud-rate-service';
+import { ResponseEntity } from '../../layers/common/nodejs/models/invoker/payload';
+
+process.env.DYNAMODB_TABLE = 'test_table';
+process.env.DYNAMODB_ENDPOINT = 'test_endpoint';
+//
+// jest.mock('../../src/find-cryptocurrency-rate/lib/crud-rate-service', () => ({
+//   crudRateService: jest.fn()
+// }));
 
 describe('find-exchange-rate-index', () => {
   beforeEach(() => {
+    jest.resetModules();
     jest.restoreAllMocks();
+    process.env = Object.assign(process.env, { DYNAMODB_ENDPOINT: 'value' });
+    process.env.DYNAMODB_TABLE = 'test_table';
+    process.env.DYNAMODB_ENDPOINT = 'test_endpoint';
   });
+
   test('should return data', async () => {
-    // const res = await handler({
-    //   query: Query.Get,
-    //   getRateRequest: undefined,
-    //   putRatesRequest: undefined
-    // });
-    // console.log(res);
+    const rateRequest: RateRequest = {
+      query: Query.Get,
+      getRateRequest: undefined,
+      putRatesRequest: undefined
+    };
+    const context = {} as Context;
+    const callback = () => null;
+    const mockResult: Promise<ResponseEntity> = Promise.resolve({
+      statusCode: 200,
+      body: {}
+    });
+    const spy = jest.spyOn(crudRateService, 'handleCrudEvent');
+
+    spy.mockReturnValue(mockResult);
+
+    expect(await handler(rateRequest, context, callback)).toBe('mocked'); // Success!
+
+    spy.mockRestore();
+    // const mockFn = jest.fn(() => mockResult);
+    // const value =
+    // crudRateService.handleCrudEvent = jest.fn().mockReturnThis();
+    // const mock = jest.spyOn(crudRateService, 'handleCrudEvent');
+    // const result = mock(rateRequest, context, callback);
+
+    // const res = await handler(rateRequest, context, callback);
   });
   //   // const mResponse = { code: 200, data: 'mocked data' };
   //   // const mEvent = { id: 1 };
