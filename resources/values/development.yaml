@@ -1,17 +1,18 @@
 Ports:
   api: 3000
   lambda: 3001
-  dynamoDb: 3002
+  dynamodb: 8042
 ParameterOverrides:
-  NODE_ENV: development
+  NODE_ENV: "development"
   Stage: dev
-  projectId: sfw
-  Application: SamFramework
-  TableName: CryptocurrencyRates_DEV
+  projectId: "sfw"
+  Application: "SamFramework"
+  TableName: "ExchangeRates"
 EnvironmentVariables:
-  CryptocurrencyRateController:
-    Bar: "http://some.example.com"
-  FindCryptocurrencyRate:
-    DYNAMODB_TABLE: CryptocurrencyRates_DEV
-    DYNAMODB_ENDPOINT: 'http://docker.for.mac.localhost:8000/'
+  ExchangeRateController:
     IS_OFFLINE: true
+    LAMBDA_ENDPOINT: "http://docker.for.mac.localhost:3001/"
+  FindExchangeRate:
+    IS_OFFLINE: true
+    DYNAMODB_TABLE: "ExchangeRates"
+    DYNAMODB_ENDPOINT: 'http://docker.for.mac.localhost:8042/'

@@ -18,6 +18,7 @@ resources/values/envVars.json
 
 # Idea
 *.iml
+*.idea
 
 # Visual Studio Code
 .vscode/*

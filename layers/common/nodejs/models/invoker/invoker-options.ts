@@ -5,11 +5,12 @@ export interface InvokerOptions {
   InvocationType?: InvocationType; //todo remove enum
   logType?: LogType; //todo remove enum
   qualifier?: Lambda.Qualifier;
+  lambdaEndpoint?: string;
 }
 
 export const enum FunctionNamespace {
-  ExchangeRateController = 'CryptocurrencyRateController',
-  ExchangeRateCrudService = 'FindCryptocurrencyRate'
+  ExchangeRateController = 'ExchangeRateController',
+  ExchangeRateCrudService = 'FindExchangeRate'
 }
 
 export const enum InvocationType {

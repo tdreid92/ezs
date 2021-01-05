@@ -10,15 +10,9 @@ import { ResponseEntity } from './payload';
 /** Refer to https://docs.aws.amazon.com/lambda/latest/dg/API_Invoke.html for more information. */
 export class Invoker extends InvokerRequest {
   private _response: InvokerResponse | undefined;
-  private _lambda: Lambda;
 
   constructor(options: InvokerOptions) {
     super(options);
-    this._lambda = new Lambda({
-      region: process.env.AWS_REGION,
-      endpoint: 'http://host.docker.internal:3001'
-    });
-    //todo add env config
     return this;
   }
 
@@ -41,8 +35,8 @@ export class Invoker extends InvokerRequest {
     subLog.info(loggerMessages.start);
 
     const request: Lambda.InvocationRequest = this.toInvocationRequest();
-    const response: Lambda.InvocationResponse = await this._lambda.invoke(request).promise();
 
+    const response: Lambda.InvocationResponse = await this._lambda.invoke(request).promise();
     this._response = new InvokerResponse(response);
 
     log.setKey(mdcKeys.invokerResponseBody, this._response.toJSON());

@@ -42,15 +42,17 @@ Globals:
       Role: !Ref CodeDeployRole
 
 Resources:
-  CryptocurrencyRateController:
+  ExchangeRateController:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub '${Application}-${ProjectId}-CryptocurrencyRateController-${Stage}'
+      FunctionName: !Sub '${Application}-${ProjectId}-ExchangeRateController-${Stage}'
       Handler: index.handler
       Runtime: nodejs12.x
       Environment:
         Variables:
-          NODE_ENV: !Sub '${Stage}'
+          NODE_ENV: !Sub ${Stage}
+          IS_OFFLINE: !Sub ${IS_OFFLINE}
+          LAMBDA_ENDPOINT: !Sub ${LAMBDA_ENDPOINT}
       Role:
         Fn::GetAtt:
         - LambdaInvocationRole
@@ -72,14 +74,14 @@ Resources:
             Path: /exchangerate
             Method: POST
       Timeout: 5
-      CodeUri: src/cryptocurrency-rate-controller
-  FindCryptocurrencyRate:
+      CodeUri: src/exchange-rate-controller
+  FindExchangeRate:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub '${Application}-${ProjectId}-FindCryptocurrencyRate-${Stage}'
+      FunctionName: !Sub '${Application}-${ProjectId}-FindExchangeRate-${Stage}'
       Handler: index.handler
       Runtime: nodejs12.x
-      CodeUri: src/find-cryptocurrency-rate
+      CodeUri: src/find-exchange-rate
       Environment:
         Variables:
           NODE_ENV: !Sub ${Stage}

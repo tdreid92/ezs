@@ -1,24 +1,14 @@
 import express, { Express, Response } from 'express';
 import bodyParser from 'body-parser';
-import {
-  applyGetExchangeRateValidationRules,
-  applyUploadExchangeRateValidationRules,
-  validate
-} from './validator';
+import { applyGetExchangeRateValidationRules, applyUploadExchangeRateValidationRules, validate } from './validator';
 import { exchangeRateService } from './exchange-rate-service';
 import { ExchangeRatePair } from '../../../layers/common/nodejs/models/exchange-rate-pair';
-
-// const headers = {
-//   'Content-Type': 'application/json',
-//   'Access-Control-Allow-Origin': '*' // required for CORS and AWS API Gateway Proxy integration
-// };
 
 const bodyParserOptions = bodyParser.urlencoded({
   extended: true
 });
 
 export const app: Express = express();
-3;
 
 app.use(bodyParser.json()); // supports JSON-encoded bodies
 app.use(bodyParserOptions); // supports URL-encoded bodies

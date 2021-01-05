@@ -9,12 +9,17 @@ export class InvokerRequest {
   public invocationType?: Immutable<InvocationType>;
   public logType?: Immutable<LogType>;
   public qualifier?: Immutable<Lambda.Qualifier>;
+  protected _lambda: Lambda;
 
   constructor(options: InvokerOptions) {
     this.functionName = options.functionName;
     this.invocationType = options.InvocationType;
     this.logType = options.logType;
     this.qualifier = options.qualifier;
+    this._lambda = new Lambda({
+      region: process.env.AWS_REGION,
+      endpoint: options.lambdaEndpoint
+    });
   }
 
   public setPayloadRequest = (payloadRequest: PayloadRequest): this => {

@@ -1,10 +1,10 @@
 import { Query, RateRequest } from '../../layers/common/nodejs/models/rate-request';
-import { crudRateService } from '../../src/find-cryptocurrency-rate/lib/crud-rate-service';
+import { crudRateService } from '../../src/find-exchange-rate/lib/crud-rate-service';
 import { ResponseEntity } from '../../layers/common/nodejs/models/invoker/payload';
-import { dbUtils } from '../../src/find-cryptocurrency-rate/lib/db-utils';
-import { repository } from '../../src/find-cryptocurrency-rate/lib/rate-repository';
+import { dbUtils } from '../../src/find-exchange-rate/lib/db-utils';
+import { repository } from '../../src/find-exchange-rate/lib/rate-repository';
 
-jest.mock('../../src/find-cryptocurrency-rate/lib/db-utils');
+jest.mock('../../src/find-exchange-rate/lib/db-utils');
 
 describe('crud-rate-service', () => {
   beforeEach(() => {

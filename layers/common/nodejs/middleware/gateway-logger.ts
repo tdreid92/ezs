@@ -31,16 +31,9 @@ export const gatewayLogger = (
       subLogger.info(loggerMessages.start);
       next();
     },
-    after: (
-      handler: HandlerLambda<APIGatewayProxyEvent, APIGatewayProxyResult, Context>,
-      next: NextFunction
-    ): void => {
+    after: (handler: HandlerLambda<APIGatewayProxyEvent, APIGatewayProxyResult, Context>, next: NextFunction): void => {
       //todo find best way to remove headers from response optionally
-      logger.setOnAfterMdcKeys(
-        JSON.parse(handler.response.body),
-        handler.response.statusCode,
-        startTime
-      );
+      logger.setOnAfterMdcKeys(JSON.parse(handler.response.body), handler.response.statusCode, startTime);
       if (process.env.NODE_ENV == 'development') {
         logger.setKeyIfPresent(mdcKeys.responseHeaders, handler.response.headers);
       }

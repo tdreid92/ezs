@@ -1,3 +1,4 @@
+import { config } from './config';
 import { Invoker } from '../../../layers/common/nodejs/models/invoker/invoker';
 import { Query } from '../../../layers/common/nodejs/models/rate-request';
 import { FunctionNamespace } from '../../../layers/common/nodejs/models/invoker/invoker-options';
@@ -5,8 +6,13 @@ import { CurrencyPair } from '../../../layers/common/nodejs/models/currency-pair
 import { ResponseEntity } from '../../../layers/common/nodejs/models/invoker/payload';
 import { ExchangeRatePair } from '../../../layers/common/nodejs/models/exchange-rate-pair';
 
+const options = {
+  functionName: FunctionNamespace.ExchangeRateCrudService,
+  lambdaEndpoint: config.lambdaEndpoint
+};
+
 const getExchangeRate = async (currPair: CurrencyPair): Promise<ResponseEntity> => {
-  const invocation = await new Invoker({ functionName: FunctionNamespace.ExchangeRateCrudService })
+  const invocation = await new Invoker(options)
     .setPayloadRequest({
       query: Query.Get,
       getRateRequest: currPair
@@ -16,7 +22,7 @@ const getExchangeRate = async (currPair: CurrencyPair): Promise<ResponseEntity> 
 };
 
 const listExchangeRates = async (): Promise<ResponseEntity> => {
-  const invocation = await new Invoker({ functionName: FunctionNamespace.ExchangeRateCrudService })
+  const invocation = await new Invoker(options)
     .setPayloadRequest({
       query: Query.Scan
     })
@@ -25,7 +31,7 @@ const listExchangeRates = async (): Promise<ResponseEntity> => {
 };
 
 const putExchangeRates = async (ratePairs: ExchangeRatePair[]): Promise<ResponseEntity> => {
-  const invocation = await new Invoker({ functionName: FunctionNamespace.ExchangeRateCrudService })
+  const invocation = await new Invoker(options)
     .setPayloadRequest({
       query: Query.BatchWrite,
       putRatesRequest: ratePairs

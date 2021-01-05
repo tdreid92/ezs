@@ -11,36 +11,23 @@ interface LambdaLoggerConfig {
   logger: SamLogger;
 }
 
-export const lambdaLogger = (
-  config: LambdaLoggerConfig
-): middy.MiddlewareObject<PayloadRequest, ResponseEntity> => {
+export const lambdaLogger = (config: LambdaLoggerConfig): middy.MiddlewareObject<PayloadRequest, ResponseEntity> => {
   const logger: SamLogger = config.logger;
   const startTime: [number, number] = process.hrtime();
   const subLogger: Logger = logger.createSubLogger(SubLogger.Lambda);
 
   return {
-    before: (
-      handler: HandlerLambda<PayloadRequest, ResponseEntity, Context>,
-      next: NextFunction
-    ): void => {
-      logger
-        .setKeyIfPresent(mdcKeys.requestBody, handler.event)
-        .setOnBeforeMdcKeys(handler.context);
+    before: (handler: HandlerLambda<PayloadRequest, ResponseEntity, Context>, next: NextFunction): void => {
+      logger.setKeyIfPresent(mdcKeys.requestBody, handler.event).setOnBeforeMdcKeys(handler.context);
       subLogger.info(loggerMessages.start);
       next();
     },
-    after: (
-      handler: HandlerLambda<PayloadRequest, ResponseEntity, Context>,
-      next: NextFunction
-    ): void => {
+    after: (handler: HandlerLambda<PayloadRequest, ResponseEntity, Context>, next: NextFunction): void => {
       logger.setOnAfterMdcKeys(handler.response, handler.response.statusCode, startTime);
       subLogger.info(loggerMessages.complete);
       next();
     },
-    onError: (
-      handler: HandlerLambda<PayloadRequest, ResponseEntity, Context>,
-      next: NextFunction
-    ): void => {
+    onError: (handler: HandlerLambda<PayloadRequest, ResponseEntity, Context>, next: NextFunction): void => {
       logger.setOnErrorMdcKeys(handler.error);
       subLogger.error(loggerMessages.failed);
       next();

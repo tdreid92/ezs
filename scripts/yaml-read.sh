@@ -6,20 +6,28 @@ abs_path_resources="${abs_path_root}"/resources/values
 
 # Read yaml specified port
 read_port() {
-  yq r "${abs_path_resources}"/development.yaml "Ports.${1}"
+  yq e ".Ports.${1}" "${abs_path_resources}"/development.yaml
 }
 
-# Read yaml as key-value pairs
+# Read yaml as key-value pairs, if arg supplied, just return that value
 read_parameter_overrides() {
-  yq r "${abs_path_resources}"/development.yaml -j "ParameterOverrides" | # Read with yq and pipe to jq
-  jq -j 'to_entries | map("\(.key)=\(.value|tostring),") | .[]' | # Split to single line, comma-separated output
-  sed 's/.\{1\}$//' # Remove last comma
+  local value;
+  local arg="${1}"
+  if [ -n "${arg}" ]; then
+    value=".${arg}"
+    yq e ".ParameterOverrides${value}" "${abs_path_resources}"/development.yaml -j |
+    sed 's/"//g' # Remove quotes
+  else
+    yq e ".ParameterOverrides${value}" "${abs_path_resources}"/development.yaml -j | # Read with yq and pipe to jq
+    jq -j 'to_entries | map("\(.key)=\(.value|tostring) ") | .[]' | # Split to single line, comma-separated output
+    sed 's/.\{1\}$//' # Remove last comma
+  fi
 }
 
 # Generate temporary json file from development.yaml
 read_environment_variables() {
   local output_path="${abs_path_resources}"/envVars.json
-  yq r "${abs_path_resources}"/development.yaml -jP "EnvironmentVariables" > "${output_path}"
+  yq e -n ".EnvironmentVariables" "${abs_path_resources}"/development.yaml -jP >  "${output_path}"
   echo "${output_path}"
 }
 

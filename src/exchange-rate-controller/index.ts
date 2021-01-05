@@ -2,12 +2,7 @@ import awsServerlessExpress from 'aws-serverless-express';
 import { app } from './lib/app';
 import { log } from '../../layers/common/nodejs/log/sam-logger';
 import { Server } from 'http';
-import {
-  APIGatewayProxyEvent,
-  APIGatewayProxyHandler,
-  APIGatewayProxyResult,
-  Context
-} from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { mdcKeys } from '../../layers/common/nodejs/log/log-constants';
 import middy from '@middy/core';
 import cors from '@middy/http-cors';
@@ -29,12 +24,9 @@ const server: Server = awsServerlessExpress.createServer(app);
 const apiGatewayProxyHandler: APIGatewayProxyHandler = async (
   event: APIGatewayProxyEvent,
   context: Context
-): Promise<APIGatewayProxyResult> =>
-  awsServerlessExpress.proxy(server, event, context, 'PROMISE').promise;
+): Promise<APIGatewayProxyResult> => awsServerlessExpress.proxy(server, event, context, 'PROMISE').promise;
 
-const handler: middy.Middy<APIGatewayProxyEvent, APIGatewayProxyResult> = middy(
-  apiGatewayProxyHandler
-);
+const handler: middy.Middy<APIGatewayProxyEvent, APIGatewayProxyResult> = middy(apiGatewayProxyHandler);
 
 /** Add middleware sequence to exported handler */
 exports.handler = handler

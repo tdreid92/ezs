@@ -1,7 +1,7 @@
 {
   "name": "sam-framework",
   "version": "0.0.1",
-  "description": "Add description.",
+  "description": "SAM Framework for project development",
   "repository": "https://github.com/tdreid92/sam-framework.git",
   "author": "Tyler Reid <reidt602@gmail.com>",
   "license": "MIT",
@@ -11,9 +11,10 @@
     "build:dev": "NODE_ENV=development && webpack --config webpack.dev.config.ts",
     "watch:dev": "NODE_ENV=development && webpack --config webpack.dev.config.ts --watch",
     "eslint": "eslint --cache src/**/*.ts layers/**/*.ts",
-    "start:api": "./scripts/bigBrotherSam.sh start-api",
-    "start:lambda": "./scripts/bigBrotherSam.sh start-lambda",
-    "start:local": "./scripts/bigBrotherSam.sh start-local",
+    "start-api": "scripts/sam-start.sh start-api",
+    "start-lambda": "scripts/sam-start.sh start-lambda",
+    "start-local": "scripts/sam-start.sh start-local",
+    "start-db": "scripts/sam-start.sh start-db",
     "test": "jest"
   },
   "devDependencies": {

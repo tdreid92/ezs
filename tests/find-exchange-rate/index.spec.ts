@@ -1,7 +1,7 @@
-import { handler } from '../../src/find-cryptocurrency-rate';
+import { handler } from '../../src/find-exchange-rate';
 import { Query, RateRequest } from '../../layers/common/nodejs/models/rate-request';
 import { Context } from 'aws-lambda';
-import { crudRateService } from '../../src/find-cryptocurrency-rate/lib/crud-rate-service';
+import { crudRateService } from '../../src/find-exchange-rate/lib/crud-rate-service';
 import { ResponseEntity } from '../../layers/common/nodejs/models/invoker/payload';
 
 process.env.DYNAMODB_TABLE = 'test_table';
