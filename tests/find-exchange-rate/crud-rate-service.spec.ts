@@ -11,7 +11,7 @@ describe('crud-rate-service', () => {
     jest.resetModules();
     jest.restoreAllMocks();
   });
-  //const handleCrudEvent = async (event: RateRequest): Promise<ResponseEntity> => {
+
   test('should return data', async () => {
     const rateRequest: RateRequest = {
       query: Query.Get,
@@ -25,7 +25,7 @@ describe('crud-rate-service', () => {
       statusCode: 200,
       body: {}
     };
-    const isTableUndefinedSpy = jest.spyOn(dbUtils, 'isTableUndefined').mockReturnValueOnce(false);
+    jest.spyOn(dbUtils, 'isTableUndefined').mockReturnValueOnce(false);
 
     const repositoryGetSpy = jest.spyOn(repository, 'get').mockReturnValueOnce(Promise.resolve(mockResult));
     const val: ResponseEntity = await crudRateService.handleCrudEvent(rateRequest);
