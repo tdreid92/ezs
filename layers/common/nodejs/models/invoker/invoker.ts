@@ -29,7 +29,7 @@ export class Invoker extends InvokerRequest {
 
   /** Invoker methods */
   async invoke(): Promise<InvokerResponse> {
-    const subLog: Logger = log.createSubLogger(SubLogger.Invoker);
+    const subLog: Logger = log.createSubLogger(SubLogger.INVOKER);
 
     log.setKey(mdcKeys.invokerRequestBody, this.toJSON());
     subLog.info(loggerMessages.start);

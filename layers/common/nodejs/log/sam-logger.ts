@@ -122,7 +122,7 @@ const buildLogger = (): SamLogger => {
 export const dbLogWrapper = (log: SamLogger, fn: (params: any) => Promise<ResponseEntity>) => {
   return async (params: any): Promise<ResponseEntity> => {
     const startTime: [number, number] = process.hrtime();
-    const subLog: Logger = log.createSubLogger(SubLogger.Database);
+    const subLog: Logger = log.createSubLogger(SubLogger.DATABASE);
 
     log.setKey(mdcKeys.databaseQuery, params);
     subLog.info(loggerMessages.start);

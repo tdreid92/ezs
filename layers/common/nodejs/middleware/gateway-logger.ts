@@ -16,7 +16,7 @@ export const gatewayLogger = (
 ): middy.MiddlewareObject<APIGatewayProxyEvent, APIGatewayProxyResult> => {
   const logger: SamLogger = config.logger;
   const startTime: [number, number] = process.hrtime();
-  const subLogger: Logger = logger.createSubLogger(SubLogger.Gateway);
+  const subLogger: Logger = logger.createSubLogger(SubLogger.GATEWAY);
 
   return {
     before: (

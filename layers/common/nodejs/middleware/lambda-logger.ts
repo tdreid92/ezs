@@ -14,7 +14,7 @@ interface LambdaLoggerConfig {
 export const lambdaLogger = (config: LambdaLoggerConfig): middy.MiddlewareObject<PayloadRequest, ResponseEntity> => {
   const logger: SamLogger = config.logger;
   const startTime: [number, number] = process.hrtime();
-  const subLogger: Logger = logger.createSubLogger(SubLogger.Lambda);
+  const subLogger: Logger = logger.createSubLogger(SubLogger.LAMBDA);
 
   return {
     before: (handler: HandlerLambda<PayloadRequest, ResponseEntity, Context>, next: NextFunction): void => {

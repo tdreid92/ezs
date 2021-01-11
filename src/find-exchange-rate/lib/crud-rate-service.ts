@@ -1,4 +1,3 @@
-import { reduce } from 'conditional-reduce';
 import { repository } from './rate-repository';
 import { Query, RateRequest } from '../../../layers/common/nodejs/models/rate-request';
 import { ResponseEntity } from '../../../layers/common/nodejs/models/invoker/payload';
@@ -7,28 +6,7 @@ import { CurrencyPair } from '../../../layers/common/nodejs/models/currency-pair
 import { dbUtils } from './db-utils';
 import createError from 'http-errors';
 import { ExchangeRatePair } from '../../../layers/common/nodejs/models/exchange-rate-pair';
-
-type Predicate<T> = (x: T) => boolean;
-type Transformation<T> = (x: T) => any;
-type MatchContext<T> = {
-  on: (predicate?: Predicate<T>, fn?: Transformation<T>) => MatchContext<T | any>;
-  otherwise: (fn: Transformation<T>) => any;
-};
-
-function matched<T>(value: T): MatchContext<T> {
-  return {
-    on: () => matched(value),
-    otherwise: () => value
-  };
-}
-
-function match<T>(value: T): MatchContext<T> {
-  return {
-    on: (predicate: Predicate<any> | undefined, fn: Transformation<any> | undefined) =>
-      !predicate || predicate(value) ? matched(fn ? fn(value) : undefined) : match(value),
-    otherwise: (fn) => fn(value)
-  };
-}
+import { match } from '../../../layers/common/nodejs/types/match';
 
 const handleCrudEvent = async (event: RateRequest): Promise<ResponseEntity> => {
   if (dbUtils.isTableUndefined()) {

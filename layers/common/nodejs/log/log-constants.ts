@@ -36,14 +36,14 @@ export const mdcKeys = {
 };
 
 export const loggerMessages = {
-  start: 'Request Started',
-  complete: 'Request Completed',
-  failed: 'Request Failed'
+  start: '_REQUEST STARTED_',
+  complete: '_REQUEST COMPLETED_',
+  failed: '_REQUEST FAILED_'
 };
 
 export const enum SubLogger {
-  Database = 'Database',
-  Invoker = 'Invoker',
-  Lambda = 'Lambda',
-  Gateway = 'Gateway'
+  DATABASE = 'DATABASE',
+  INVOKER = 'INVOKER',
+  LAMBDA = 'LAMBDA',
+  GATEWAY = 'GATEWAY'
 }
