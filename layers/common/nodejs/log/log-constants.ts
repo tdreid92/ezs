@@ -8,6 +8,7 @@ export const mdcKeys = {
   elapsedTime: 'duration_ms',
   functionNamespace: 'functionNamespace',
   resource: 'resource',
+  stage: 'stage',
 
   /** Request bucket */
   requestBody: 'request.body',

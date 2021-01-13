@@ -14,6 +14,7 @@ Transform:
 #    HomePageUrl: https://github.com
 #    SemanticVersion: 0.0.1
 #    SourceCodeUrl: https://github.com
+# s3 sfw-deploy-ufddzmpkg
 
 Parameters:
   ProjectId:
@@ -29,9 +30,19 @@ Parameters:
   Application:
     Type: String
     Default: ''
+  NodeEnv:
+    Type: String
+    Default: production
   TableName:
     Type: String
     Description: Table Name for DynamoDb Exchange Rates Table
+  IsOffline:
+    Type: String
+  LambdaEndpoint:
+    Type: String
+  TableEndpoint:
+    Type: String
+    Default: ''
 
 Globals:
   Function:
@@ -50,9 +61,12 @@ Resources:
       Runtime: nodejs12.x
       Environment:
         Variables:
-          NODE_ENV: !Sub ${Stage}
-          IS_OFFLINE: !Sub ${IS_OFFLINE}
-          LAMBDA_ENDPOINT: !Sub ${LAMBDA_ENDPOINT}
+          NODE_ENV: !Sub ${NodeEnv}
+          STAGE: !Sub ${Stage}
+          LAMBA_FINDEXCHANGERATE:  !Ref FindExchangeRate
+          IS_OFFLINE: !Sub ${IsOffline}
+          LAMBDA_ENDPOINT: !Sub ${LambdaEndpoint}
+
       Role:
         Fn::GetAtt:
         - LambdaInvocationRole
@@ -75,6 +89,7 @@ Resources:
             Method: POST
       Timeout: 5
       CodeUri: src/exchange-rate-controller
+
   FindExchangeRate:
     Type: AWS::Serverless::Function
     Properties:
@@ -84,19 +99,17 @@ Resources:
       CodeUri: src/find-exchange-rate
       Environment:
         Variables:
-          NODE_ENV: !Sub ${Stage}
-          DYNAMODB_TABLE: !Sub ${DYNAMODB_TABLE}
-          DYNAMODB_ENDPOINT: !Sub ${DYNAMODB_ENDPOINT}
-          IS_OFFLINE: !Sub ${IS_OFFLINE}
+          NODE_ENV: !Sub ${NodeEnv}
+          STAGE: !Sub ${Stage}
+          DYNAMODB_TABLE: !Sub ${TableName}
+          DYNAMODB_ENDPOINT: !Sub ${TableEndpoint}
+          IS_OFFLINE: !Sub ${IsOffline}
       MemorySize: 128
       Timeout: 3
-      Role:
-        Fn::GetAtt:
-          - LambdaInvocationRole
-          - Arn
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableName
+
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -115,6 +128,18 @@ Resources:
       StreamSpecification:
         StreamViewType: NEW_IMAGE
       BillingMode: PAY_PER_REQUEST
+
+  CloudWatchLogExchangeRateController:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+      LogGroupName: !Sub /aws/lambda/${ExchangeRateController}
+
+#  CloudWatchLogFindExchangeRate:
+#    Type: AWS::Logs::LogGroup
+#    Properties:
+#      LogGroupName: !Sub /aws/lambda/${FindExchangeRate}
+
   LambdaInvocationRole:
     Type: AWS::IAM::Role
     Properties:
@@ -130,8 +155,8 @@ Resources:
               - sts:AssumeRole
       Path: /
       ManagedPolicyArns:
-        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/lts -'
-      PermissionsBoundary: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/CodeStar_${ProjectId}_PermissionsBoundary'
+        - !Sub 'arn:aws:iam::aws:policy/CloudWatchFullAccess'
+        - !Sub 'arn:aws:iam::aws:policy/AWSLambda_FullAccess'
 
 
 

@@ -1,10 +1,10 @@
 import { Lambda } from 'aws-sdk';
-import { FunctionNamespace, InvocationType, InvokerOptions, LogType } from './invoker-options';
+import { InvocationType, InvokerOptions, LogType } from './invoker-options';
 import { PayloadRequest } from './payload';
 import { Immutable } from '../../types/immutable';
 
 export class InvokerRequest {
-  public functionName: Immutable<FunctionNamespace>;
+  public functionName: Immutable<string>;
   public payloadRequest?: Immutable<PayloadRequest>;
   public invocationType?: Immutable<InvocationType>;
   public logType?: Immutable<LogType>;

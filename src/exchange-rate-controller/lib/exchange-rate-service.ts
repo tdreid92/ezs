@@ -1,13 +1,12 @@
 import { config } from './config';
 import { Invoker } from '../../../layers/common/nodejs/models/invoker/invoker';
 import { Query } from '../../../layers/common/nodejs/models/rate-request';
-import { FunctionNamespace } from '../../../layers/common/nodejs/models/invoker/invoker-options';
 import { CurrencyPair } from '../../../layers/common/nodejs/models/currency-pair';
 import { ResponseEntity } from '../../../layers/common/nodejs/models/invoker/payload';
 import { ExchangeRatePair } from '../../../layers/common/nodejs/models/exchange-rate-pair';
 
 const options = {
-  functionName: FunctionNamespace.ExchangeRateCrudService,
+  functionName: config.lambdaFindExchangeRate,
   lambdaEndpoint: config.lambdaEndpoint
 };
 

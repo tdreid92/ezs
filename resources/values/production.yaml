@@ -1,0 +1,7 @@
+ParameterOverrides:
+  NodeEnv: production
+  Stage: production
+  ProjectId: sfw
+  CodeDeployRole: arn:aws:iam::416497755919:role/CodeDeployRole
+  Application: SamFramework
+  TableName: ExchangeRates

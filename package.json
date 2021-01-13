@@ -1,15 +1,15 @@
 {
   "name": "sam-framework",
   "version": "0.0.1",
-  "description": "SAM Framework for project development",
+  "description": "Exchanges Rates POC of Framework for project development",
   "repository": "https://github.com/tdreid92/sam-framework.git",
   "author": "Tyler Reid <reidt602@gmail.com>",
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build:prod": "NODE_ENV=production && webpack --config webpack.prod.config.ts",
-    "build:dev": "NODE_ENV=development && webpack --config webpack.dev.config.ts",
-    "watch:dev": "NODE_ENV=development && webpack --config webpack.dev.config.ts --watch",
+    "build-prod": "NODE_ENV=production && webpack --config webpack.prod.config.ts",
+    "build-dev": "NODE_ENV=development && webpack --config webpack.dev.config.ts",
+    "watch-dev": "NODE_ENV=development && webpack --config webpack.dev.config.ts --watch",
     "eslint": "eslint --cache src/**/*.ts layers/**/*.ts",
     "start-api": "scripts/sam-start.sh start-api",
     "start-lambda": "scripts/sam-start.sh start-lambda",
@@ -18,7 +18,6 @@
     "test": "jest"
   },
   "devDependencies": {
-    "@babel/preset-typescript": "^7.12.7",
     "@types/aws-lambda": "^8.10.64",
     "@types/aws-serverless-express": "^3",
     "@types/concurrently": "^5",
@@ -69,7 +68,6 @@
     "@middy/http-cors": "^1.4.0",
     "@middy/http-error-handler": "^1.4.0",
     "@middy/http-security-headers": "^1.4.0",
-    "@middy/validator": "^1.4.0",
     "aws-sdk": "^2.792.0",
     "aws-serverless-express": "^3.3.8",
     "conditional-reduce": "^1.2.0",

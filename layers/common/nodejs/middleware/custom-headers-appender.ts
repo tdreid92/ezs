@@ -21,10 +21,7 @@ export const customHeaderAppender = (
   config: CustomHeaderAppenderConfig
 ): middy.MiddlewareObject<APIGatewayProxyEvent, APIGatewayProxyResult> => {
   return {
-    after: (
-      handler: HandlerLambda<APIGatewayProxyEvent, APIGatewayProxyResult, Context>,
-      next: NextFunction
-    ): void => {
+    after: (handler: HandlerLambda<APIGatewayProxyEvent, APIGatewayProxyResult, Context>, next: NextFunction): void => {
       handler.response.headers = appendHeaders(handler.response.headers, config.headers);
       next();
     },

@@ -3,16 +3,11 @@ Ports:
   lambda: 3001
   dynamodb: 8042
 ParameterOverrides:
-  NODE_ENV: "development"
-  Stage: dev
-  projectId: "sfw"
-  Application: "SamFramework"
-  TableName: "ExchangeRates"
-EnvironmentVariables:
-  ExchangeRateController:
-    IS_OFFLINE: true
-    LAMBDA_ENDPOINT: "http://docker.for.mac.localhost:3001/"
-  FindExchangeRate:
-    IS_OFFLINE: true
-    DYNAMODB_TABLE: "ExchangeRates"
-    DYNAMODB_ENDPOINT: 'http://docker.for.mac.localhost:8042/'
+  NodeEnv: development
+  Stage: development
+  projectId: sfw
+  Application: SamFramework
+  TableName: ExchangeRates
+  IsOffline: true
+  LambdaEndpoint: http://docker.for.mac.localhost:3001/
+  TableEndpoint: http://docker.for.mac.localhost:8042/

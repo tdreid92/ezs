@@ -59,8 +59,7 @@ abstract class LoggerWrapper implements ILoggerWrapper {
 
   public handler = (logContext: any): any => this._logger.handler(logContext);
 
-  public createSubLogger = (contextPath: keyof typeof SubLogger): Logger =>
-    this._logger.createSubLogger(contextPath);
+  public createSubLogger = (contextPath: keyof typeof SubLogger): Logger => this._logger.createSubLogger(contextPath);
 
   abstract setOnBeforeMdcKeys(...args: any): this;
 
@@ -97,11 +96,7 @@ export class SamLogger extends LoggerWrapper {
     // );
   };
 
-  public setOnAfterMdcKeys = (
-    responseBody: any,
-    statusCode: number,
-    startTime: [number, number]
-  ): this =>
+  public setOnAfterMdcKeys = (responseBody: any, statusCode: number, startTime: [number, number]): this =>
     this.setKey(mdcKeys.responseBody, responseBody)
       .setKey(mdcKeys.elapsedTime, commonUtils.getElapsedTime(startTime))
       .setKeyIfPresent(mdcKeys.responseStatusCode, statusCode);
@@ -138,9 +133,7 @@ export const dbLogWrapper = (log: SamLogger, fn: (params: any) => Promise<Respon
         subLog.info(loggerMessages.failed);
         throw error;
       })
-      .finally(() =>
-        log.setKey(mdcKeys.databaseElapsedTime, commonUtils.getElapsedTime(startTime))
-      );
+      .finally(() => log.setKey(mdcKeys.databaseElapsedTime, commonUtils.getElapsedTime(startTime)));
   };
 };
 

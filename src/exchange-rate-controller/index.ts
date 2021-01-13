@@ -12,12 +12,13 @@ import { FunctionNamespace } from '../../layers/common/nodejs/models/invoker/inv
 import { ApiGatewayHeaders } from '../../layers/common/nodejs/types/next';
 import { customHeaderAppender } from '../../layers/common/nodejs/middleware/custom-headers-appender';
 import { gatewayLogger } from '../../layers/common/nodejs/middleware/gateway-logger';
+import { config } from './lib/config';
 
 const headers: ApiGatewayHeaders = {
   'Content-Type': 'application/json'
 };
 
-log.setKey(mdcKeys.functionNamespace, FunctionNamespace.ExchangeRateController);
+log.setKey(mdcKeys.functionNamespace, FunctionNamespace.ExchangeRateController).setKey(mdcKeys.stage, config.stage);
 
 const server: Server = awsServerlessExpress.createServer(app);
 

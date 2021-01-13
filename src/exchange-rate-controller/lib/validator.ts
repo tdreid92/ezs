@@ -17,10 +17,7 @@ export const applyGetExchangeRateValidationRules = (): ValidationChain[] => {
   return [validateCurr('quoteCurr'), validateDate('date'), validateCurr('baseCurr')];
 };
 
-export const applyUploadExchangeRateValidationRules = (): (
-  | ValidationChain
-  | SanitizationChain
-)[] => {
+export const applyUploadExchangeRateValidationRules = (): (ValidationChain | SanitizationChain)[] => {
   return [
     body('exchangeRates', INVALID_SIZE_MSG).isArray({ min: 1, max: 10 }),
     validateCurr('exchangeRates.*.quoteCurr'),
@@ -31,11 +28,7 @@ export const applyUploadExchangeRateValidationRules = (): (
 };
 
 const validateCurr = (curr: string): ValidationChain =>
-  param(curr, INVALID_CURR_MSG)
-    .exists()
-    .isLength({ min: 3, max: 3 })
-    .isAlphanumeric('en-US')
-    .isUppercase();
+  param(curr, INVALID_CURR_MSG).exists().isLength({ min: 3, max: 3 }).isAlphanumeric('en-US').isUppercase();
 
 const validateDate = (date: string) => param(date, INVALID_DATE_MSG).exists().isISO8601();
 
