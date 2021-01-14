@@ -1,7 +1,7 @@
 import { Lambda } from 'aws-sdk';
-import { InvocationType, InvokerOptions, LogType } from './invoker-options';
 import { PayloadRequest } from './payload';
 import { Immutable } from '../../types/immutable';
+import { InvocationType, InvokerConfiguration, LogType } from './invoker-configuration';
 
 export class InvokerRequest {
   public functionName: Immutable<string>;
@@ -11,15 +11,17 @@ export class InvokerRequest {
   public qualifier?: Immutable<Lambda.Qualifier>;
   protected _lambda: Lambda;
 
-  constructor(options: InvokerOptions) {
+  constructor(options: InvokerConfiguration) {
     this.functionName = options.functionName;
     this.invocationType = options.InvocationType;
     this.logType = options.logType;
     this.qualifier = options.qualifier;
-    this._lambda = new Lambda({
-      region: process.env.AWS_REGION,
-      endpoint: options.lambdaEndpoint
-    });
+    const config: Lambda.Types.ClientConfiguration = options.lambdaEndpoint
+      ? {
+          endpoint: options.lambdaEndpoint
+        }
+      : {};
+    this._lambda = new Lambda(config);
   }
 
   public setPayloadRequest = (payloadRequest: PayloadRequest): this => {

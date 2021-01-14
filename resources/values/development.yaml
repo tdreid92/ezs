@@ -4,7 +4,7 @@ Ports:
   dynamodb: 8042
 ParameterOverrides:
   NodeEnv: development
-  Stage: development
+  StageName: Dev
   projectId: sfw
   Application: SamFramework
   TableName: ExchangeRates

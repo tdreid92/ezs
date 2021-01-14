@@ -5,7 +5,7 @@ import httpErrorHandler from '@middy/http-error-handler';
 import { lambdaLogger } from '../../layers/common/nodejs/middleware/lambda-logger';
 import { crudRateService } from './lib/crud-rate-service';
 import doNotWaitForEmptyEventLoop from '@middy/do-not-wait-for-empty-event-loop';
-import { FunctionNamespace } from '../../layers/common/nodejs/models/invoker/invoker-options';
+import { FunctionNamespace } from '../../layers/common/nodejs/models/invoker/invoker-configuration';
 import { ResponseEntity } from '../../layers/common/nodejs/models/invoker/payload';
 import { RateRequest } from '../../layers/common/nodejs/models/rate-request';
 import { config } from '../exchange-rate-controller/lib/config';

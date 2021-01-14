@@ -1,6 +1,6 @@
 import { Lambda } from 'aws-sdk';
 
-export interface InvokerOptions {
+export interface InvokerConfiguration {
   functionName: string;
   InvocationType?: InvocationType; //todo remove enum
   logType?: LogType; //todo remove enum

@@ -1,0 +1,137 @@
+openapi: 3.0.0
+info: #https://mechanicalrock.github.io/2020/01/27/serverless-express-openapi.html
+  title: Exchange Rates API
+  description: A simple API for uploading and retrieving exchange rates
+  version: 2019-10-13
+paths:
+  /exchangerate:
+    post:
+      operationId: UploadExchangeRate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExchangeRateItem"
+        required: true
+      responses:
+        "200":
+          description: "Successfully uploaded exchange rates."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadExchangeRatesResponse"
+
+  /exchangerate/{baseCurr}/{date}/{quoteCurr}:
+    get:
+      operationId: GetExchangeRate
+      parameters:
+        - name: baseCurr
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: quoteCurr
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Successfully retrieved exchange rate."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetExchangeRateResponse"
+
+  /exchangerate/list:
+    get:
+      operationId: ListExchangeRates
+      responses:
+        "200":
+          description: "Successfully retrieved exchange rate."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListExchangeRatesResponse"
+
+#        "400":
+#          description: "Bad Request Exception"
+#          content:
+#            application/json:
+#              schema:
+#                $ref: "#/components/schemas/BadRequestException"
+#        "500":
+#          description: "Internal Server Error"
+#          content:
+#            application/json:
+#              schema:
+#                $ref: "#/components/schemas/InternalServerErrorException"
+components:
+  schemas:
+    ExchangeRateItem:
+      type: object
+      properties:
+        ExchangeRateKey:
+          type: string
+        QuoteCurrency:
+          type: string
+        BaseCurrency:
+          type: string
+        Date:
+          type: string
+          format: date
+        Rate:
+          type: number
+          format: double
+        CreatedAt:
+          type: integer
+
+    GetExchangeRateResponse:
+      type: object
+      properties:
+        payload:
+          type: object
+          properties:
+            ExchangeRateItem:
+              $ref: "#/components/schemas/ExchangeRateItem"
+
+    ListExchangeRatesResponse:
+      type: object
+      properties:
+        payload:
+          type: object
+          properties:
+            Items:
+              type: array
+              properties:
+                Items:
+                  $ref: "#/components/schemas/ExchangeRateItem"
+
+    ExchangeRateUploadItems:
+      type: array
+      properties:
+        baseCurr:
+          type: string
+        quoteCurr:
+          type: string
+        date:
+          type: string
+          format: date-time
+        rate:
+          type: number
+          format: double
+
+    UploadExchangeRatesResponse:
+      type: object
+      properties:
+        payload:
+          type: object
+          properties:
+            UnprocessedItems:
+              type: object

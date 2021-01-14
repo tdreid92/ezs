@@ -2,7 +2,7 @@ import { Lambda } from 'aws-sdk';
 import { log } from '../../log/sam-logger';
 import { Logger } from 'lambda-logger-node';
 import { loggerMessages, mdcKeys, SubLogger } from '../../log/log-constants';
-import { InvokerOptions } from './invoker-options';
+import { InvokerConfiguration } from './invoker-configuration';
 import { InvokerRequest } from './invoker-request';
 import { InvokerResponse } from './invoker-response';
 import { ResponseEntity } from './payload';
@@ -11,7 +11,7 @@ import { ResponseEntity } from './payload';
 export class Invoker extends InvokerRequest {
   private _response: InvokerResponse | undefined;
 
-  constructor(options: InvokerOptions) {
+  constructor(options: InvokerConfiguration) {
     super(options);
     return this;
   }

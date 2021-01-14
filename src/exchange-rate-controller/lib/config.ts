@@ -11,7 +11,7 @@ class Config {
 
   public constructor() {
     this.isOffline = this._env.get('IS_OFFLINE').default('false').asBool();
-    this.stage = this._env.get('STAGE').default('').asString();
+    this.stage = this._env.get('STAGE_NAME').default('').asString();
     this.lambdaEndpoint = this._env.get('LAMBDA_ENDPOINT').default('').asString();
     this.lambdaFindExchangeRate = this._env.get('LAMBA_FINDEXCHANGERATE').default('').asString();
     Object.freeze(this);

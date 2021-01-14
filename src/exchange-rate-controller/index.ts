@@ -8,7 +8,7 @@ import middy from '@middy/core';
 import cors from '@middy/http-cors';
 import httpSecurityHeaders from '@middy/http-security-headers';
 import doNotWaitForEmptyEventLoop from '@middy/do-not-wait-for-empty-event-loop';
-import { FunctionNamespace } from '../../layers/common/nodejs/models/invoker/invoker-options';
+import { FunctionNamespace } from '../../layers/common/nodejs/models/invoker/invoker-configuration';
 import { ApiGatewayHeaders } from '../../layers/common/nodejs/types/next';
 import { customHeaderAppender } from '../../layers/common/nodejs/middleware/custom-headers-appender';
 import { gatewayLogger } from '../../layers/common/nodejs/middleware/gateway-logger';

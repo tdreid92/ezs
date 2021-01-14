@@ -11,7 +11,7 @@ class Config {
 
   public constructor() {
     this.isOffline = this._env.get('IS_OFFLINE').default('false').asBool();
-    this.stage = this._env.get('STAGE').default('').asString();
+    this.stage = this._env.get('STAGE_NAME').default('').asString();
     this.tableName = this._env.get('DYNAMODB_TABLE').default('').asString();
     this.tableEndpoint = this._env.get('DYNAMODB_ENDPOINT').default('').asString();
     Object.freeze(this);

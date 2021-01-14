@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Transform:
 - AWS::Serverless-2016-10-31
 - AWS::CodeStar
-
+ # https://github.com/aws/serverless-application-model/blob/develop/versions/2016-10-31.md
 #Metadata:
 #  AWS::ServerlessRepo::Application:
 #    Name: CryptoExchangeRates
@@ -25,24 +25,50 @@ Parameters:
     Description: IAM role to allow AWS CodeDeploy to manage deployment of AWS Lambda functions
   Stage:
     Type: String
+    Default: Prod
+    AllowedValues:
+      - Dev
+      - Test
+      - Prod
     Description: The name for a project pipeline stage, such as Staging or Prod, for which resources are provisioned and deployed.
-    Default: ''
+    ConstraintDescription: Only Dev, Test, or Prod allowed
   Application:
     Type: String
     Default: ''
   NodeEnv:
     Type: String
-    Default: production
+    Default: development
+    AllowedValues:
+      - development
+      - production
+    ConstraintDescription: Only development or production allowed
   TableName:
     Type: String
     Description: Table Name for DynamoDb Exchange Rates Table
-  IsOffline:
-    Type: String
+#  Environment:
+#    Type: String
+#    Default: false
+#    AllowedValues:
+#      - Dev
+#      - Test
+#      - Prod
+#    Description: Specifies environment. Dictates template configuration for local development
+#    ConstraintDescription: Boolean required
   LambdaEndpoint:
     Type: String
+    Default: ''
   TableEndpoint:
     Type: String
     Default: ''
+
+Conditions:
+#  IsOfflineEventType:
+#    !Equals [!Ref IsOffline, staging]
+#  IsDeployedEventType:
+#    !Not [Condition: IsOfflineEventType]
+
+  IsOffline: !Equals [Stage, "Api", "HttpApi"]
+  EventApiId: !If [!Sub "${IsOffline}", !Ref ExchangesRatesApi, AWS::NoValue]
 
 Globals:
   Function:
@@ -51,8 +77,80 @@ Globals:
       Enabled: true
       Type: Canary10Percent5Minutes
       Role: !Ref CodeDeployRole
+      Tags:
+        StageName: !Sub ${Stage}
+        Application: !Sub ${Application}
 
 Resources:
+  ExchangeRatesApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      DefinitionBody:
+        'Fn::Transform':
+          Name: AWS::Include
+          Parameters:
+            Location: resources/open-api.yaml
+  CommentsBucket:
+    Type: AWS::S3::Bucket
+#  ApiGatewayApi:
+#    Type: AWS::Serverless::Api
+#    Properties:
+#      #      AccessLogSetting: AccessLogSetting
+#      #    Auth: ApiAuth
+#      #    BinaryMediaTypes:
+#      #      - application/json
+#      CacheClusterEnabled: true
+#      #    CacheClusterSize: String
+#      #      CanarySetting: CanarySetting #https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-apigateway-stage-canarysetting.html
+#      Cors: #https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-api-corsconfiguration.html
+#        AllowMethods: 'POST, GET'
+#      #    DefinitionUri: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-apigatewayv2-api-bodys3location.html
+#      #      Bucket: sfw-openapi-2g7lxbhaps
+#      #      Key: openapi.json
+#      Description: 'Exchange Rates POC'
+#      #    Domain: DomainConfiguration https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-api-domainconfiguration.html
+#      #      BasePath: List
+#      #      CertificateArn: String
+#      #      DomainName: String
+#      #      EndpointConfiguration: String
+#      #      MutualTlsAuthentication: MutualTlsAuthentication
+#      #      Route53: Route53Configuration
+#      #      SecurityPolicy: String
+#      #    GatewayResponses: Map https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-gateway-responses.html
+#      MethodSettings: # Passed to AWS::ApiGateway::Stage MethodSettings
+#        String:
+#          CacheDataEncrypted: false
+#          CacheTtlInSeconds: 300
+#          CachingEnabled: true
+#          DataTraceEnabled: true
+#          HttpMethod: '*'
+#          LoggingLevel: INFO
+#          MetricsEnabled: true
+#          ResourcePath: '*'
+#          ThrottlingBurstLimit: 20
+#      #      ThrottlingRateLimit: Double
+#      #    MinimumCompressionSize: Integer
+#      Models:
+#        ExchangeRate:
+#          type: object
+#          properties:
+#            baseCurr:
+#              type: string
+#            quoteCurr:
+#              type: string
+#            date:
+#              type: string
+#            rate:
+#              type: double
+#      Name: !Sub 'ExchangeRatesAPI-${Stage}'
+#      #    OpenApiVersion: 3.0
+#      StageName: !Sub ${Stage}
+#      #    TracingEnabled: Boolean
+#      #    Variables: Map
+#      Tags:
+#        StageName: !Sub ${Stage}
+#        Application: !Sub ${Application}
+
   ExchangeRateController:
     Type: AWS::Serverless::Function
     Properties:
@@ -62,33 +160,41 @@ Resources:
       Environment:
         Variables:
           NODE_ENV: !Sub ${NodeEnv}
-          STAGE: !Sub ${Stage}
+          STAGE_NAME: !Sub ${Stage}
           LAMBA_FINDEXCHANGERATE:  !Ref FindExchangeRate
           IS_OFFLINE: !Sub ${IsOffline}
           LAMBDA_ENDPOINT: !Sub ${LambdaEndpoint}
-
       Role:
         Fn::GetAtt:
         - LambdaInvocationRole
         - Arn
       Events:
-        GetRate:
-          Type: Api
+        GetExchangeRate:
+          Type: !If [IsOffline, "Api", "HttpApi"]
           Properties:
             Path: /exchangerate/{baseCurr}/{date}/{quoteCurr}
             Method: GET
-        ListRates:
-          Type: Api
+#            ApiId: !Sub EventApiId
+        ListExchangeRates:
+          Type: !If [IsOffline, "Api", "HttpApi"]
           Properties:
             Path: /exchangerate/list
             Method: GET
-        UploadRates:
-          Type: Api
+            ApiId: !Sub EventApiId
+        UploadExchangeRates:
+          Type: !If [IsOffline, "Api", "HttpApi"]
           Properties:
             Path: /exchangerate
             Method: POST
+            ApiId: !Sub EventApiId
       Timeout: 5
       CodeUri: src/exchange-rate-controller
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref CommentsBucket
+#      Tags:
+#        StageName: !Sub ${Stage}
+#        Application: !Sub ${Application}
 
   FindExchangeRate:
     Type: AWS::Serverless::Function
@@ -100,7 +206,7 @@ Resources:
       Environment:
         Variables:
           NODE_ENV: !Sub ${NodeEnv}
-          STAGE: !Sub ${Stage}
+          STAGE_NAME: !Sub ${Stage}
           DYNAMODB_TABLE: !Sub ${TableName}
           DYNAMODB_ENDPOINT: !Sub ${TableEndpoint}
           IS_OFFLINE: !Sub ${IsOffline}
@@ -109,6 +215,9 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableName
+      Tags:
+        StageName: !Sub ${Stage}
+        Application: !Sub ${Application}
 
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
@@ -128,17 +237,44 @@ Resources:
       StreamSpecification:
         StreamViewType: NEW_IMAGE
       BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: StageName
+          Value: !Sub ${Stage}
+        - Key: Application
+          Value: !Sub ${Application}
 
   CloudWatchLogExchangeRateController:
     Type: AWS::Logs::LogGroup
     Properties:
       RetentionInDays: 7
       LogGroupName: !Sub /aws/lambda/${ExchangeRateController}
+#      Tags:
+#        - Key: StageName
+#          Value: !Sub ${Stage}
+#        - Key: Application
+#          Value: !Sub ${Application}
 
-#  CloudWatchLogFindExchangeRate:
+  CloudWatchLogFindExchangeRate:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+      LogGroupName: !Sub /aws/lambda/${FindExchangeRate}
+#      Tags:
+#        - Key: StageName
+#          Value: !Sub ${Stage}
+#        - Key: Application
+#          Value: !Sub ${Application}
+
+#  CloudWatchLogApiGateway:
 #    Type: AWS::Logs::LogGroup
 #    Properties:
-#      LogGroupName: !Sub /aws/lambda/${FindExchangeRate}
+#      RetentionInDays: 7
+#      LogGroupName: !Sub /aws/apigateway/${ApiGatewayApi}
+#      Tags:
+#        - Key: StageName
+#          Value: !Sub ${Stage}
+#        - Key: Application
+#          Value: !Sub ${Application}
 
   LambdaInvocationRole:
     Type: AWS::IAM::Role
@@ -157,6 +293,20 @@ Resources:
       ManagedPolicyArns:
         - !Sub 'arn:aws:iam::aws:policy/CloudWatchFullAccess'
         - !Sub 'arn:aws:iam::aws:policy/AWSLambda_FullAccess'
+      Tags:
+        - Key: StageName
+          Value: !Sub ${Stage}
+        - Key: Application
+          Value: !Sub ${Application}
 
-
-
+Fn::!Equals:
+  - !Sub ${IsOffline}
+  -
+    Outputs:
+      ExchangeRatesApi:
+        Description: API Gateway endpoint URL for Prod stage for Hello World function
+        Value:
+          Fn::Sub: https://${ExchangeRatesApi}.execute-api.${AWS::Region}.amazonaws.com/
+      ExpressBackendFunction:
+        Description: Express Backend Lambda Function ARN
+        Value: !Sub ExchangeRateController.Arn

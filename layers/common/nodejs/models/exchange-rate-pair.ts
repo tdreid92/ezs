@@ -1,6 +1,6 @@
 export interface ExchangeRatePair {
   baseCurr: string;
-  date: string;
   quoteCurr: string;
+  date: string;
   rate: number;
 }

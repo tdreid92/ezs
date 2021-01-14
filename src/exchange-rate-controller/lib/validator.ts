@@ -7,7 +7,9 @@ import {
   ValidationError,
   validationResult
 } from 'express-validator';
+
 import { HttpStatus } from '../../../layers/common/nodejs/utils/http-status';
+import { log } from '../../../layers/common/nodejs/log/sam-logger';
 
 const INVALID_SIZE_MSG = 'Size must be between 1 and 10';
 const INVALID_CURR_MSG = 'Must be 3 alphanumeric uppercase characters';
@@ -19,7 +21,7 @@ export const applyGetExchangeRateValidationRules = (): ValidationChain[] => {
 
 export const applyUploadExchangeRateValidationRules = (): (ValidationChain | SanitizationChain)[] => {
   return [
-    body('exchangeRates', INVALID_SIZE_MSG).isArray({ min: 1, max: 10 }),
+    // body('exchangeRates', INVALID_SIZE_MSG).isArray({ min: 1, max: 10 }),
     validateCurr('exchangeRates.*.quoteCurr'),
     validateDate('exchangeRates.*.date'),
     validateCurr('exchangeRates.*.baseCurr'),
