@@ -15,7 +15,10 @@
     "start-lambda": "scripts/sam-start.sh start-lambda",
     "start-local": "scripts/sam-start.sh start-local",
     "start-db": "scripts/sam-start.sh start-db",
-    "validate": "sam validate --template .aws-sam/build/template.yaml",
+    "get-item": "scripts/sam-start.sh get-item",
+    "put-item": "scripts/sam-start.sh put-item",
+    "scan": "scripts/sam-start.sh scan",
+    "validate": "sam validate --template template.yml",
     "deploy-prod": "sam deploy --template-file ./.aws-sam/build/template.yaml --stack-name sfw --s3-bucket sfw-deploy-ufddzmpkg --capabilities CAPABILITY_NAMED_IAM",
     "test": "jest"
   },

@@ -36,23 +36,54 @@ function start_sam_local() {
 function create_dynamodb_table() {
   aws dynamodb create-table \
     --table-name ${1} \
-    --attribute-definitions AttributeName=ExchangeRateKey,AttributeType=S \
-    --key-schema AttributeName=ExchangeRateKey,KeyType=HASH \
-    --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 \
+    --cli-input-json file://${abs_path}/table.json \
     --endpoint-url http://localhost:${2} \
     --no-cli-pager
 }
 
 function start_local_db() {
-  local dynamodbPort=$($abs_path_yaml_read --port dynamodb)
+  set -x
+  local tablePort=$($abs_path_yaml_read --port dynamodb)
   local tableName=$($abs_path_yaml_read --parameter-overrides development.yaml TableName)
 
-  cd "$abs_path" && docker-compose up -d
+  cd "$abs_path" && docker-compose up -d #TODO whats -d do?
 
   local counter=10
-  until (create_dynamodb_table ${tableName} ${dynamodbPort} -or $counter -gt 10); do
+  until (create_dynamodb_table ${tableName} ${tablePort} -or $counter -gt 10); do
     sleep 1
   done
+}
+
+function get_item() {
+  local tablePort=$($abs_path_yaml_read --port dynamodb)
+  local tableName=$($abs_path_yaml_read --parameter-overrides development.yaml TableName)
+
+  aws dynamodb get-item \
+    --table-name ${tableName} \
+    --key file://${abs_path}/get-item.json \
+    --endpoint-url http://localhost:${tablePort} \
+    --no-cli-pager
+}
+
+function put_item() {
+  local tablePort=$($abs_path_yaml_read --port dynamodb)
+  local tableName=$($abs_path_yaml_read --parameter-overrides development.yaml TableName)
+
+  aws dynamodb put-item \
+    --table-name ${tableName} \
+    --item file://${abs_path}/put-item.json \
+    --endpoint-url http://localhost:${tablePort} \
+    --no-cli-pager
+}
+
+function scan() {
+  local tablePort=$($abs_path_yaml_read --port dynamodb)
+  local tableName=$($abs_path_yaml_read --parameter-overrides development.yaml TableName)
+
+  aws dynamodb scan \
+    --table-name ${tableName} \
+    --endpoint-url http://localhost:${tablePort} \
+    --no-cli-pager
 }
 
 function show_help() {
@@ -84,5 +115,8 @@ case $CMD in
   start-lambda ) start_sam_local "lambda" "${2}" ;;
   start-local ) set_local_configuration && start_local ;;
   start-db ) start_local_db ;;
-*) show_help ;;
+  get-item ) get_item ;;
+  put-item ) put_item ;;
+  scan ) scan ;;
+  * ) show_help ;;
 esac

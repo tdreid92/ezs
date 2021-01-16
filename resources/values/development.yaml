@@ -4,10 +4,7 @@ Ports:
   dynamodb: 8042
 ParameterOverrides:
   NodeEnv: development
-  StageName: Dev
-  projectId: sfw
-  Application: SamFramework
+  Stage: Dev
   TableName: ExchangeRates
-  IsOffline: true
   LambdaEndpoint: http://docker.for.mac.localhost:3001/
   TableEndpoint: http://docker.for.mac.localhost:8042/

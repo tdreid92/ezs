@@ -10,8 +10,8 @@ const buildKey = (currPair: CurrencyPair): string => {
 
 const isTableUndefined = (): boolean => config.tableName == '';
 
-const buildGetItemParams = (currPair: CurrencyPair): DynamoDB.GetItemInput =>
-  <DynamoDB.GetItemInput>{
+const buildGetItemParams = (currPair: CurrencyPair): DynamoDB.DocumentClient.GetItemInput =>
+  <DynamoDB.DocumentClient.GetItemInput>{
     TableName: config.tableName,
     Key: {
       ExchangeRateKey: buildKey(currPair)
@@ -24,8 +24,8 @@ const buildListItemsParams = (): DynamoDB.DocumentClient.ScanInput => {
   };
 };
 
-const buildPutRequests = (ratePairs: ExchangeRatePair[]): DynamoDB.BatchWriteItemRequestMap =>
-  <DynamoDB.BatchWriteItemRequestMap>(<unknown>ratePairs.map((rp: ExchangeRatePair) => ({
+const buildPutRequests = (ratePairs: ExchangeRatePair[]): DynamoDB.DocumentClient.BatchWriteItemRequestMap =>
+  <DynamoDB.DocumentClient.BatchWriteItemRequestMap>(<unknown>ratePairs.map((rp: ExchangeRatePair) => ({
     PutRequest: {
       Item: {
         ExchangeRateKey: buildKey(rp),
@@ -38,8 +38,8 @@ const buildPutRequests = (ratePairs: ExchangeRatePair[]): DynamoDB.BatchWriteIte
     }
   })));
 
-const buildBatchWriteParams = (ratePairs: ExchangeRatePair[]): DynamoDB.BatchWriteItemInput => {
-  return <DynamoDB.BatchWriteItemInput>(<unknown>{
+const buildBatchWriteParams = (ratePairs: ExchangeRatePair[]): DynamoDB.DocumentClient.BatchWriteItemInput => {
+  return <DynamoDB.DocumentClient.BatchWriteItemInput>(<unknown>{
     RequestItems: {
       [config.tableName]: buildPutRequests(ratePairs)
     }

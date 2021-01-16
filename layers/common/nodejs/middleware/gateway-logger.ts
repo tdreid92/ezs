@@ -23,6 +23,7 @@ export const gatewayLogger = (
       handler: HandlerLambda<APIGatewayProxyEvent, APIGatewayProxyResult, Context>,
       next: NextFunction
     ): void => {
+      logger.info(handler.event);
       logger
         .setKey(mdcKeys.requestMethod, handler.event.httpMethod)
         .setKey(mdcKeys.requestPath, handler.event.path)

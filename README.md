@@ -7,3 +7,7 @@ environments configuration.
 1. [AWS SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
 1. [AWS CLI 2](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-mac.html)
 1. [Docker](https://docs.docker.com/get-docker/)
+
+
+
+https://theburningmonk.com/cloudformation-ref-and-getatt-cheatsheet/

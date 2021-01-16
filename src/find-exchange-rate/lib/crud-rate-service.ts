@@ -7,6 +7,7 @@ import { dbUtils } from './db-utils';
 import createError from 'http-errors';
 import { ExchangeRatePair } from '../../../layers/common/nodejs/models/exchange-rate-pair';
 import { match } from '../../../layers/common/nodejs/types/match';
+import { log } from '../../../layers/common/nodejs/log/sam-logger';
 
 const handleCrudEvent = async (event: RateRequest): Promise<ResponseEntity> => {
   if (dbUtils.isTableUndefined()) {
@@ -35,6 +36,7 @@ const get = async (currPair: CurrencyPair | undefined): Promise<ResponseEntity> 
     throw new createError.BadRequest('GetRateRequest is undefined or null');
   }
   const input: DynamoDB.GetItemInput = dbUtils.buildGetItemParams(currPair);
+  log.info(input);
   return repository.get(input);
 };
 

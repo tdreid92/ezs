@@ -1,0 +1,12 @@
+{
+  "KeySchema": [
+    { "AttributeName": "ExchangeRateKey", "KeyType": "HASH" }
+  ],
+  "AttributeDefinitions": [
+    { "AttributeName": "ExchangeRateKey", "AttributeType": "S" }
+  ],
+  "ProvisionedThroughput": {
+    "ReadCapacityUnits": 2,
+    "WriteCapacityUnits": 2
+  }
+}

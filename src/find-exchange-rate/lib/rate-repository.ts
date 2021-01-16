@@ -14,6 +14,15 @@ const dbClient: DynamoDB.DocumentClient = new DynamoDB.DocumentClient(
     : {}
 );
 
+console.log(
+  config.isOffline
+    ? {
+        region: 'localhost',
+        endpoint: config.tableEndpoint
+      }
+    : {}
+);
+
 const get = async (params: DynamoDB.GetItemInput): Promise<ResponseEntity> =>
   await dbClient
     .get(params)

@@ -32,7 +32,7 @@ const handler: middy.Middy<APIGatewayProxyEvent, APIGatewayProxyResult> = middy(
 /** Add middleware sequence to exported handler */
 exports.handler = handler
   .use(doNotWaitForEmptyEventLoop({ runOnAfter: true, runOnError: true }))
-  .use(gatewayLogger({ logger: log }))
-  .use(customHeaderAppender({ headers: headers }))
-  .use(cors())
-  .use(httpSecurityHeaders());
+  .use(gatewayLogger({ logger: log }));
+// .use(customHeaderAppender({ headers: headers }))
+// .use(cors())
+// .use(httpSecurityHeaders());
