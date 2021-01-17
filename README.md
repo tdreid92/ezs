@@ -1,4 +1,4 @@
-### Humble SAM's Framework
+### Easy SAM Framework
 
 Framework that integrates Typescript, Yarn 2, AWS SAM, Docker, Webpack, ESLint, Prettier, Lambda Layers, and parameterized 
 environments configuration.
