@@ -72,7 +72,8 @@ Resources:
           "caller":"$context.identity.caller",
           "user":"$context.identity.user","requestTime":"$context.requestTime",
           "eventType":"$context.eventType","routeKey":"$context.routeKey",
-          "status":"$context.status","connectionId":"$context.connectionId"}        # Auth: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-httpapi-httpapiauth.html
+          "status":"$context.status","connectionId":"$context.connectionId"}
+        # Auth: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-httpapi-httpapiauth.html
         CorsConfiguration: true
         DefaultRouteSettings:
           DataTraceEnabled: false
@@ -93,23 +94,21 @@ Resources:
 #  CommentsBucket:
 #    Type: AWS::S3::Bucket
 
-  TranslationController:
+  GetTranslationController:
     Type: AWS::Serverless::Function # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
     Properties:
-      FunctionName: !Sub '${Application}-${ProjectId}-TranslationController-${Stage}'
-      Description: Upload translations
+      FunctionName: !Sub '${Application}-${ProjectId}-GetTranslationController-${Stage}'
+      Description: Get translation
       Handler: index.handler
       Runtime: nodejs12.x
-      CodeUri: src/translation-controller
-#      DeadLetterQueue:
-#        Type: SNS
-#        TargetArn: arn:aws:sns:us-east-2:123456789012:my-topic
+      CodeUri: src/get-translation-controller
+      #      DeadLetterQueue:
+      #        Type: SNS
+      #        TargetArn: arn:aws:sns:us-east-2:123456789012:my-topic
       Environment:
         Variables:
           STAGE_NAME: !Sub ${Stage}
-          TRANSLATION_UPLOADER_FUNCTION:  !Ref TranslationUploader
-          TRANSLATION_FINDER_FUNCTION: !Ref TranslationFinder
-          IS_OFFLINE: !Equals [IsOffline, true]
+          IS_OFFLINE: !Equals [ IsOffline, true ]
           FUNCTION_ENDPOINT: !Sub ${FunctionEndpoint}
       Events:
         GetTranslation:
@@ -118,25 +117,41 @@ Resources:
             ApiId: !Ref TranslationHttpApi
             Method: GET
             PayloadFormatVersion: "2.0"
-            Path: /translation/{source}/{target}/{word}
-#        ListTranslations:
-#          Type: HttpApi
-#          Properties:
-#            ApiId: !Ref TranslationHttpApi
-#            Method: GET
-#            Path: translation/list
-#        UploadTranslations:
-#          Type: HttpApi
-#          Properties:
-#            ApiId: !Ref TranslationHttpApi
-#            Method: POST
-#            Path: translation
+            Path: /v1/translation/{source}/{target}/{word}
       MemorySize: 128
       Role: !GetAtt LambdaInvocationRole.Arn
       Timeout: 3
-      Policies:
-        - S3CrudPolicy:
-            BucketName: !Ref CommentsBucket
+      Tags:
+        StageName: !Sub ${Stage}
+        Application: !Sub ${Application}
+
+  UploadTranslationController:
+    Type: AWS::Serverless::Function # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+    Properties:
+      FunctionName: !Sub '${Application}-${ProjectId}-UploadTranslationController-${Stage}'
+      Description: Upload translations
+      Handler: index.handler
+      Runtime: nodejs12.x
+      CodeUri: src/upload-translation-controller
+#      DeadLetterQueue:
+#        Type: SNS
+#        TargetArn: arn:aws:sns:us-east-2:123456789012:my-topic
+      Environment:
+        Variables:
+          STAGE_NAME: !Sub ${Stage}
+          IS_OFFLINE: !Equals [IsOffline, true]
+          FUNCTION_ENDPOINT: !Sub ${FunctionEndpoint}
+      Events:
+        UploadTranslations:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TranslationHttpApi
+            Method: POST
+            PayloadFormatVersion: "2.0"
+            Path: /v1/translation
+      MemorySize: 128
+      Role: !GetAtt LambdaInvocationRole.Arn
+      Timeout: 3
       Tags:
         StageName: !Sub ${Stage}
         Application: !Sub ${Application}
@@ -212,27 +227,33 @@ Resources:
         - Key: Application
           Value: !Sub ${Application}
 
-  CloudWatchLogTranslationController:
+  CloudWatchLogUploadTranslationController:
     Type: AWS::Logs::LogGroup
     Properties:
       RetentionInDays: 7
-      LogGroupName: !Sub /aws/lambda/${TranslationController}
+      LogGroupName: !Sub /aws/lambda/${UploadTranslationController}
+
+  CloudWatchLogGetTranslationController:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+      LogGroupName: !Sub /aws/lambda/${GetTranslationController}
 #      Tags:
 #        - Key: StageName
 #          Value: !Sub ${Stage}
 #        - Key: Application
 #          Value: !Sub ${Application}
 
-#  CloudWatchLogTranslationFinder:
-#    Type: AWS::Logs::LogGroup
-#    Properties:
-#      RetentionInDays: 7
-#      LogGroupName: !Sub /aws/lambda/${TranslationFinder}
-#  #      Tags:
-#  #        - Key: StageName
-#  #          Value: !Sub ${Stage}
-#  #        - Key: Application
-#  #          Value: !Sub ${Application}
+  CloudWatchLogTranslationFinder:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+      LogGroupName: !Sub /aws/lambda/${TranslationFinder}
+  #      Tags:
+  #        - Key: StageName
+  #          Value: !Sub ${Stage}
+  #        - Key: Application
+  #          Value: !Sub ${Application}
 #
 #  CloudWatchLogTranslationUploader:
 #    Type: AWS::Logs::LogGroup

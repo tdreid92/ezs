@@ -1,6 +1,12 @@
 import { ApiGatewayHeaders, NextFunction } from '../types/next';
 import middy from '@middy/core';
-import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyEventV2,
+  APIGatewayProxyResult,
+  APIGatewayProxyResultV2,
+  Context
+} from 'aws-lambda';
 import HandlerLambda = middy.HandlerLambda;
 
 interface CustomHeaderAppenderConfig {
@@ -19,17 +25,22 @@ const appendHeaders = (currentHeaders: ApiGatewayHeaders, customHeaders: ApiGate
 
 export const customHeaderAppender = (
   config: CustomHeaderAppenderConfig
-): middy.MiddlewareObject<APIGatewayProxyEvent, APIGatewayProxyResult> => {
+): middy.MiddlewareObject<APIGatewayProxyEventV2, APIGatewayProxyResultV2> => {
   return {
-    after: (handler: HandlerLambda<APIGatewayProxyEvent, APIGatewayProxyResult, Context>, next: NextFunction): void => {
-      handler.response.headers = appendHeaders(handler.response.headers, config.headers);
+    after: (
+      handler: HandlerLambda<APIGatewayProxyEventV2, APIGatewayProxyResultV2, Context>,
+      next: NextFunction
+    ): void => {
+      const proxyResultResponse: APIGatewayProxyResultV2 = <APIGatewayProxyEventV2>handler.response;
+      proxyResultResponse.headers = appendHeaders(proxyResultResponse.headers, config.headers);
       next();
     },
     onError: (
-      handler: HandlerLambda<APIGatewayProxyEvent, APIGatewayProxyResult, Context>,
+      handler: HandlerLambda<APIGatewayProxyEventV2, APIGatewayProxyResultV2, Context>,
       next: NextFunction
     ): void => {
-      handler.response.headers = appendHeaders(handler.response.headers, config.headers);
+      const proxyResultResponse: APIGatewayProxyResultV2 = <APIGatewayProxyEventV2>handler.response;
+      proxyResultResponse.headers = appendHeaders(proxyResultResponse.headers, config.headers);
       next();
     }
   };

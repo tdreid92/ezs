@@ -6,6 +6,7 @@ export const mdcKeys = {
   appName: 'appName',
   version: 'version',
   elapsedTime: 'duration_ms',
+  sourceIp: 'sourceIp',
   functionNamespace: 'functionNamespace',
   resource: 'resource',
   stage: 'stage',
@@ -37,8 +38,8 @@ export const mdcKeys = {
 };
 
 export const loggerMessages = {
-  start: '_REQUEST STARTED_',
-  complete: '_REQUEST COMPLETED_',
+  started: '_REQUEST STARTED_',
+  completed: '_REQUEST COMPLETED_',
   failed: '_REQUEST FAILED_'
 };
 

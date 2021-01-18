@@ -108,10 +108,9 @@ export class SamLogger extends LoggerWrapper {
 }
 
 const buildLogger = (): SamLogger => {
-  const logContext: SamLogger = new SamLogger({
+  return new SamLogger({
     minimumLogLevel: MinimumLogLevel.Debug
   });
-  return logContext;
 };
 
 export const dbLogWrapper = (log: SamLogger, fn: (params: any) => Promise<ResponseEntity>) => {
@@ -120,12 +119,12 @@ export const dbLogWrapper = (log: SamLogger, fn: (params: any) => Promise<Respon
     const subLog: Logger = log.createSubLogger(SubLogger.DATABASE);
 
     log.setKey(mdcKeys.databaseQuery, params);
-    subLog.info(loggerMessages.start);
+    subLog.info(loggerMessages.started);
 
     return await fn(params)
       .then((response: ResponseEntity) => {
         log.setKey(mdcKeys.databaseResult, response);
-        subLog.info(loggerMessages.complete);
+        subLog.info(loggerMessages.completed);
         return response;
       })
       .catch((error: Error) => {

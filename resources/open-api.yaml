@@ -4,24 +4,24 @@ info: #https://mechanicalrock.github.io/2020/01/27/serverless-express-openapi.ht
   description: A simple API for uploading and retrieving a word's translation
   version: "1.0"
 paths:
-#  /translation:
-#    post:
-#      operationId: UploadTranslations
-#      requestBody:
-#        content:
-#          application/json:
-#            schema:
-#              $ref: "#/components/schemas/ExchangeRateItem"
-#        required: true
-#      responses:
-#        "200":
-#          description: "Successfully uploaded exchange rates."
-#          content:
-#            application/json:
-#              schema:
-#                $ref: "#/components/schemas/UploadTranslationsResponse"
+  /translation:
+    post:
+      operationId: UploadTranslations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadTranslationRequest"
+        required: true
+      responses:
+        "200":
+          description: "Successfully uploaded translations"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadTranslationsResponse"
 
-  /translation/{source}/{target}/{word}:
+  /v1/translation/{source}/{target}/{word}:
     get:
       operationId: GetTranslation
       parameters:
@@ -42,7 +42,7 @@ paths:
             type: string
       responses:
         "200":
-          description: "Successfully retrieved translation."
+          description: "Successfully retrieved translation"
           content:
             application/json:
               schema:
@@ -108,19 +108,19 @@ components:
                 Items:
                   $ref: "#/components/schemas/Translation"
 
-    UploadTranslation:
+    UploadTranslationRequest:
       type: array
       properties:
-        language:
-          type: string
         source:
           type: string
         target:
           type: string
+        word:
+          type: string
         definition:
           type: string
 
-    UploadExchangeRatesResponse:
+    UploadTranslationResponse:
       type: object
       properties:
         payload:

@@ -32,7 +32,7 @@ export class Invoker extends InvokerRequest {
     const subLog: Logger = log.createSubLogger(SubLogger.INVOKER);
 
     log.setKey(mdcKeys.invokerRequestBody, this.toJSON());
-    subLog.info(loggerMessages.start);
+    subLog.info(loggerMessages.started);
 
     const request: Lambda.InvocationRequest = this.toInvocationRequest();
 
@@ -40,7 +40,7 @@ export class Invoker extends InvokerRequest {
     this._response = new InvokerResponse(response);
 
     log.setKey(mdcKeys.invokerResponseBody, this._response.toJSON());
-    subLog.info(loggerMessages.complete);
+    subLog.info(loggerMessages.completed);
 
     return this._response;
   }
