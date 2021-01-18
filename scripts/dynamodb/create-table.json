@@ -1,9 +1,9 @@
 {
   "KeySchema": [
-    { "AttributeName": "ExchangeRateKey", "KeyType": "HASH" }
+    { "AttributeName": "translationKey", "KeyType": "HASH" }
   ],
   "AttributeDefinitions": [
-    { "AttributeName": "ExchangeRateKey", "AttributeType": "S" }
+    { "AttributeName": "translationKey", "AttributeType": "S" }
   ],
   "ProvisionedThroughput": {
     "ReadCapacityUnits": 2,

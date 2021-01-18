@@ -10,7 +10,6 @@ tsconfig.tsbuildinfo
 .aws-sam/*
 template.yml
 buildspec.yml
-resources/values/envVars.json
 
 # Yarn 2
 .yarn/*

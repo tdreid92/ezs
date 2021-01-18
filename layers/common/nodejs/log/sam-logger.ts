@@ -96,7 +96,7 @@ export class SamLogger extends LoggerWrapper {
     // );
   };
 
-  public setOnAfterMdcKeys = (responseBody: any, statusCode: number, startTime: [number, number]): this =>
+  public setOnAfterMdcKeys = (responseBody: any, statusCode: number | undefined, startTime: [number, number]): this =>
     this.setKey(mdcKeys.responseBody, responseBody)
       .setKey(mdcKeys.elapsedTime, commonUtils.getElapsedTime(startTime))
       .setKeyIfPresent(mdcKeys.responseStatusCode, statusCode);

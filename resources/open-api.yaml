@@ -1,64 +1,70 @@
 openapi: 3.0.0
 info: #https://mechanicalrock.github.io/2020/01/27/serverless-express-openapi.html
-  title: Exchange Rates API
-  description: A simple API for uploading and retrieving exchange rates
-  version: 2019-10-13
+  title: EZS API
+  description: A simple API for uploading and retrieving a word's translation
+  version: "1.0"
 paths:
-  /exchangerate:
-    post:
-      operationId: UploadExchangeRate
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ExchangeRateItem"
-        required: true
-      responses:
-        "200":
-          description: "Successfully uploaded exchange rates."
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UploadExchangeRatesResponse"
+#  /translation:
+#    post:
+#      operationId: UploadTranslations
+#      requestBody:
+#        content:
+#          application/json:
+#            schema:
+#              $ref: "#/components/schemas/ExchangeRateItem"
+#        required: true
+#      responses:
+#        "200":
+#          description: "Successfully uploaded exchange rates."
+#          content:
+#            application/json:
+#              schema:
+#                $ref: "#/components/schemas/UploadTranslationsResponse"
 
-  /exchangerate/{baseCurr}/{date}/{quoteCurr}:
+  /translation/{source}/{target}/{word}:
     get:
-      operationId: GetExchangeRate
+      operationId: GetTranslation
       parameters:
-        - name: baseCurr
+        - name: source
           in: query
           required: true
           schema:
             type: string
-        - name: date
+        - name: target
           in: query
           required: true
           schema:
             type: string
-            format: date
-        - name: quoteCurr
+        - name: word
           in: query
           required: true
           schema:
             type: string
       responses:
         "200":
-          description: "Successfully retrieved exchange rate."
+          description: "Successfully retrieved translation."
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GetExchangeRateResponse"
+                $ref: "#/components/schemas/GetTranslationResponse"
 
-  /exchangerate/list:
-    get:
-      operationId: ListExchangeRates
-      responses:
-        "200":
-          description: "Successfully retrieved exchange rate."
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ListExchangeRatesResponse"
+#  /v1/translation/list:
+#    get:
+#      operationId: ListTranslations
+#      responses:
+#        "200":
+#          description: "Successfully retrieved translation list."
+#          headers:
+#            "X-DNS-Prefetch-Control": "off",
+#            "Strict-Transport-Security": "max-age=15552000; includeSubDomains; preload",
+#            "X-Download-Options": "noopen",
+#            "X-Content-Type-Options": "nosniff",
+#            "Referrer-Policy": "no-referrer",
+#            "X-Permitted-Cross-Domain-Policies": "none"
+#          content:
+#            application/json:
+#              schema:
+#                $ref: "#/components/schemas/ListTranslationsResponse"
 
 #        "400":
 #          description: "Bad Request Exception"
@@ -74,34 +80,23 @@ paths:
 #                $ref: "#/components/schemas/InternalServerErrorException"
 components:
   schemas:
-    ExchangeRateItem:
+    TranslationItem:
       type: object
       properties:
-        ExchangeRateKey:
+        source:
           type: string
-        QuoteCurrency:
+        target:
           type: string
-        BaseCurrency:
+        word:
           type: string
-        Date:
-          type: string
-          format: date
-        Rate:
-          type: number
-          format: double
-        CreatedAt:
-          type: integer
 
-    GetExchangeRateResponse:
+    GetTranslationResponse:
       type: object
       properties:
-        payload:
-          type: object
-          properties:
-            ExchangeRateItem:
-              $ref: "#/components/schemas/ExchangeRateItem"
+        ExchangeRateItem:
+          $ref: "#/components/schemas/TranslationItem"
 
-    ListExchangeRatesResponse:
+    ListTranslationsResponse:
       type: object
       properties:
         payload:
@@ -111,21 +106,19 @@ components:
               type: array
               properties:
                 Items:
-                  $ref: "#/components/schemas/ExchangeRateItem"
+                  $ref: "#/components/schemas/Translation"
 
-    ExchangeRateUploadItems:
+    UploadTranslation:
       type: array
       properties:
-        baseCurr:
+        language:
           type: string
-        quoteCurr:
+        source:
           type: string
-        date:
+        target:
           type: string
-          format: date-time
-        rate:
-          type: number
-          format: double
+        definition:
+          type: string
 
     UploadExchangeRatesResponse:
       type: object

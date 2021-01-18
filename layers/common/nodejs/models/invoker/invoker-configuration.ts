@@ -5,12 +5,13 @@ export interface InvokerConfiguration {
   InvocationType?: InvocationType; //todo remove enum
   logType?: LogType; //todo remove enum
   qualifier?: Lambda.Qualifier;
-  lambdaEndpoint?: string;
+  functionEndpoint?: string;
 }
 
 export const enum FunctionNamespace {
-  ExchangeRateController = 'ExchangeRateController',
-  ExchangeRateCrudService = 'FindExchangeRate'
+  TranslationController = 'TranslationController',
+  TranslationFinder = 'TranslationFinder',
+  ExchangeUploader = 'ExchangeUploader'
 }
 
 export const enum InvocationType {

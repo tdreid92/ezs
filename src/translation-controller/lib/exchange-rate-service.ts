@@ -1,16 +1,16 @@
 import { config } from './config';
 import { Invoker } from '../../../layers/common/nodejs/models/invoker/invoker';
 import { Query } from '../../../layers/common/nodejs/models/rate-request';
-import { CurrencyPair } from '../../../layers/common/nodejs/models/currency-pair';
+import { FindTranslationResponse } from '../../../layers/common/nodejs/models/find-translation-response';
 import { ResponseEntity } from '../../../layers/common/nodejs/models/invoker/payload';
-import { ExchangeRatePair } from '../../../layers/common/nodejs/models/exchange-rate-pair';
+import { TranslationUploadRequest } from '../../../layers/common/nodejs/models/translation-upload-request';
 
 const options = {
-  functionName: config.lambdaFindExchangeRate,
-  lambdaEndpoint: config.lambdaEndpoint
+  functionName: config.uploadTranslationFunction,
+  lambdaEndpoint: config.functionEndpoint
 };
 
-const getExchangeRate = async (currPair: CurrencyPair): Promise<ResponseEntity> => {
+const getExchangeRate = async (currPair: FindTranslationResponse): Promise<ResponseEntity> => {
   const invocation = await new Invoker(options)
     .setPayloadRequest({
       query: Query.Get,
@@ -29,7 +29,7 @@ const listExchangeRates = async (): Promise<ResponseEntity> => {
   return <ResponseEntity>invocation.payloadResponse;
 };
 
-const putExchangeRates = async (ratePairs: ExchangeRatePair[]): Promise<ResponseEntity> => {
+const putExchangeRates = async (ratePairs: TranslationUploadRequest[]): Promise<ResponseEntity> => {
   const invocation = await new Invoker(options)
     .setPayloadRequest({
       query: Query.BatchWrite,

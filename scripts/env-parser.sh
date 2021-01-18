@@ -27,14 +27,6 @@ function read_parameter_overrides() {
   fi
 }
 
-# Generate temporary json file from development.yaml
-# 1 = fileName
-function read_environment_variables() {
-  local output_path="${abs_path_resources}"/envVars.json
-  yq e -n ".EnvironmentVariables" "${abs_path_resources}"/${1} -jP >"${output_path}"
-  echo "${output_path}"
-}
-
 function show_help() {
   # TODO: write this as product nears completion and all features are fleshed out
   echo "Help me!"
@@ -61,8 +53,7 @@ require yq
 CMD="$1"
 
 case $CMD in
-  -n | --env-vars ) read_environment_variables "$2" ;;
-  -o | --parameter-overrides ) read_parameter_overrides "$2" "$3" ;;
-  -p | --port ) read_dev_port "$2" ;;
+  -o | parameter-overrides ) read_parameter_overrides "$2" "$3" ;;
+  -p | port ) read_dev_port "$2" ;;
 *) show_help ;;
 esac

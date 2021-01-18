@@ -19,11 +19,11 @@ Transform:
 Parameters:
   ProjectId:
     Type: String
-    Default: 'sfw'
+    Default: 'ezs'
     Description: AWS CodeStar projectID used to associate new resources to team members
   Application:
     Type: String
-    Default: 'SamFramework'
+    Default: 'EZSam'
     Description: The application name
   CodeDeployRole:
     Type: String
@@ -37,20 +37,13 @@ Parameters:
       - Prod
     Description: The name for a project pipeline stage, such as Dev, Test, or Prod for which resources are provisioned and deployed.
     ConstraintDescription: Only Dev, Test, or Prod allowed
-  NodeEnv:
-    Type: String
-    Default: development
-    AllowedValues:
-      - development
-      - production
-    ConstraintDescription: Only development or production allowed. Determines the express Node Environment
   TableName:
     Type: String
     Description: Table Name for DynamoDB Table
-  LambdaEndpoint:
+  TableEndpoint:
     Type: String
     Default: ''
-  TableEndpoint:
+  FunctionEndpoint:
     Type: String
     Default: ''
 
@@ -69,13 +62,17 @@ Globals:
         Application: !Sub ${Application}
 
 Resources:
-  ExchangeRateApi:
+  TranslationHttpApi:
     Type: AWS::Serverless::HttpApi # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-httpapi.html
     Properties:
       AccessLogSettings:
         DestinationArn: !GetAtt CloudWatchLogApiGateway.Arn
-        Format: $context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] $context.httpMethod $context.resourcePath $context.protocol $context.status $context.responseLength $context.requestId \n
-        # Auth: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-httpapi-httpapiauth.html
+        Format: >-
+          {"requestId":"$context.requestId", "ip": "$context.identity.sourceIp",
+          "caller":"$context.identity.caller",
+          "user":"$context.identity.user","requestTime":"$context.requestTime",
+          "eventType":"$context.eventType","routeKey":"$context.routeKey",
+          "status":"$context.status","connectionId":"$context.connectionId"}        # Auth: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-httpapi-httpapiauth.html
         CorsConfiguration: true
         DefaultRouteSettings:
           DataTraceEnabled: false
@@ -83,58 +80,57 @@ Resources:
           LoggingLevel: OFF
 #          ThrottlingBurstLimit: Integer
 #          ThrottlingRateLimit: Double
-#        DefinitionBody: resources/open-api.yaml
+        DefinitionBody:
+          Fn::Transform:
+            Name: AWS::Include
+            Parameters:
+              Location: resources/open-api.yaml
 #        DefinitionUri: String | HttpApiDefinition
-        Description: Get an exchange rate
+        Description: Translation Api
         StageName: !Sub ${Stage}
         StageVariables: Json
         Tags: Map
-#      DefinitionBody:
-#        'Fn::Transform':
-#          Name: AWS::Include
-#          Parameters:
-#            Location: resources/open-api.yaml
-
 #  CommentsBucket:
 #    Type: AWS::S3::Bucket
 
-  ExchangeRateController:
+  TranslationController:
     Type: AWS::Serverless::Function # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
     Properties:
-      FunctionName: !Sub '${Application}-${ProjectId}-ExchangeRateController-${Stage}'
-      Description: REST API to process incoming exchange rate requests
+      FunctionName: !Sub '${Application}-${ProjectId}-TranslationController-${Stage}'
+      Description: Upload translations
       Handler: index.handler
       Runtime: nodejs12.x
-      CodeUri: src/exchange-rate-controller
+      CodeUri: src/translation-controller
 #      DeadLetterQueue:
 #        Type: SNS
 #        TargetArn: arn:aws:sns:us-east-2:123456789012:my-topic
       Environment:
         Variables:
-          NODE_ENV: !Sub ${NodeEnv}
           STAGE_NAME: !Sub ${Stage}
-          LAMBA_FINDEXCHANGERATE:  !Ref FindExchangeRate
+          TRANSLATION_UPLOADER_FUNCTION:  !Ref TranslationUploader
+          TRANSLATION_FINDER_FUNCTION: !Ref TranslationFinder
           IS_OFFLINE: !Equals [IsOffline, true]
-          LAMBDA_ENDPOINT: !Sub ${LambdaEndpoint}
+          FUNCTION_ENDPOINT: !Sub ${FunctionEndpoint}
       Events:
-        GetExchangeRate:
+        GetTranslation:
           Type: HttpApi
           Properties:
-            ApiId: !Ref ExchangeRateApi
+            ApiId: !Ref TranslationHttpApi
             Method: GET
-            Path: /exchangerate/{baseCurr}/{date}/{quoteCurr}
-        ListExchangeRates:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref ExchangeRateApi
-            Method: GET
-            Path: /exchangerate/list
-        UploadExchangeRates:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref ExchangeRateApi
-            Method: POST
-            Path: /exchangerate
+            PayloadFormatVersion: "2.0"
+            Path: /translation/{source}/{target}/{word}
+#        ListTranslations:
+#          Type: HttpApi
+#          Properties:
+#            ApiId: !Ref TranslationHttpApi
+#            Method: GET
+#            Path: translation/list
+#        UploadTranslations:
+#          Type: HttpApi
+#          Properties:
+#            ApiId: !Ref TranslationHttpApi
+#            Method: POST
+#            Path: translation
       MemorySize: 128
       Role: !GetAtt LambdaInvocationRole.Arn
       Timeout: 3
@@ -145,33 +141,53 @@ Resources:
         StageName: !Sub ${Stage}
         Application: !Sub ${Application}
 
-  FindExchangeRate:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub '${Application}-${ProjectId}-FindExchangeRate-${Stage}'
-      Description: Read, write, or update an exchange rate in the database
-      Handler: index.handler
-      Runtime: nodejs12.x
-      CodeUri: src/find-exchange-rate
-#      DeadLetterQueue:
-#        Type: SNS
-#        TargetArn: arn:aws:sns:us-east-2:123456789012:my-topic
-      Environment:
-        Variables:
-          NODE_ENV: !Sub ${NodeEnv}
-          STAGE_NAME: !Sub ${Stage}
-          DYNAMODB_TABLE: !Sub ${TableName}
-          DYNAMODB_ENDPOINT: !Sub ${TableEndpoint}
-          IS_OFFLINE: !If [IsOffline, true, false]
-      MemorySize: 128
-      Role: !GetAtt LambdaInvocationRole.Arn
-      Timeout: 3
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref TableName
-      Tags:
-        StageName: !Sub ${Stage}
-        Application: !Sub ${Application}
+#  TranslationFinder:
+#    Type: AWS::Serverless::Function
+#    Properties:
+#      FunctionName: !Sub '${Application}-${ProjectId}-TranslationFinder-${Stage}'
+#      Description: CRUD
+#      Handler: index.handler
+#      Runtime: nodejs12.x
+#      CodeUri: src/translation-finder
+#      Environment:
+#        Variables:
+#          STAGE_NAME: !Sub ${Stage}
+#          DYNAMODB_TABLE: !Sub ${TableName}
+#          IS_OFFLINE: !If [ IsOffline, true, false ]
+#          DYNAMODB_ENDPOINT: !Sub ${TableEndpoint}
+#      MemorySize: 128
+#      Role: !GetAtt LambdaInvocationRole.Arn
+#      Timeout: 3
+#      Policies:
+#        - DynamoDBCrudPolicy:
+#            TableName: !Ref TableName
+#      Tags:
+#        StageName: !Sub ${Stage}
+#        Application: !Sub ${Application}
+#
+#  TranslationUploader:
+#    Type: AWS::Serverless::Function
+#    Properties:
+#      FunctionName: !Sub '${Application}-${ProjectId}-TranslationUploader-${Stage}'
+#      Description: Read or list translations
+#      Handler: index.handler
+#      Runtime: nodejs12.x
+#      CodeUri: src/translation-uploader
+#      Environment:
+#        Variables:
+#          STAGE_NAME: !Sub ${Stage}
+#          DYNAMODB_TABLE: !Sub ${TableName}
+#          DYNAMODB_ENDPOINT: !Sub ${TableEndpoint}
+#          IS_OFFLINE: !If [IsOffline, true, false]
+#      MemorySize: 128
+#      Role: !GetAtt LambdaInvocationRole.Arn
+#      Timeout: 3
+#      Policies:
+#        - DynamoDBCrudPolicy:
+#            TableName: !Ref TableName
+#      Tags:
+#        StageName: !Sub ${Stage}
+#        Application: !Sub ${Application}
 
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
@@ -179,11 +195,11 @@ Resources:
       TableName: !Ref TableName
       AttributeDefinitions:
         - AttributeName:
-            Fn::Sub: ${TableName}Id
+            Fn::Sub: ${TableName}
           AttributeType: S
       KeySchema:
         - AttributeName:
-            Fn::Sub: ${TableName}Id
+            Fn::Sub: ${TableName}
           KeyType: HASH
       SSESpecification:
         SSEEnabled: true
@@ -196,38 +212,49 @@ Resources:
         - Key: Application
           Value: !Sub ${Application}
 
-  CloudWatchLogExchangeRateController:
+  CloudWatchLogTranslationController:
     Type: AWS::Logs::LogGroup
     Properties:
       RetentionInDays: 7
-      LogGroupName: !Sub /aws/lambda/${ExchangeRateController}
+      LogGroupName: !Sub /aws/lambda/${TranslationController}
 #      Tags:
 #        - Key: StageName
 #          Value: !Sub ${Stage}
 #        - Key: Application
 #          Value: !Sub ${Application}
 
-  CloudWatchLogFindExchangeRate:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      RetentionInDays: 7
-      LogGroupName: !Sub /aws/lambda/${FindExchangeRate}
-#      Tags:
-#        - Key: StageName
-#          Value: !Sub ${Stage}
-#        - Key: Application
-#          Value: !Sub ${Application}
+#  CloudWatchLogTranslationFinder:
+#    Type: AWS::Logs::LogGroup
+#    Properties:
+#      RetentionInDays: 7
+#      LogGroupName: !Sub /aws/lambda/${TranslationFinder}
+#  #      Tags:
+#  #        - Key: StageName
+#  #          Value: !Sub ${Stage}
+#  #        - Key: Application
+#  #          Value: !Sub ${Application}
+#
+#  CloudWatchLogTranslationUploader:
+#    Type: AWS::Logs::LogGroup
+#    Properties:
+#      RetentionInDays: 7
+#      LogGroupName: !Sub /aws/lambda/${TranslationUploader}
+##      Tags:
+##        - Key: StageName
+##          Value: !Sub ${Stage}
+##        - Key: Application
+##          Value: !Sub ${Application}
 
   CloudWatchLogApiGateway:
     Type: AWS::Logs::LogGroup
     Properties:
       RetentionInDays: 7
       LogGroupName: !Sub /aws/apigateway/${ApiGatewayApi.arn}
-      Tags:
-        - Key: StageName
-          Value: !Sub ${Stage}
-        - Key: Application
-          Value: !Sub ${Application}
+#      Tags:
+#        - Key: StageName
+#          Value: !Sub ${Stage}
+#        - Key: Application
+#          Value: !Sub ${Application}
 
   LambdaInvocationRole:
     Type: AWS::IAM::Role
@@ -252,14 +279,16 @@ Resources:
         - Key: Application
           Value: !Sub ${Application}
 
+
+
 #Fn::!Equals:
 #  - !Equals [IsOffline, true]
 #  -
 #    Outputs:
-#      ExchangeRatesApi:
+#      TranslationHttpApi:
 #        Description: API Gateway endpoint URL for Prod stage for Hello World function
 #        Value:
-#          Fn::Sub: https://${ExchangeRatesApi}.execute-api.${AWS::Region}.amazonaws.com/
+#          Fn::Sub: https://${TranslationHttpApi}.execute-api.${AWS::Region}.amazonaws.com/
 #      ExpressBackendFunction:
 #        Description: Express Backend Lambda Function ARN
-#        Value: !Sub ExchangeRateController.Arn
+#        Value: !Sub TranslationController.Arn

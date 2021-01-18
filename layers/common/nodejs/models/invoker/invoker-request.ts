@@ -16,9 +16,9 @@ export class InvokerRequest {
     this.invocationType = options.InvocationType;
     this.logType = options.logType;
     this.qualifier = options.qualifier;
-    const config: Lambda.Types.ClientConfiguration = options.lambdaEndpoint
+    const config: Lambda.Types.ClientConfiguration = options.functionEndpoint
       ? {
-          endpoint: options.lambdaEndpoint
+          endpoint: options.functionEndpoint
         }
       : {};
     this._lambda = new Lambda(config);

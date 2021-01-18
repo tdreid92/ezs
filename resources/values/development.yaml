@@ -3,8 +3,7 @@ Ports:
   lambda: 3001
   dynamodb: 8042
 ParameterOverrides:
-  NodeEnv: development
   Stage: Dev
-  TableName: ExchangeRates
-  LambdaEndpoint: http://docker.for.mac.localhost:3001/
+  TableName: Translations-Dev
   TableEndpoint: http://docker.for.mac.localhost:8042/
+  FunctionEndpoint: http://docker.for.mac.localhost:3001/

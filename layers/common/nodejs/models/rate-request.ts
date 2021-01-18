@@ -1,15 +1,14 @@
-import { CurrencyPair } from './currency-pair';
-import { ExchangeRatePair } from './exchange-rate-pair';
+import { FindTranslationResponse } from './find-translation-response';
+import { TranslationUploadRequest } from './translation-upload-request';
 
 export interface RateRequest {
   query: Query;
-  getRateRequest?: CurrencyPair;
-  putRatesRequest?: ExchangeRatePair[];
+  getRateRequest?: FindTranslationResponse;
+  putRatesRequest?: TranslationUploadRequest[];
 }
 
 export const enum Query {
   Get = 'Get',
   Scan = 'Scan',
-  BatchWrite = 'BatchWrite',
-  Barf = 'Barf'
+  BatchWrite = 'BatchWrite'
 }
