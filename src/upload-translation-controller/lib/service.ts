@@ -5,6 +5,17 @@ import { GetTranslationRequest } from '../../../layers/common/nodejs/models/get-
 import { PayloadResponse, ResponseEntity } from '../../../layers/common/nodejs/models/invoker/payload';
 import { UploadTranslationRequest } from '../../../layers/common/nodejs/models/upload-translation-request';
 import { EventResponse } from '../../../layers/common/nodejs/middleware/lambda-event-logger';
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Context, Handler } from 'aws-lambda';
+
+const handleUploadRequest: Handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+  const uploadResponse: U = await uploadDefinition(<UploadTranslationRequest[]>(<unknown>event.body));
+  if (uploadResponse.statusCode == 200) {
+    return {
+      statusCode: uploadResponse.statusCode,
+      body: JSON.stringify(uploadResponse.body)
+    };
+  }
+};
 
 const uploadDefinition = async (uploadRequest: UploadTranslationRequest[]): Promise<PayloadResponse> => {
   const databaseInvocation = await new Invoker({
@@ -26,6 +37,6 @@ const uploadDefinition = async (uploadRequest: UploadTranslationRequest[]): Prom
   return <PayloadResponse>databaseInvocation.payloadResponse;
 };
 
-export const uploadDefinitionService = {
-  uploadDefinition: uploadDefinition
+export const service = {
+  handle: handleUploadRequest
 };
