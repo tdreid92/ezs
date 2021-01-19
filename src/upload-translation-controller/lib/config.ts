@@ -4,18 +4,18 @@ import { FunctionNamespace } from '../../../layers/common/nodejs/models/invoker/
 
 class Config {
   private _env: IEnv<IPresentVariable, IOptionalVariable> = from(process.env);
-  public isOffline: Immutable<boolean>;
-  public stageName: Immutable<string>;
-  public functionEndpoint: Immutable<string>;
-  public uploadTranslationFunction: Immutable<string>;
   public thisFunction: Immutable<string>;
+  public stageName: Immutable<string>;
+  public isOffline: Immutable<boolean>;
+  public functionEndpoint: Immutable<string>;
+  public repositoryHandlerFunction: Immutable<string>;
 
   public constructor() {
-    this.isOffline = this._env.get('IS_OFFLINE').default('false').asBool();
+    this.thisFunction = FunctionNamespace.UploadTranslationController;
     this.stageName = this._env.get('STAGE_NAME').default('').asString();
+    this.isOffline = this._env.get('IS_OFFLINE').default('false').asBool();
+    this.repositoryHandlerFunction = this._env.get('REPOSITORY_HANDLER_FUNCTION').default('').asString();
     this.functionEndpoint = this._env.get('FUNCTION_ENDPOINT').default('').asString();
-    this.uploadTranslationFunction = this._env.get('UPLOAD_TRANSLATION_FUNCTION').default('').asString();
-    this.thisFunction = FunctionNamespace.TranslationController;
 
     Object.freeze(this);
   }

@@ -10,8 +10,10 @@ import cors from '@middy/http-cors';
 import { customHeaderAppender } from '../../layers/common/nodejs/middleware/custom-headers-appender';
 import validator from '@middy/validator';
 import httpErrorHandler from '@middy/http-error-handler';
-import { inputSchema } from './lib/input-schema';
+import { schema } from './lib/schema';
 import jsonBodyParser from '@middy/http-json-body-parser';
+import { uploadDefinitionService } from './lib/upload-definition-service';
+import { UploadTranslationRequest } from '../../layers/common/nodejs/models/upload-translation-request';
 
 log.setKey(mdcKeys.functionNamespace, config.thisFunction).setKey(mdcKeys.stage, config.stageName);
 
@@ -19,23 +21,19 @@ const headers = {
   'Content-Type': 'application/json'
 };
 
-const service: Handler = async (event: APIGatewayProxyEventV2, context: Context): Promise<APIGatewayProxyResultV2> => {
-  //log.info((<FindTranslationResponse>(<unknown>event.pathParameters)).body.source);
-  const res: APIGatewayProxyResultV2 = {
-    body: JSON.stringify(event.body),
-    statusCode: 200
+const handler: Handler = async (event: APIGatewayProxyEventV2, context: Context): Promise<APIGatewayProxyResultV2> => {
+  const res = await uploadDefinitionService.uploadDefinition(<UploadTranslationRequest[]>(<unknown>event.body));
+  return {
+    body: JSON.stringify(res)
   };
-  return res;
 };
 
-const handler: middy.Middy<APIGatewayProxyEventV2, APIGatewayProxyResultV2> = middy(service);
-
 /** Add middleware sequence to exported handler */
-exports.handler = handler
+exports.handler = middy(handler)
   .use(doNotWaitForEmptyEventLoop({ runOnAfter: true, runOnError: true }))
   .use(jsonBodyParser())
   .use(httpErrorHandler())
-  .use(validator({ inputSchema: inputSchema }))
+  .use(validator({ inputSchema: schema }))
   .use(lambdaEventLogger({ logger: log, mode: LoggerMode.Controller }))
   .use(cors())
   .use(httpSecurityHeaders())

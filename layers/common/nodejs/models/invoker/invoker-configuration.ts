@@ -9,9 +9,10 @@ export interface InvokerConfiguration {
 }
 
 export const enum FunctionNamespace {
-  TranslationController = 'TranslationController',
-  TranslationFinder = 'TranslationFinder',
-  ExchangeUploader = 'ExchangeUploader'
+  GetTranslationController = 'GetTranslationController',
+  UploadTranslationController = 'UploadTranslationController',
+  RepositoryHandler = 'RepositoryHandler',
+  SpeechSynthesizer = 'SpeechSynthesizer'
 }
 
 export const enum InvocationType {

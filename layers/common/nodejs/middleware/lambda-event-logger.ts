@@ -6,7 +6,7 @@ import { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Context } from 'aws-la
 import { PayloadRequest, PayloadResponse } from '../models/invoker/payload';
 import { NextFunction } from '../types/next';
 import { commonUtils } from '../utils/common-utils';
-import { match, MatchContext, Predicate } from '../types/match';
+import { match, Predicate } from '../types/match';
 import HandlerLambda = middy.HandlerLambda;
 
 export const enum LoggerMode {
@@ -64,12 +64,24 @@ export const lambdaEventLogger = (config: LambdaLoggerConfig): middy.MiddlewareO
 
   const logLambda: middy.MiddlewareObject<EventRequest, EventResponse> = {
     before: (handler: HandlerLambda, next: NextFunction): void => {
-      logger.setKeyIfPresent(mdcKeys.requestBody, handler.event).setOnBeforeMdcKeys(handler.context);
+      const context: Context = handler.context;
+      let traceIndex = 0;
+      logger
+        .setKeyIfPresent(mdcKeys.requestBody, handler.event)
+        .setKey(mdcKeys.traceId, context.awsRequestId)
+        .setKey(mdcKeys.appName, context.functionName)
+        .setKey(mdcKeys.version, context.functionVersion)
+        .setKey(mdcKeys.date, commonUtils.getFormattedDate)
+        .setKey(mdcKeys.traceIndex, () => traceIndex++);
       subLogger.info(loggerMessages.started);
       next();
     },
     after: (handler: HandlerLambda, next: NextFunction): void => {
-      logger.setOnAfterMdcKeys(handler.response, 200, startTime);
+      const payloadResponse: PayloadResponse = <PayloadResponse>handler.event;
+      logger
+        .setKey(mdcKeys.responseBody, payloadResponse.body)
+        .setKey(mdcKeys.elapsedTime, commonUtils.getElapsedTime(startTime))
+        .setKeyIfPresent(mdcKeys.responseStatusCode, payloadResponse.statusCode);
       subLogger.info(loggerMessages.completed);
       next();
     },

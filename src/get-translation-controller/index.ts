@@ -11,37 +11,18 @@ import cors from '@middy/http-cors';
 import { customHeaderAppender } from '../../layers/common/nodejs/middleware/custom-headers-appender';
 import validator from '@middy/validator';
 import httpErrorHandler from '@middy/http-error-handler';
-import { inputSchema } from './lib/input-schema';
-
-log.setKey(mdcKeys.functionNamespace, config.thisFunction).setKey(mdcKeys.stage, config.stageName);
+import { inputSchema } from './lib/schema';
+import { service } from './lib/service';
 
 const headers = {
   'Content-Type': 'application/json'
 };
 
-interface x {
-  source: string;
-  target: string;
-  word: string;
-}
+log.setKey(mdcKeys.functionNamespace, config.thisFunction).setKey(mdcKeys.stage, config.stageName);
 
-const service: Handler = async (event: APIGatewayProxyEventV2, context: Context): Promise<APIGatewayProxyResultV2> => {
-  //log.info((<FindTranslationResponse>(<unknown>event.pathParameters)).body.source);
-  const res: APIGatewayProxyResultV2 = {
-    body: JSON.stringify(<x>(<unknown>event.pathParameters)),
+const handler: middy.Middy<APIGatewayProxyEventV2, APIGatewayProxyResultV2> = middy(service.handle);
 
-    statusCode: 200
-  };
-  return res;
-};
-
-const handler: middy.Middy<APIGatewayProxyEventV2, APIGatewayProxyResultV2> = middy(service);
-
-/**
- * Add middleware sequence to exported handler
- * See https://github.com/middyjs/middy
- */
-exports.handler = handler
+exports.handler = middy(handler)
   .use(doNotWaitForEmptyEventLoop({ runOnAfter: true, runOnError: true }))
   .use(httpErrorHandler())
   .use(httpEventNormalizer({ payloadFormatVersion: 2 }))

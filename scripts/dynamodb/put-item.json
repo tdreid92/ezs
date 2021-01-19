@@ -2,5 +2,6 @@
   "translationKey": { "S": "DE.EN.hund" },
   "source": { "S": "DE" },
   "target": { "S": "EN" },
+  "word": { "S": "hund" },
   "definition": { "S": "dog"}
 }

@@ -1,3 +1,5 @@
+import { UploadTranslationRequest } from '../models/upload-translation-request';
+
 const pad = (n: number): string => {
   return n < 10 ? '0' + n : n.toString();
 };
@@ -17,6 +19,10 @@ const formatRfc3339 = (date: Date): string => {
     pad(date.getUTCSeconds()) +
     'Z'
   );
+};
+
+const buildTableKey = (source: string, target: string, word: string): string => {
+  return source + '.' + target + '.' + word;
 };
 
 const getElapsedTime = (startTime: [number, number]): number => {
@@ -43,6 +49,7 @@ const tryParse = (input: any) => {
 };
 
 export const commonUtils = {
+  buildTableKey: buildTableKey,
   cast: cast,
   tryParse: tryParse,
   getElapsedTime: getElapsedTime,

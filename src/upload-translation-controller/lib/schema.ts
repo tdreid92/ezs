@@ -2,7 +2,7 @@
  * JSON Schema Validation
  * See https://json-schema.org/draft/2019-09/json-schema-validation.html#pattern
  */
-export const inputSchema = {
+export const schema = {
   properties: {
     body: {
       type: 'object',

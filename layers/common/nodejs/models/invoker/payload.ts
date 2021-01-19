@@ -1,8 +1,10 @@
-import { RateRequest } from '../rate-request';
-import { FindTranslationResponse } from '../find-translation-response';
+import { GetTranslationResponse } from '../get-translation-response';
+import { UploadTranslationRequest } from '../upload-translation-request';
+import { GetTranslationRequest } from '../get-translation-request';
+import { DatabaseRequest } from '../database-request';
 
-export type PayloadRequest = RateRequest | undefined;
-export type PayloadResponse = (ResponseEntity & PayloadBody) | FindTranslationResponse;
+export type PayloadRequest = DatabaseRequest;
+export type PayloadResponse = ResponseEntity & PayloadBody;
 
 export interface ResponseEntity {
   statusCode: number;

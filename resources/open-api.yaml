@@ -1,5 +1,6 @@
+# See https://mechanicalrock.github.io/2020/01/27/serverless-express-openapi.html
 openapi: 3.0.0
-info: #https://mechanicalrock.github.io/2020/01/27/serverless-express-openapi.html
+info:
   title: EZS API
   description: A simple API for uploading and retrieving a word's translation
   version: "1.0"
@@ -88,6 +89,8 @@ components:
         target:
           type: string
         word:
+          type: string
+        definition:
           type: string
 
     GetTranslationResponse:

@@ -37,6 +37,10 @@ Parameters:
       - Prod
     Description: The name for a project pipeline stage, such as Dev, Test, or Prod for which resources are provisioned and deployed.
     ConstraintDescription: Only Dev, Test, or Prod allowed
+  BucketName:
+    Type: String
+    Default: ''
+    Description: Bucket Name for S3
   TableName:
     Type: String
     Description: Table Name for DynamoDB Table
@@ -91,8 +95,11 @@ Resources:
         StageName: !Sub ${Stage}
         StageVariables: Json
         Tags: Map
-#  CommentsBucket:
+
+#  SpeechBucket:
 #    Type: AWS::S3::Bucket
+#    Properties:
+#      BucketName: !Sub !{BucketName}
 
   GetTranslationController:
     Type: AWS::Serverless::Function # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
@@ -109,6 +116,7 @@ Resources:
         Variables:
           STAGE_NAME: !Sub ${Stage}
           IS_OFFLINE: !Equals [ IsOffline, true ]
+          REPOSITORY_HANDLER_FUNCTION: !Ref RepositoryHandler
           FUNCTION_ENDPOINT: !Sub ${FunctionEndpoint}
       Events:
         GetTranslation:
@@ -139,8 +147,9 @@ Resources:
       Environment:
         Variables:
           STAGE_NAME: !Sub ${Stage}
-          IS_OFFLINE: !Equals [IsOffline, true]
+          REPOSITORY_HANDLER_FUNCTION: !Ref RepositoryHandler
           FUNCTION_ENDPOINT: !Sub ${FunctionEndpoint}
+          IS_OFFLINE: !Equals [IsOffline, true]
       Events:
         UploadTranslations:
           Type: HttpApi
@@ -156,50 +165,49 @@ Resources:
         StageName: !Sub ${Stage}
         Application: !Sub ${Application}
 
-#  TranslationFinder:
+  RepositoryHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${Application}-${ProjectId}-RepositoryHandler-${Stage}'
+      Description: CRUD
+      Handler: index.handler
+      Runtime: nodejs12.x
+      CodeUri: src/repository-handler
+      Environment:
+        Variables:
+          STAGE_NAME: !Sub ${Stage}
+          DYNAMODB_TABLE: !Sub ${TableName}
+          DYNAMODB_ENDPOINT: !Sub ${TableEndpoint}
+          IS_OFFLINE: !If [ IsOffline, true, false ]
+      MemorySize: 128
+      Role: !GetAtt LambdaInvocationRole.Arn
+      Timeout: 3
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableName
+      Tags:
+        StageName: !Sub ${Stage}
+        Application: !Sub ${Application}
+
+#  SpeechSynthesizer:
 #    Type: AWS::Serverless::Function
 #    Properties:
-#      FunctionName: !Sub '${Application}-${ProjectId}-TranslationFinder-${Stage}'
-#      Description: CRUD
-#      Handler: index.handler
-#      Runtime: nodejs12.x
-#      CodeUri: src/translation-finder
-#      Environment:
-#        Variables:
-#          STAGE_NAME: !Sub ${Stage}
-#          DYNAMODB_TABLE: !Sub ${TableName}
-#          IS_OFFLINE: !If [ IsOffline, true, false ]
-#          DYNAMODB_ENDPOINT: !Sub ${TableEndpoint}
-#      MemorySize: 128
-#      Role: !GetAtt LambdaInvocationRole.Arn
-#      Timeout: 3
-#      Policies:
-#        - DynamoDBCrudPolicy:
-#            TableName: !Ref TableName
-#      Tags:
-#        StageName: !Sub ${Stage}
-#        Application: !Sub ${Application}
-#
-#  TranslationUploader:
-#    Type: AWS::Serverless::Function
-#    Properties:
-#      FunctionName: !Sub '${Application}-${ProjectId}-TranslationUploader-${Stage}'
-#      Description: Read or list translations
+#      FunctionName: !Sub '${Application}-${ProjectId}-SpeechSynthesizer-${Stage}'
+#      Description: Synthesizes text to Speech
 #      Handler: index.handler
 #      Runtime: nodejs12.x
 #      CodeUri: src/translation-uploader
 #      Environment:
 #        Variables:
 #          STAGE_NAME: !Sub ${Stage}
-#          DYNAMODB_TABLE: !Sub ${TableName}
-#          DYNAMODB_ENDPOINT: !Sub ${TableEndpoint}
+#          REPOSITORY_HANDLER_FUNCTION: !Ref RepositoryHandler
 #          IS_OFFLINE: !If [IsOffline, true, false]
 #      MemorySize: 128
 #      Role: !GetAtt LambdaInvocationRole.Arn
 #      Timeout: 3
 #      Policies:
-#        - DynamoDBCrudPolicy:
-#            TableName: !Ref TableName
+#        - S3CrudPolicy:
+#            TableName: !Ref SpeechBucket
 #      Tags:
 #        StageName: !Sub ${Stage}
 #        Application: !Sub ${Application}

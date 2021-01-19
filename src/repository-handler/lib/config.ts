@@ -2,21 +2,21 @@ import { from, IEnv, IOptionalVariable, IPresentVariable } from 'env-var';
 import { Immutable } from '../../../layers/common/nodejs/types/immutable';
 import { FunctionNamespace } from '../../../layers/common/nodejs/models/invoker/invoker-configuration';
 
+//todo test failures
 class Config {
   private _env: IEnv<IPresentVariable, IOptionalVariable> = from(process.env);
   public thisFunction: Immutable<string>;
+  public stage: Immutable<string>;
   public isOffline: Immutable<boolean>;
-  public stageName: Immutable<string>;
-  public repositoryHandlerFunction: Immutable<string>;
-  public functionEndpoint: Immutable<string>;
+  public tableName: Immutable<string>;
+  public tableEndpoint: Immutable<string>; //todo resolve default endpoint
 
   public constructor() {
-    this.thisFunction = FunctionNamespace.GetTranslationController;
+    this.thisFunction = FunctionNamespace.RepositoryHandler;
+    this.stage = this._env.get('STAGE_NAME').default('').asString();
     this.isOffline = this._env.get('IS_OFFLINE').default('false').asBool();
-    this.stageName = this._env.get('STAGE_NAME').default('').asString();
-    this.repositoryHandlerFunction = this._env.get('REPOSITORY_HANDLER_FUNCTION').default('').asString();
-    this.functionEndpoint = this._env.get('FUNCTION_ENDPOINT').default('').asString();
-
+    this.tableName = this._env.get('DYNAMODB_TABLE').default('').asString();
+    this.tableEndpoint = this._env.get('DYNAMODB_ENDPOINT').default('').asString();
     Object.freeze(this);
   }
 }
