@@ -7,9 +7,12 @@ import createError from 'http-errors';
 import { match, Predicate } from '../../../layers/common/nodejs/types/match';
 import { log } from '../../../layers/common/nodejs/log/sam-logger';
 import { DatabaseRequest, Query } from '../../../layers/common/nodejs/models/database-request';
+import { UploadTranslationRequest } from '../../../layers/common/nodejs/models/upload-translation-request';
+import { UpdateTranslationRequest } from '../../../layers/common/nodejs/models/update-translation-request';
 
 const isGet: Predicate<Query> = (q: Query) => q == Query.Get;
 const isScan: Predicate<Query> = (q: Query) => q == Query.Scan;
+const isBatchWrite: Predicate<Query> = (q: Query) => q == Query.BatchWrite;
 const isUpdate: Predicate<Query> = (q: Query) => q == Query.Update;
 
 const handleCrudEvent = async (event: PayloadRequest): Promise<PayloadResponse> => {
@@ -22,7 +25,8 @@ const handleCrudEvent = async (event: PayloadRequest): Promise<PayloadResponse> 
   return await match(databaseRequest.query)
     .on(isGet, async () => get(databaseRequest.getRequest))
     .on(isScan, async () => scan())
-    // .on(isUpdate, async () => update(databaseRequest.updateRequest))
+    .on(isUpdate, async () => update(databaseRequest.updateRequest))
+    .on(isBatchWrite, async () => batchWrite(databaseRequest.uploadRequests))
     .otherwise(() => {
       throw new createError.BadRequest('Query type [' + databaseRequest.query + '] not permitted');
     });
@@ -32,23 +36,31 @@ const get = async (getRequest: GetTranslationRequest | undefined): Promise<Respo
   if (!getRequest) {
     throw new createError.BadRequest('GetTranslationRequest is undefined or null');
   }
-  const input: DynamoDB.GetItemInput = dbUtils.buildGetItemParams(getRequest);
+  const input: DynamoDB.GetItemInput = dbUtils.buildGetItemParam(getRequest);
   log.info(input);
   return repository.get(input);
 };
 
 const scan = async (): Promise<ResponseEntity> => {
-  const input: DynamoDB.ScanInput = dbUtils.buildListItemsParams();
+  const input: DynamoDB.ScanInput = dbUtils.buildListItemsParam();
   return repository.scan(input);
 };
 
-// const update = async (uploadRequest: UploadTranslationRequest[] | undefined): Promise<ResponseEntity> => {
-//   if (!uploadRequest) {
-//     throw new createError.BadRequest('UploadTranslationRequest is undefined or null');
-//   }
-//   const input: DynamoDB.BatchWriteItemInput = dbUtils.buildBatchWriteParams(uploadRequest);
-//   return repository.batchWrite(input);
-// };
+const update = async (updateRequest: UpdateTranslationRequest | undefined): Promise<ResponseEntity> => {
+  if (!updateRequest) {
+    throw new createError.BadRequest('UpdateTranslationRequest is undefined or null');
+  }
+  const input: DynamoDB.UpdateItemInput = dbUtils.buildUpdateParam(updateRequest);
+  return repository.update(input);
+};
+
+const batchWrite = async (uploadRequests: UploadTranslationRequest[] | undefined): Promise<ResponseEntity> => {
+  if (!uploadRequests) {
+    throw new createError.BadRequest('UploadTranslationRequest is undefined or null');
+  }
+  const input: DynamoDB.BatchWriteItemInput = dbUtils.buildBatchWriteParam(uploadRequests);
+  return repository.batchWrite(input);
+};
 
 export const service = {
   handleCrudEvent: handleCrudEvent

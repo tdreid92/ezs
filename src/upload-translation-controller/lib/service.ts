@@ -1,30 +1,32 @@
 import { config } from './config';
 import { Invoker } from '../../../layers/common/nodejs/models/invoker/invoker';
 import { Query } from '../../../layers/common/nodejs/models/database-request';
-import { GetTranslationRequest } from '../../../layers/common/nodejs/models/get-translation-request';
-import { PayloadResponse, ResponseEntity } from '../../../layers/common/nodejs/models/invoker/payload';
+import { PayloadResponse } from '../../../layers/common/nodejs/models/invoker/payload';
 import { UploadTranslationRequest } from '../../../layers/common/nodejs/models/upload-translation-request';
-import { EventResponse } from '../../../layers/common/nodejs/middleware/lambda-event-logger';
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Context, Handler } from 'aws-lambda';
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Handler } from 'aws-lambda';
+import { BulkUploadTranslationRequest } from '../../../layers/common/nodejs/models/bulk-upload-translation-request';
 
 const handleUploadRequest: Handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
-  const uploadResponse: U = await uploadDefinition(<UploadTranslationRequest[]>(<unknown>event.body));
-  if (uploadResponse.statusCode == 200) {
+  const bulkUploadResponse: PayloadResponse = await uploadDefinition(
+    (<BulkUploadTranslationRequest>(<unknown>event.body)).translations
+  );
+  if (bulkUploadResponse.statusCode == 200) {
     return {
-      statusCode: uploadResponse.statusCode,
-      body: JSON.stringify(uploadResponse.body)
+      statusCode: bulkUploadResponse.statusCode,
+      body: JSON.stringify(bulkUploadResponse.body)
     };
   }
+  return bulkUploadResponse;
 };
 
-const uploadDefinition = async (uploadRequest: UploadTranslationRequest[]): Promise<PayloadResponse> => {
+const uploadDefinition = async (uploadRequests: UploadTranslationRequest[]): Promise<PayloadResponse> => {
   const databaseInvocation = await new Invoker({
     functionName: config.repositoryHandlerFunction,
     functionEndpoint: config.functionEndpoint
   })
     .setPayloadRequest({
-      query: Query.Update,
-      updateRequest: uploadRequest
+      query: Query.BatchWrite,
+      uploadRequests: uploadRequests
     })
     .invoke();
 
@@ -32,7 +34,7 @@ const uploadDefinition = async (uploadRequest: UploadTranslationRequest[]): Prom
   //   functionName: config.uploadTranslationFunction,
   //   functionEndpoint: config.functionEndpoint
   // })
-  //   .setPayloadRequest(uploadRequest)
+  //   .setPayloadRequest(bulkUploadTranslationRequest)
   //   .invoke();
   return <PayloadResponse>databaseInvocation.payloadResponse;
 };

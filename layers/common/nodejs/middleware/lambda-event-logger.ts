@@ -8,6 +8,7 @@ import { NextFunction } from '../types/next';
 import { commonUtils } from '../utils/common-utils';
 import { match, Predicate } from '../types/match';
 import HandlerLambda = middy.HandlerLambda;
+import { DatabaseRequest } from '../models/database-request';
 
 export const enum LoggerMode {
   Controller,

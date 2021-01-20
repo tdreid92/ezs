@@ -3,49 +3,59 @@ import { config } from './config';
 import { commonUtils } from '../../../layers/common/nodejs/utils/common-utils';
 import { GetTranslationRequest } from '../../../layers/common/nodejs/models/get-translation-request';
 import { UploadTranslationRequest } from '../../../layers/common/nodejs/models/upload-translation-request';
+import { UpdateTranslationRequest } from '../../../layers/common/nodejs/models/update-translation-request';
 
 const isTableUndefined = (): boolean => config.tableName == '';
 
-const buildGetItemParams = (getRequest: GetTranslationRequest): DynamoDB.DocumentClient.GetItemInput =>
-  <DynamoDB.DocumentClient.GetItemInput>{
+const buildGetItemParam = (getRequest: GetTranslationRequest): DynamoDB.GetItemInput =>
+  <DynamoDB.GetItemInput>{
     TableName: config.tableName,
     Key: {
       translationKey: commonUtils.buildTableKey(getRequest.source, getRequest.target, getRequest.word)
     }
   };
 
-const buildListItemsParams = (): DynamoDB.DocumentClient.ScanInput => {
+const buildListItemsParam = (): DynamoDB.ScanInput => {
   return {
     TableName: config.tableName
   };
 };
 
-// const buildPutRequests = (ratePairs: UploadTranslationRequest[]): DynamoDB.DocumentClient.BatchWriteItemRequestMap =>
-//   <DynamoDB.DocumentClient.BatchWriteItemRequestMap>(<unknown>ratePairs.map((rp: TranslationUploadRequest) => ({
-//     PutRequest: {
-//       Item: {
-//         translationKey: commonUtils.buildTableKey(rp),
-//         BaseCurrency: rp.language,
-//         Date: rp.target,
-//         QuoteCurrency: rp.source,
-//         Rate: rp.definition,
-//         CreatedAt: Date.now()
-//       }
-//     }
-//   })));
-//
-// const buildBatchWriteParams = (ratePairs: TranslationUploadRequest[]): DynamoDB.DocumentClient.BatchWriteItemInput => {
-//   return <DynamoDB.DocumentClient.BatchWriteItemInput>(<unknown>{
-//     RequestItems: {
-//       [config.tableName]: buildPutRequests(ratePairs)
-//     }
-//     //ReturnItemCollectionMetrics: 'SIZE'
-//   });
-// };
+const buildUpdateParam = (updateRequest: UpdateTranslationRequest): DynamoDB.UpdateItemInput =>
+  <DynamoDB.UpdateItemInput>{
+    TableName: config.tableName,
+    Key: {
+      translationKey: updateRequest.translationKey
+    }
+    // UpdateExpression: "set s3Url = :s3Ur"
+  };
+
+const buildPutRequests = (uploadRequests: UploadTranslationRequest[]): DynamoDB.BatchWriteItemRequestMap =>
+  <DynamoDB.BatchWriteItemRequestMap>(<unknown>uploadRequests.map((req: UploadTranslationRequest) => ({
+    PutRequest: {
+      Item: {
+        translationKey: commonUtils.buildTableKey(req.source, req.target, req.word),
+        target: req.target,
+        source: req.source,
+        word: req.word,
+        definition: req.definition,
+        createdAt: Date.now()
+      }
+    }
+  })));
+
+const buildBatchWriteParam = (uploadRequests: UploadTranslationRequest[]): DynamoDB.BatchWriteItemInput => {
+  return <DynamoDB.BatchWriteItemInput>(<unknown>{
+    RequestItems: {
+      [config.tableName]: buildPutRequests(uploadRequests)
+    }
+  });
+};
 
 export const dbUtils = {
   isTableUndefined: isTableUndefined,
-  buildGetItemParams: buildGetItemParams,
-  buildListItemsParams: buildListItemsParams
-  // buildBatchWriteParams: buildBatchWriteParams
+  buildGetItemParam: buildGetItemParam,
+  buildListItemsParam: buildListItemsParam,
+  buildUpdateParam: buildUpdateParam,
+  buildBatchWriteParam: buildBatchWriteParam
 };

@@ -1,5 +1,3 @@
-import { UploadTranslationRequest } from '../models/upload-translation-request';
-
 const pad = (n: number): string => {
   return n < 10 ? '0' + n : n.toString();
 };

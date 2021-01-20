@@ -1,4 +1,4 @@
-export interface UploadTranslationResponse {
+export interface BulkUploadTranslationResponse {
   source: string;
   target: string;
   word: string;

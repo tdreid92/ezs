@@ -1,10 +1,12 @@
 import { GetTranslationRequest } from './get-translation-request';
 import { UploadTranslationRequest } from './upload-translation-request';
+import { UpdateTranslationRequest } from './update-translation-request';
 
 export interface DatabaseRequest {
   query: Query;
   getRequest?: GetTranslationRequest;
-  updateRequest?: UploadTranslationRequest[];
+  uploadRequests?: UploadTranslationRequest[];
+  updateRequest?: UpdateTranslationRequest;
 }
 
 export const enum Query {

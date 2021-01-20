@@ -17,6 +17,10 @@ const handleGetRequest: Handler = async (event: APIGatewayProxyEventV2): Promise
 };
 
 const getDefinition = async (getRequest: GetTranslationRequest): Promise<PayloadResponse> => {
+  if (getRequest.source == getRequest.target) {
+    return untranslatedResponse(getRequest);
+  }
+
   const databaseInvocation = await new Invoker({
     functionName: config.repositoryHandlerFunction,
     functionEndpoint: config.functionEndpoint
@@ -28,6 +32,16 @@ const getDefinition = async (getRequest: GetTranslationRequest): Promise<Payload
     .invoke();
   return <PayloadResponse>databaseInvocation.payloadResponse;
 };
+
+const untranslatedResponse = (getRequest: GetTranslationRequest): PayloadResponse => ({
+  statusCode: 200,
+  body: {
+    source: getRequest.source,
+    target: getRequest.target,
+    word: getRequest.word,
+    definition: getRequest.word
+  }
+});
 
 export const service = {
   handle: handleGetRequest
