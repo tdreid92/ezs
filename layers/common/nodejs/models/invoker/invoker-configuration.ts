@@ -11,14 +11,14 @@ export interface InvokerConfiguration {
 export const enum FunctionNamespace {
   GetTranslationController = 'GetTranslationController',
   UploadTranslationController = 'UploadTranslationController',
-  RepositoryHandler = 'RepositoryHandler',
+  RepositoryService = 'RepositoryService',
   PollySynthesizer = 'PollySynthesizer'
 }
 
 export const enum InvocationType {
   RequestResponse = 'RequestResponse',
   Event = 'Event',
-  Dryrun = 'DryRun'
+  DryRun = 'DryRun'
 }
 
 export const enum LogType {

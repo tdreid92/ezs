@@ -21,7 +21,7 @@ const handlePost: Handler = async (event: APIGatewayProxyEventV2): Promise<APIGa
 
 const uploadDefinition = async (uploadRequests: UploadTranslationRequest[]): Promise<PayloadResponse> => {
   const databaseInvocation = await new Invoker({
-    functionName: config.repositoryHandlerFunction,
+    functionName: config.repositoryServiceFunction,
     functionEndpoint: config.functionEndpoint
   })
     .setPayloadRequest({

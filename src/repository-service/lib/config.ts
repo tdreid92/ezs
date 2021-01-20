@@ -12,7 +12,7 @@ class Config {
   public tableEndpoint: Immutable<string>; //todo resolve default endpoint
 
   public constructor() {
-    this.thisFunction = FunctionNamespace.RepositoryHandler;
+    this.thisFunction = FunctionNamespace.RepositoryService;
     this.stage = this._env.get('STAGE').default('').asString();
     this.isOffline = this._env.get('IS_OFFLINE').default('false').asBool();
     this.tableName = this._env.get('DYNAMODB_TABLE').default('').asString();

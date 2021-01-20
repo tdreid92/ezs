@@ -7,7 +7,7 @@ class Config {
   public thisFunction: Immutable<string>;
   public stage: Immutable<string>;
   public isOffline: Immutable<boolean>;
-  public repositoryHandlerFunction: Immutable<string>;
+  public repositoryServiceFunction: Immutable<string>;
   public speechSynthesizerFunction: Immutable<string>;
   public functionEndpoint: Immutable<string>;
 
@@ -15,7 +15,7 @@ class Config {
     this.thisFunction = FunctionNamespace.UploadTranslationController;
     this.stage = this._env.get('STAGE').default('').asString();
     this.isOffline = this._env.get('IS_OFFLINE').default('false').asBool();
-    this.repositoryHandlerFunction = this._env.get('REPOSITORY_HANDLER_FUNCTION').default('').asString();
+    this.repositoryServiceFunction = this._env.get('REPOSITORY_SERVICE_FUNCTION').default('').asString();
     this.speechSynthesizerFunction = this._env.get('SPEECH_SYNTHESIZER_FUNCTION').default('').asString();
     this.functionEndpoint = this._env.get('FUNCTION_ENDPOINT').default('').asString();
 

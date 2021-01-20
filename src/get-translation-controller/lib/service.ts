@@ -22,7 +22,7 @@ const getDefinition = async (getRequest: GetTranslationRequest): Promise<Payload
   }
 
   const databaseInvocation = await new Invoker({
-    functionName: config.repositoryHandlerFunction,
+    functionName: config.repositoryServiceFunction,
     functionEndpoint: config.functionEndpoint
   })
     .setPayloadRequest({
