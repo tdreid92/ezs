@@ -63,5 +63,5 @@ const batchWrite = async (uploadRequests: UploadTranslationRequest[] | undefined
 };
 
 export const service = {
-  handleCrudEvent: handleCrudEvent
+  handle: handleCrudEvent
 };

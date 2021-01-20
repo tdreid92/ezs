@@ -9,7 +9,7 @@ import { PayloadRequest, PayloadResponse } from '../../layers/common/nodejs/mode
 
 log.setKey(mdcKeys.functionNamespace, config).setKey(mdcKeys.stage, config.stage);
 
-export const handler: middy.Middy<PayloadRequest, PayloadResponse> = middy(service.handleCrudEvent);
+export const handler: middy.Middy<PayloadRequest, PayloadResponse> = middy(service.handle);
 
 exports.handler = handler
   .use(doNotWaitForEmptyEventLoop({ runOnBefore: true, runOnAfter: true, runOnError: false }))

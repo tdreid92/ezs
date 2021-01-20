@@ -118,9 +118,9 @@ Resources:
       #        TargetArn: arn:aws:sns:us-east-2:123456789012:my-topic
       Environment:
         Variables:
-          STAGE_NAME: !Sub ${Stage}
+          STAGE: !Sub ${Stage}
           IS_OFFLINE: !Equals [ IsOffline, true ]
-          REPOSITORY_HANDLER_FUNCTION: !Ref RepositoryHandler
+          REPOSITORY_SERVICE_FUNCTION: !Ref RepositoryService
           FUNCTION_ENDPOINT: !Sub ${FunctionEndpoint}
       Events:
         GetTranslation:
@@ -150,9 +150,9 @@ Resources:
 #        TargetArn: arn:aws:sns:us-east-2:123456789012:my-topic
       Environment:
         Variables:
-          STAGE_NAME: !Sub ${Stage}
-          REPOSITORY_HANDLER_FUNCTION: !Ref RepositoryHandler
-          SPEECH_SYNTHESIZER_FUNCTION: !Ref SpeechSynthesizer
+          STAGE: !Sub ${Stage}
+          REPOSITORY_SERVICE_FUNCTION: !Ref RepositoryService
+          POLLY_SYNTHESIZER_FUNCTION: !Ref PollySynthesizer
           FUNCTION_ENDPOINT: !Sub ${FunctionEndpoint}
           IS_OFFLINE: !Equals [IsOffline, true]
       Events:
@@ -170,17 +170,17 @@ Resources:
         StageName: !Sub ${Stage}
         Application: !Sub ${Application}
 
-  RepositoryHandler:
+  RepositoryService:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub '${Application}-${ProjectId}-RepositoryHandler-${Stage}'
+      FunctionName: !Sub '${Application}-${ProjectId}-RepositoryService-${Stage}'
       Description: CRUD
       Handler: index.handler
       Runtime: nodejs12.x
-      CodeUri: src/repository-handler
+      CodeUri: src/repository-service
       Environment:
         Variables:
-          STAGE_NAME: !Sub ${Stage}
+          STAGE: !Sub ${Stage}
           DYNAMODB_TABLE: !Sub ${TableName}
           DYNAMODB_ENDPOINT: !Sub ${TableEndpoint}
           IS_OFFLINE: !If [ IsOffline, true, false ]
@@ -194,18 +194,18 @@ Resources:
         StageName: !Sub ${Stage}
         Application: !Sub ${Application}
 
-  SpeechSynthesizer:
+  PollySynthesizer:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub '${Application}-${ProjectId}-SpeechSynthesizer-${Stage}'
+      FunctionName: !Sub '${Application}-${ProjectId}-PollySynthesizer-${Stage}'
       Description: Synthesizes text to Speech
       Handler: index.handler
       Runtime: nodejs12.x
-      CodeUri: src/translation-uploader
+      CodeUri: src/polly-synthezier
       Environment:
         Variables:
-          STAGE_NAME: !Sub ${Stage}
-          REPOSITORY_HANDLER_FUNCTION: !Ref RepositoryHandler
+          STAGE: !Sub ${Stage}
+          REPOSITORY_SERVICE_FUNCTION: !Ref RepositoryService
           FUNCTION_ENDPOINT: !Sub ${FunctionEndpoint}
           IS_OFFLINE: !If [IsOffline, true, false]
       MemorySize: 128
@@ -254,17 +254,17 @@ Resources:
       RetentionInDays: !Sub {CloudWatchRetentionInDays}
       LogGroupName: !Sub /aws/lambda/${UploadTranslationController}
 
-  CloudWatchLogRepositoryHandler:
+  CloudWatchLogRepositoryService:
     Type: AWS::Logs::LogGroup
     Properties:
       RetentionInDays: !Sub {CloudWatchRetentionInDays}
-      LogGroupName: !Sub /aws/lambda/${RepositoryHandler}
+      LogGroupName: !Sub /aws/lambda/${RepositoryService}
 
-  CloudWatchLogSpeechSynthesizer:
+  CloudWatchLogPollySynthesizer:
     Type: AWS::Logs::LogGroup
     Properties:
       RetentionInDays: 7
-      LogGroupName: !Sub /aws/lambda/${SpeechSynthesizer}
+      LogGroupName: !Sub /aws/lambda/${PollySynthesizer}
 
   CloudWatchLogApiGateway:
     Type: AWS::Logs::LogGroup

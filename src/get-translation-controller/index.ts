@@ -18,7 +18,7 @@ const headers = {
   'Content-Type': 'application/json'
 };
 
-log.setKey(mdcKeys.functionNamespace, config.thisFunction).setKey(mdcKeys.stage, config.stageName);
+log.setKey(mdcKeys.functionNamespace, config.thisFunction).setKey(mdcKeys.stage, config.stage);
 
 const handler: middy.Middy<APIGatewayProxyEventV2, APIGatewayProxyResultV2> = middy(service.handle);
 

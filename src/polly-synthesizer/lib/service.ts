@@ -58,5 +58,5 @@ exports.handler = (event) => {
 };
 
 export const service = {
-  handle: handleGetRequest
+  handle: handlePollySynthesis
 };

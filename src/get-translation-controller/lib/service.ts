@@ -5,7 +5,7 @@ import { PayloadResponse } from '../../../layers/common/nodejs/models/invoker/pa
 import { Query } from '../../../layers/common/nodejs/models/database-request';
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Handler } from 'aws-lambda';
 
-const handleGetRequest: Handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+const handleGet: Handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   const getResponse: PayloadResponse = await getDefinition(<GetTranslationRequest>(<unknown>event.pathParameters));
   if (getResponse.statusCode == 200) {
     return {
@@ -44,5 +44,5 @@ const untranslatedResponse = (getRequest: GetTranslationRequest): PayloadRespons
 });
 
 export const service = {
-  handle: handleGetRequest
+  handle: handleGet
 };

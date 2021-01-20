@@ -12,7 +12,7 @@ export const enum FunctionNamespace {
   GetTranslationController = 'GetTranslationController',
   UploadTranslationController = 'UploadTranslationController',
   RepositoryHandler = 'RepositoryHandler',
-  SpeechSynthesizer = 'SpeechSynthesizer'
+  PollySynthesizer = 'PollySynthesizer'
 }
 
 export const enum InvocationType {

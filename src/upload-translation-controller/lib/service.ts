@@ -6,7 +6,7 @@ import { UploadTranslationRequest } from '../../../layers/common/nodejs/models/u
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Handler } from 'aws-lambda';
 import { BulkUploadTranslationRequest } from '../../../layers/common/nodejs/models/bulk-upload-translation-request';
 
-const handleUploadRequest: Handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+const handlePost: Handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   const bulkUploadResponse: PayloadResponse = await uploadDefinition(
     (<BulkUploadTranslationRequest>(<unknown>event.body)).translations
   );
@@ -40,5 +40,5 @@ const uploadDefinition = async (uploadRequests: UploadTranslationRequest[]): Pro
 };
 
 export const service = {
-  handle: handleUploadRequest
+  handle: handlePost
 };

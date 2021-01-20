@@ -5,7 +5,7 @@ import { FunctionNamespace } from '../../../layers/common/nodejs/models/invoker/
 class Config {
   private _env: IEnv<IPresentVariable, IOptionalVariable> = from(process.env);
   public thisFunction: Immutable<string>;
-  public stageName: Immutable<string>;
+  public stage: Immutable<string>;
   public isOffline: Immutable<boolean>;
   public repositoryHandlerFunction: Immutable<string>;
   public speechSynthesizerFunction: Immutable<string>;
@@ -13,7 +13,7 @@ class Config {
 
   public constructor() {
     this.thisFunction = FunctionNamespace.UploadTranslationController;
-    this.stageName = this._env.get('STAGE_NAME').default('').asString();
+    this.stage = this._env.get('STAGE').default('').asString();
     this.isOffline = this._env.get('IS_OFFLINE').default('false').asBool();
     this.repositoryHandlerFunction = this._env.get('REPOSITORY_HANDLER_FUNCTION').default('').asString();
     this.speechSynthesizerFunction = this._env.get('SPEECH_SYNTHESIZER_FUNCTION').default('').asString();
@@ -21,5 +21,6 @@ class Config {
 
     Object.freeze(this);
   }
+}
 
 export const config = new Config();

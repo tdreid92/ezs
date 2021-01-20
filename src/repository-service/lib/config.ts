@@ -13,7 +13,7 @@ class Config {
 
   public constructor() {
     this.thisFunction = FunctionNamespace.RepositoryHandler;
-    this.stage = this._env.get('STAGE_NAME').default('').asString();
+    this.stage = this._env.get('STAGE').default('').asString();
     this.isOffline = this._env.get('IS_OFFLINE').default('false').asBool();
     this.tableName = this._env.get('DYNAMODB_TABLE').default('').asString();
     this.tableEndpoint = this._env.get('DYNAMODB_ENDPOINT').default('').asString();
