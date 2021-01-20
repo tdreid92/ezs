@@ -36,13 +36,13 @@ const get = async (getRequest: GetTranslationRequest | undefined): Promise<Respo
   if (!getRequest) {
     throw new createError.BadRequest('GetTranslationRequest is undefined or null');
   }
-  const input: DynamoDB.GetItemInput = dbUtils.buildGetItemParam(getRequest);
+  const input: DynamoDB.GetItemInput = dbUtils.buildGetItemParams(getRequest);
   log.info(input);
   return repository.get(input);
 };
 
 const scan = async (): Promise<ResponseEntity> => {
-  const input: DynamoDB.ScanInput = dbUtils.buildListItemsParam();
+  const input: DynamoDB.ScanInput = dbUtils.buildListItemsParams();
   return repository.scan(input);
 };
 
@@ -50,7 +50,7 @@ const update = async (updateRequest: UpdateTranslationRequest | undefined): Prom
   if (!updateRequest) {
     throw new createError.BadRequest('UpdateTranslationRequest is undefined or null');
   }
-  const input: DynamoDB.UpdateItemInput = dbUtils.buildUpdateParam(updateRequest);
+  const input: DynamoDB.UpdateItemInput = dbUtils.buildUpdateParams(updateRequest);
   return repository.update(input);
 };
 
@@ -58,7 +58,7 @@ const batchWrite = async (uploadRequests: UploadTranslationRequest[] | undefined
   if (!uploadRequests) {
     throw new createError.BadRequest('UploadTranslationRequest is undefined or null');
   }
-  const input: DynamoDB.BatchWriteItemInput = dbUtils.buildBatchWriteParam(uploadRequests);
+  const input: DynamoDB.BatchWriteItemInput = dbUtils.buildBatchWriteParams(uploadRequests);
   return repository.batchWrite(input);
 };
 

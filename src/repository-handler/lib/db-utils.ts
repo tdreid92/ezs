@@ -7,7 +7,7 @@ import { UpdateTranslationRequest } from '../../../layers/common/nodejs/models/u
 
 const isTableUndefined = (): boolean => config.tableName == '';
 
-const buildGetItemParam = (getRequest: GetTranslationRequest): DynamoDB.GetItemInput =>
+const buildGetItemParams = (getRequest: GetTranslationRequest): DynamoDB.GetItemInput =>
   <DynamoDB.GetItemInput>{
     TableName: config.tableName,
     Key: {
@@ -15,13 +15,13 @@ const buildGetItemParam = (getRequest: GetTranslationRequest): DynamoDB.GetItemI
     }
   };
 
-const buildListItemsParam = (): DynamoDB.ScanInput => {
+const buildListItemsParams = (): DynamoDB.ScanInput => {
   return {
     TableName: config.tableName
   };
 };
 
-const buildUpdateParam = (updateRequest: UpdateTranslationRequest): DynamoDB.UpdateItemInput =>
+const buildUpdateParams = (updateRequest: UpdateTranslationRequest): DynamoDB.UpdateItemInput =>
   <DynamoDB.UpdateItemInput>{
     TableName: config.tableName,
     Key: {
@@ -44,7 +44,7 @@ const buildPutRequests = (uploadRequests: UploadTranslationRequest[]): DynamoDB.
     }
   })));
 
-const buildBatchWriteParam = (uploadRequests: UploadTranslationRequest[]): DynamoDB.BatchWriteItemInput => {
+const buildBatchWriteParams = (uploadRequests: UploadTranslationRequest[]): DynamoDB.BatchWriteItemInput => {
   return <DynamoDB.BatchWriteItemInput>(<unknown>{
     RequestItems: {
       [config.tableName]: buildPutRequests(uploadRequests)
@@ -54,8 +54,8 @@ const buildBatchWriteParam = (uploadRequests: UploadTranslationRequest[]): Dynam
 
 export const dbUtils = {
   isTableUndefined: isTableUndefined,
-  buildGetItemParam: buildGetItemParam,
-  buildListItemsParam: buildListItemsParam,
-  buildUpdateParam: buildUpdateParam,
-  buildBatchWriteParam: buildBatchWriteParam
+  buildGetItemParams: buildGetItemParams,
+  buildListItemsParams: buildListItemsParams,
+  buildUpdateParams: buildUpdateParams,
+  buildBatchWriteParams: buildBatchWriteParams
 };

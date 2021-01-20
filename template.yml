@@ -37,6 +37,10 @@ Parameters:
       - Prod
     Description: The name for a project pipeline stage, such as Dev, Test, or Prod for which resources are provisioned and deployed.
     ConstraintDescription: Only Dev, Test, or Prod allowed
+  CloudWatchRetentionInDays:
+    Type: Number
+    Default: 7
+    Description: Number of days to retain this stage's logs
   BucketName:
     Type: String
     Default: ''
@@ -148,6 +152,7 @@ Resources:
         Variables:
           STAGE_NAME: !Sub ${Stage}
           REPOSITORY_HANDLER_FUNCTION: !Ref RepositoryHandler
+          SPEECH_SYNTHESIZER_FUNCTION: !Ref SpeechSynthesizer
           FUNCTION_ENDPOINT: !Sub ${FunctionEndpoint}
           IS_OFFLINE: !Equals [IsOffline, true]
       Events:
@@ -189,28 +194,30 @@ Resources:
         StageName: !Sub ${Stage}
         Application: !Sub ${Application}
 
-#  SpeechSynthesizer:
-#    Type: AWS::Serverless::Function
-#    Properties:
-#      FunctionName: !Sub '${Application}-${ProjectId}-SpeechSynthesizer-${Stage}'
-#      Description: Synthesizes text to Speech
-#      Handler: index.handler
-#      Runtime: nodejs12.x
-#      CodeUri: src/translation-uploader
-#      Environment:
-#        Variables:
-#          STAGE_NAME: !Sub ${Stage}
-#          REPOSITORY_HANDLER_FUNCTION: !Ref RepositoryHandler
-#          IS_OFFLINE: !If [IsOffline, true, false]
-#      MemorySize: 128
-#      Role: !GetAtt LambdaInvocationRole.Arn
-#      Timeout: 3
-#      Policies:
-#        - S3CrudPolicy:
-#            TableName: !Ref SpeechBucket
-#      Tags:
-#        StageName: !Sub ${Stage}
-#        Application: !Sub ${Application}
+  SpeechSynthesizer:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${Application}-${ProjectId}-SpeechSynthesizer-${Stage}'
+      Description: Synthesizes text to Speech
+      Handler: index.handler
+      Runtime: nodejs12.x
+      CodeUri: src/translation-uploader
+      Environment:
+        Variables:
+          STAGE_NAME: !Sub ${Stage}
+          REPOSITORY_HANDLER_FUNCTION: !Ref RepositoryHandler
+          FUNCTION_ENDPOINT: !Sub ${FunctionEndpoint}
+          IS_OFFLINE: !If [IsOffline, true, false]
+      MemorySize: 128
+      Role: !GetAtt LambdaInvocationRole.Arn
+      Timeout: 3
+      Policies:
+        - S3CrudPolicy:
+            TableName: !Ref SpeechBucket
+        - PollyFullAccessPolicy: {}
+      Tags:
+        StageName: !Sub ${Stage}
+        Application: !Sub ${Application}
 
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
@@ -235,55 +242,35 @@ Resources:
         - Key: Application
           Value: !Sub ${Application}
 
-  CloudWatchLogUploadTranslationController:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      RetentionInDays: 7
-      LogGroupName: !Sub /aws/lambda/${UploadTranslationController}
-
   CloudWatchLogGetTranslationController:
     Type: AWS::Logs::LogGroup
     Properties:
-      RetentionInDays: 7
+      RetentionInDays: !Sub {CloudWatchRetentionInDays}
       LogGroupName: !Sub /aws/lambda/${GetTranslationController}
-#      Tags:
-#        - Key: StageName
-#          Value: !Sub ${Stage}
-#        - Key: Application
-#          Value: !Sub ${Application}
 
-  CloudWatchLogTranslationFinder:
+  CloudWatchLogUploadTranslationController:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: !Sub {CloudWatchRetentionInDays}
+      LogGroupName: !Sub /aws/lambda/${UploadTranslationController}
+
+  CloudWatchLogRepositoryHandler:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: !Sub {CloudWatchRetentionInDays}
+      LogGroupName: !Sub /aws/lambda/${RepositoryHandler}
+
+  CloudWatchLogSpeechSynthesizer:
     Type: AWS::Logs::LogGroup
     Properties:
       RetentionInDays: 7
-      LogGroupName: !Sub /aws/lambda/${TranslationFinder}
-  #      Tags:
-  #        - Key: StageName
-  #          Value: !Sub ${Stage}
-  #        - Key: Application
-  #          Value: !Sub ${Application}
-#
-#  CloudWatchLogTranslationUploader:
-#    Type: AWS::Logs::LogGroup
-#    Properties:
-#      RetentionInDays: 7
-#      LogGroupName: !Sub /aws/lambda/${TranslationUploader}
-##      Tags:
-##        - Key: StageName
-##          Value: !Sub ${Stage}
-##        - Key: Application
-##          Value: !Sub ${Application}
+      LogGroupName: !Sub /aws/lambda/${SpeechSynthesizer}
 
   CloudWatchLogApiGateway:
     Type: AWS::Logs::LogGroup
     Properties:
-      RetentionInDays: 7
+      RetentionInDays: !Sub {CloudWatchRetentionInDays}
       LogGroupName: !Sub /aws/apigateway/${ApiGatewayApi.arn}
-#      Tags:
-#        - Key: StageName
-#          Value: !Sub ${Stage}
-#        - Key: Application
-#          Value: !Sub ${Application}
 
   LambdaInvocationRole:
     Type: AWS::IAM::Role
