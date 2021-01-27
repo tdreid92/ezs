@@ -5,6 +5,7 @@ import { PayloadResponse } from '../../../layers/common/nodejs/models/invoker/pa
 import { UploadTranslationRequest } from '../../../layers/common/nodejs/models/upload-translation-request';
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Handler } from 'aws-lambda';
 import { BulkUploadTranslationRequest } from '../../../layers/common/nodejs/models/bulk-upload-translation-request';
+import { Language, PollyUploadRequest } from '../../../layers/common/nodejs/models/polly-upload-request';
 
 const handlePost: Handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   const bulkUploadResponse: PayloadResponse = await uploadDefinition(
@@ -29,12 +30,17 @@ const uploadDefinition = async (uploadRequests: UploadTranslationRequest[]): Pro
       uploadRequests: uploadRequests
     })
     .invoke();
-
-  // const invocationSpeech = await new Invoker({
-  //   functionName: config.uploadTranslationFunction,
+  //try catch?
+  const pollyUploadRequests: PollyUploadRequest[] = uploadRequests.map((req: UploadTranslationRequest) => ({
+    language: (req.source as unknown) as Language,
+    word: req.word,
+    speed: 'Medium'
+  }));
+  // const pollyInvocation = await new Invoker({
+  //   functionName: config.speechSynthesizerFunction,
   //   functionEndpoint: config.functionEndpoint
   // })
-  //   .setPayloadRequest(bulkUploadTranslationRequest)
+  //   .setPayloadRequest(pollyUploadRequests)
   //   .invoke();
   return <PayloadResponse>databaseInvocation.payloadResponse;
 };

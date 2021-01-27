@@ -7,7 +7,7 @@ import doNotWaitForEmptyEventLoop from '@middy/do-not-wait-for-empty-event-loop'
 import { config } from './lib/config';
 import { PayloadRequest, PayloadResponse } from '../../layers/common/nodejs/models/invoker/payload';
 
-log.setKey(mdcKeys.functionNamespace, config).setKey(mdcKeys.stage, config.stage);
+log.setKey(mdcKeys.functionNamespace, config.thisFunctionNamespace).setKey(mdcKeys.stage, config.stage);
 
 export const handler: middy.Middy<PayloadRequest, PayloadResponse> = middy(service.handle);
 

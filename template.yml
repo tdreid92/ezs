@@ -184,6 +184,12 @@ Resources:
           DYNAMODB_TABLE: !Sub ${TableName}
           DYNAMODB_ENDPOINT: !Sub ${TableEndpoint}
           IS_OFFLINE: !If [ IsOffline, true, false ]
+      Events:
+        S3PollyUpload:
+          Type: S3
+          Properties:
+            Bucket: !Ref BucketName
+            Events: s3:ObjectCreated:Put
       MemorySize: 128
       Role: !GetAtt LambdaInvocationRole.Arn
       Timeout: 3

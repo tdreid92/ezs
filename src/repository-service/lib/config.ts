@@ -5,17 +5,17 @@ import { FunctionNamespace } from '../../../layers/common/nodejs/models/invoker/
 //todo test failures
 class Config {
   private _env: IEnv<IPresentVariable, IOptionalVariable> = from(process.env);
-  public thisFunction: Immutable<string>;
+  public thisFunctionNamespace: Immutable<string>;
   public stage: Immutable<string>;
   public isOffline: Immutable<boolean>;
   public tableName: Immutable<string>;
   public tableEndpoint: Immutable<string>; //todo resolve default endpoint
 
   public constructor() {
-    this.thisFunction = FunctionNamespace.RepositoryService;
-    this.stage = this._env.get('STAGE').default('').asString();
+    this.thisFunctionNamespace = FunctionNamespace.RepositoryService;
+    this.stage = this._env.get('STAGE').required().asString();
     this.isOffline = this._env.get('IS_OFFLINE').default('false').asBool();
-    this.tableName = this._env.get('DYNAMODB_TABLE').default('').asString();
+    this.tableName = this._env.get('DYNAMODB_TABLE').required().asString();
     this.tableEndpoint = this._env.get('DYNAMODB_ENDPOINT').default('').asString();
     Object.freeze(this);
   }

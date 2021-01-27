@@ -1,61 +1,40 @@
-import { config, voiceMap } from './config';
+import { config, languageCodeMap, voiceMap } from './config';
 import { Invoker } from '../../../layers/common/nodejs/models/invoker/invoker';
 import { GetTranslationRequest } from '../../../layers/common/nodejs/models/get-translation-request';
-import { PayloadResponse } from '../../../layers/common/nodejs/models/invoker/payload';
+import { PayloadRequest, PayloadResponse } from '../../../layers/common/nodejs/models/invoker/payload';
 import { Query } from '../../../layers/common/nodejs/models/database-request';
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Handler } from 'aws-lambda';
+import AWS from 'aws-sdk';
+import { PollyUploadRequest } from '../../../layers/common/nodejs/models/polly-upload-request';
+import { BulkUploadTranslationRequest } from '../../../layers/common/nodejs/models/bulk-upload-translation-request';
 
 const polly = new AWS.Polly();
-const s3 = new AWS.S3();
-const sqs = new AWS.SQS();
 
-const SEP = '-';
-
-const synthesizeSpeechAndWrite = async (request) => {
-  const lang = request.lang,
-    text = request.text,
-    rate = request.rate,
-    bucketName = request.bucketName,
-    path = request.path,
-    outputFormat = request.outputFormat;
-  const bucketPath = bucketName + path + lang;
-  const bucketKey = lang + SEP + text + SEP + rate + '.' + outputFormat;
-
-  const audioStream = await pollySynthesize(lang, text, rate, outputFormat);
-  return s3putObject(bucketPath, bucketKey, audioStream);
+const handlePollySynthesis = async (event: PayloadRequest[]) => {
+  const pollyUploadRequests: PollyUploadRequest[] = <PollyUploadRequest[]>(<unknown>event);
+  pollyUploadRequests.forEach((req: PollyUploadRequest) => synthesizeSpeech(req));
 };
 
-const pollySynthesize = async (lang, text, rate, outputFormat) => {
-  const params = {
-    OutputFormat: outputFormat,
-    LanguageCode: voiceMap.get(lang)[0],
-    VoiceId: voiceMap.get(lang)[1],
-    TextType: 'ssml',
-    Text: '<speak><prosody rate="' + rate + '">' + text + '</prosody></speak>'
-  };
-  console.log(`Commence Polly synthesis of ${text} of ${lang}.`);
-  const pollyPromise = await polly.synthesizeSpeech(params).promise();
-  console.log(`Polly synthesis success of ${text} of ${lang}.`);
-  return pollyPromise.AudioStream;
+const buildSpeakText = (speed: string, text: string): string =>
+  '<speak><prosody rate="' + speed + '">' + text + '</prosody></speak>';
+
+const synthesizeSpeech = async (pollyUploadRequest: PollyUploadRequest) => {
+  const input: AWS.Polly.StartSpeechSynthesisTaskInput = buildSynthesizeSpeechParams(pollyUploadRequest);
+  const pollyOutput: AWS.Polly.StartSpeechSynthesisTaskOutput = await polly.startSpeechSynthesisTask(input).promise();
+  // pollyOutput.SynthesisTask.
 };
 
-const s3putObject = (bucketPath, bucketKey, audioStream) => {
-  const params2 = {
-    Bucket: bucketPath,
-    Key: bucketKey,
-    Body: Buffer.from(audioStream),
-    ContentType: 'audio/mpeg'
-  };
-  console.log(`Commence S3 put of ${bucketKey}.`);
-  const s3Promise = s3.putObject(params2).promise();
-  console.log(`S3 put success of ${bucketKey}`);
-};
-
-exports.handler = (event) => {
-  console.log('Received Message from Queue: ' + JSON.stringify(event) + '. Commence Polly synthesis and S3 put.');
-
-  Promise.resolve(event.requests.forEach((r) => synthesizeSpeechAndWrite(r)));
-};
+const buildSynthesizeSpeechParams = (
+  pollyUploadRequest: PollyUploadRequest
+): AWS.Polly.StartSpeechSynthesisTaskInput => ({
+  OutputFormat: 'mp3',
+  OutputS3BucketName: config.s3bucketName,
+  OutputS3KeyPrefix: pollyUploadRequest.language + '.mp3',
+  LanguageCode: languageCodeMap.get(pollyUploadRequest.language),
+  VoiceId: voiceMap.get(pollyUploadRequest.language)!,
+  TextType: 'ssml',
+  Text: buildSpeakText(pollyUploadRequest.speed, pollyUploadRequest.word)
+});
 
 export const service = {
   handle: handlePollySynthesis

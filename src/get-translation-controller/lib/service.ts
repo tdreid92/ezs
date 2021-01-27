@@ -6,6 +6,7 @@ import { Query } from '../../../layers/common/nodejs/models/database-request';
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Handler } from 'aws-lambda';
 
 const handleGet: Handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+  const pathParams: GetTranslationRequest = <GetTranslationRequest>(<unknown>event.pathParameters);
   const getResponse: PayloadResponse = await getDefinition(<GetTranslationRequest>(<unknown>event.pathParameters));
   if (getResponse.statusCode == 200) {
     return {

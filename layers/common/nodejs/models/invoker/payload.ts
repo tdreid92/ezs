@@ -1,9 +1,8 @@
-import { GetTranslationResponse } from '../get-translation-response';
-import { UploadTranslationRequest } from '../upload-translation-request';
-import { GetTranslationRequest } from '../get-translation-request';
 import { DatabaseRequest } from '../database-request';
+import {PollyUploadRequest} from "../polly-upload-request";
 
-export type PayloadRequest = DatabaseRequest;
+
+export type PayloadRequest = DatabaseRequest | PollyUploadRequest[];
 export type PayloadResponse = ResponseEntity & PayloadBody;
 
 export interface ResponseEntity {

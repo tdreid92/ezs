@@ -5,9 +5,9 @@ import doNotWaitForEmptyEventLoop from '@middy/do-not-wait-for-empty-event-loop'
 import { config } from './lib/config';
 import httpErrorHandler from '@middy/http-error-handler';
 import { service } from './lib/service';
-import {PayloadRequest, PayloadResponse} from "../../layers/common/nodejs/models/invoker/payload";
+import { PayloadRequest, PayloadResponse } from '../../layers/common/nodejs/models/invoker/payload';
 
-log.setKey(mdcKeys.functionNamespace, config.thisFunction).setKey(mdcKeys.stage, config.stage);
+log.setKey(mdcKeys.functionNamespace, config.thisFunctionNamespace).setKey(mdcKeys.stage, config.stage);
 
 const handler: middy.Middy<PayloadRequest, PayloadResponse> = middy(service.handle);
 

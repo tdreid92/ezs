@@ -4,19 +4,19 @@ import { FunctionNamespace } from '../../../layers/common/nodejs/models/invoker/
 
 class Config {
   private _env: IEnv<IPresentVariable, IOptionalVariable> = from(process.env);
-  public thisFunction: Immutable<string>;
+  public thisFunctionNamespace: Immutable<string>;
   public stage: Immutable<string>;
   public isOffline: Immutable<boolean>;
   public repositoryServiceFunction: Immutable<string>;
-  public speechSynthesizerFunction: Immutable<string>;
+  // public speechSynthesizerFunction: Immutable<string>;
   public functionEndpoint: Immutable<string>;
 
   public constructor() {
-    this.thisFunction = FunctionNamespace.UploadTranslationController;
-    this.stage = this._env.get('STAGE').default('').asString();
+    this.thisFunctionNamespace = FunctionNamespace.UploadTranslationController;
+    this.stage = this._env.get('STAGE').required().asString();
     this.isOffline = this._env.get('IS_OFFLINE').default('false').asBool();
-    this.repositoryServiceFunction = this._env.get('REPOSITORY_SERVICE_FUNCTION').default('').asString();
-    this.speechSynthesizerFunction = this._env.get('SPEECH_SYNTHESIZER_FUNCTION').default('').asString();
+    this.repositoryServiceFunction = this._env.get('REPOSITORY_SERVICE_FUNCTION').required().asString();
+    // this.speechSynthesizerFunction = this._env.get('SPEECH_SYNTHESIZER_FUNCTION').required().asString();
     this.functionEndpoint = this._env.get('FUNCTION_ENDPOINT').default('').asString();
 
     Object.freeze(this);

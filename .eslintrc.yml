@@ -24,5 +24,6 @@ settings:
     typescript:
       alwaysTryTypes: true # Always try to resolve types under `<roo/>@types` directory even it doesn't contain any source code, like `@types/unist`
 rules:
+  '@typescript-eslint/no-non-null-assertion': off
   '@typescript-eslint/no-explicit-any': off
   '@typescript-eslint/explicit-module-boundary-types': off # Disable error for any function where the return type is in any way explicitly typed
