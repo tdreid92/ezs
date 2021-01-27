@@ -1,17 +1,12 @@
 import { config, languageCodeMap, voiceMap } from './config';
-import { Invoker } from '../../../layers/common/nodejs/models/invoker/invoker';
-import { GetTranslationRequest } from '../../../layers/common/nodejs/models/get-translation-request';
-import { PayloadRequest, PayloadResponse } from '../../../layers/common/nodejs/models/invoker/payload';
-import { Query } from '../../../layers/common/nodejs/models/database-request';
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Handler } from 'aws-lambda';
+import { PayloadRequest } from '../../../layers/common/nodejs/models/invoker/payload';
 import AWS from 'aws-sdk';
 import { PollyUploadRequest } from '../../../layers/common/nodejs/models/polly-upload-request';
-import { BulkUploadTranslationRequest } from '../../../layers/common/nodejs/models/bulk-upload-translation-request';
 
 const polly = new AWS.Polly();
 
-const handlePollySynthesis = async (event: PayloadRequest[]) => {
-  const pollyUploadRequests: PollyUploadRequest[] = <PollyUploadRequest[]>(<unknown>event);
+const handlePollySynthesis = async (event: PayloadRequest<PollyUploadRequest[]>): Promise<void> => {
+  const pollyUploadRequests: PollyUploadRequest[] = event.payload;
   pollyUploadRequests.forEach((req: PollyUploadRequest) => synthesizeSpeech(req));
 };
 

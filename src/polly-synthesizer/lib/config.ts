@@ -2,7 +2,6 @@ import { from, IEnv, IOptionalVariable, IPresentVariable } from 'env-var';
 import { Immutable } from '../../../layers/common/nodejs/types/immutable';
 import { FunctionNamespace } from '../../../layers/common/nodejs/models/invoker/invoker-configuration';
 import { Language } from '../../../layers/common/nodejs/models/polly-upload-request';
-import { Polly } from 'aws-sdk';
 
 class Config {
   private _env: IEnv<IPresentVariable, IOptionalVariable> = from(process.env);

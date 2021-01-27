@@ -6,21 +6,22 @@ import { dbUtils } from './db-utils';
 import createError from 'http-errors';
 import { match, Predicate } from '../../../layers/common/nodejs/types/match';
 import { log } from '../../../layers/common/nodejs/log/sam-logger';
-import { DatabaseRequest, Query } from '../../../layers/common/nodejs/models/database-request';
+import { DatabaseRequest, DatabaseResponse, Query } from '../../../layers/common/nodejs/models/database-request';
 import { UploadTranslationRequest } from '../../../layers/common/nodejs/models/upload-translation-request';
 import { UpdateTranslationRequest } from '../../../layers/common/nodejs/models/update-translation-request';
+import { EventRequest, EventResponse } from '../../../layers/common/nodejs/middleware/event-logger';
 
 const isGet: Predicate<Query> = (q: Query) => q == Query.Get;
 const isScan: Predicate<Query> = (q: Query) => q == Query.Scan;
 const isBatchWrite: Predicate<Query> = (q: Query) => q == Query.BatchWrite;
 const isUpdate: Predicate<Query> = (q: Query) => q == Query.Update;
 
-const handleCrudEvent = async (event: PayloadRequest): Promise<PayloadResponse> => {
+const handleCrudEvent = async (event: PayloadRequest<DatabaseRequest>): Promise<EventResponse> => {
   if (dbUtils.isTableUndefined()) {
     throw new createError.ServiceUnavailable('Database is unavailable');
   }
 
-  const databaseRequest: DatabaseRequest = <DatabaseRequest>event;
+  const databaseRequest: DatabaseRequest = event.payload;
 
   return await match(databaseRequest.query)
     .on(isGet, async () => get(databaseRequest.getRequest))
@@ -37,7 +38,6 @@ const get = async (getRequest: GetTranslationRequest | undefined): Promise<Respo
     throw new createError.BadRequest('GetTranslationRequest is undefined or null');
   }
   const input: DynamoDB.GetItemInput = dbUtils.buildGetItemParams(getRequest);
-  log.info(input);
   return repository.get(input);
 };
 

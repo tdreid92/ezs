@@ -6,12 +6,19 @@ import { service } from './lib/service';
 import doNotWaitForEmptyEventLoop from '@middy/do-not-wait-for-empty-event-loop';
 import { config } from './lib/config';
 import { PayloadRequest, PayloadResponse } from '../../layers/common/nodejs/models/invoker/payload';
+import {
+  eventLogger,
+  EventRequest,
+  EventResponse,
+  LoggerMode
+} from '../../layers/common/nodejs/middleware/event-logger';
+import { DatabaseRequest } from '../../layers/common/nodejs/models/database-request';
 
 log.setKey(mdcKeys.functionNamespace, config.thisFunctionNamespace).setKey(mdcKeys.stage, config.stage);
 
-export const handler: middy.Middy<PayloadRequest, PayloadResponse> = middy(service.handle);
+export const handler: middy.Middy<PayloadRequest<DatabaseRequest>, EventResponse> = middy(service.handle);
 
 exports.handler = handler
   .use(doNotWaitForEmptyEventLoop({ runOnBefore: true, runOnAfter: true, runOnError: false }))
-  .use(httpErrorHandler({ logger: undefined }));
-// .use(lambdaEventLogger({ logger: log, mode: LoggerMode.Lambda }));
+  .use(httpErrorHandler({ logger: undefined }))
+  .use(eventLogger({ logger: log, mode: LoggerMode.Lambda }));

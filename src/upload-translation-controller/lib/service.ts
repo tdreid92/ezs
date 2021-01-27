@@ -1,16 +1,18 @@
 import { config } from './config';
 import { Invoker } from '../../../layers/common/nodejs/models/invoker/invoker';
 import { Query } from '../../../layers/common/nodejs/models/database-request';
-import { PayloadResponse } from '../../../layers/common/nodejs/models/invoker/payload';
+import { PayloadRequest, PayloadResponse } from '../../../layers/common/nodejs/models/invoker/payload';
 import { UploadTranslationRequest } from '../../../layers/common/nodejs/models/upload-translation-request';
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Handler } from 'aws-lambda';
 import { BulkUploadTranslationRequest } from '../../../layers/common/nodejs/models/bulk-upload-translation-request';
 import { Language, PollyUploadRequest } from '../../../layers/common/nodejs/models/polly-upload-request';
+import { GatewayEvent } from '../../../layers/common/nodejs/middleware/event-logger';
 
-const handlePost: Handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
-  const bulkUploadResponse: PayloadResponse = await uploadDefinition(
-    (<BulkUploadTranslationRequest>(<unknown>event.body)).translations
-  );
+const handlePost: Handler = async (
+  event: GatewayEvent<BulkUploadTranslationRequest>
+): Promise<APIGatewayProxyResultV2> => {
+  const uploadReq: BulkUploadTranslationRequest = event.body;
+  const bulkUploadResponse: PayloadResponse = await uploadDefinition(uploadReq.translations);
   if (bulkUploadResponse.statusCode == 200) {
     return {
       statusCode: bulkUploadResponse.statusCode,
@@ -21,14 +23,18 @@ const handlePost: Handler = async (event: APIGatewayProxyEventV2): Promise<APIGa
 };
 
 const uploadDefinition = async (uploadRequests: UploadTranslationRequest[]): Promise<PayloadResponse> => {
+  const payloadRequest: PayloadRequest = {
+    payload: {
+      query: Query.BatchWrite,
+      uploadRequests: uploadRequests
+    }
+  };
+
   const databaseInvocation = await new Invoker({
     functionName: config.repositoryServiceFunction,
     functionEndpoint: config.functionEndpoint
   })
-    .setPayloadRequest({
-      query: Query.BatchWrite,
-      uploadRequests: uploadRequests
-    })
+    .setPayloadRequest(payloadRequest)
     .invoke();
   //try catch?
   const pollyUploadRequests: PollyUploadRequest[] = uploadRequests.map((req: UploadTranslationRequest) => ({

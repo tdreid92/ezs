@@ -1,7 +1,7 @@
 import { config } from './config';
 import { Invoker } from '../../../layers/common/nodejs/models/invoker/invoker';
 import { GetTranslationRequest } from '../../../layers/common/nodejs/models/get-translation-request';
-import { PayloadResponse } from '../../../layers/common/nodejs/models/invoker/payload';
+import { PayloadRequest, PayloadResponse } from '../../../layers/common/nodejs/models/invoker/payload';
 import { Query } from '../../../layers/common/nodejs/models/database-request';
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Handler } from 'aws-lambda';
 
@@ -22,14 +22,18 @@ const getDefinition = async (getRequest: GetTranslationRequest): Promise<Payload
     return untranslatedResponse(getRequest);
   }
 
+  const payloadRequest: PayloadRequest = {
+    payload: {
+      query: Query.Get,
+      getRequest: getRequest
+    }
+  };
+
   const databaseInvocation = await new Invoker({
     functionName: config.repositoryServiceFunction,
     functionEndpoint: config.functionEndpoint
   })
-    .setPayloadRequest({
-      query: Query.Get,
-      getRequest: getRequest
-    })
+    .setPayloadRequest(payloadRequest)
     .invoke();
   return <PayloadResponse>databaseInvocation.payloadResponse;
 };

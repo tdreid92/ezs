@@ -1,9 +1,11 @@
-import { DatabaseRequest } from '../database-request';
-import {PollyUploadRequest} from "../polly-upload-request";
+export interface PayloadRequest<T> {
+  payload: T;
+}
 
-
-export type PayloadRequest = DatabaseRequest | PollyUploadRequest[];
-export type PayloadResponse = ResponseEntity & PayloadBody;
+export interface PayloadResponse<T = any> {
+  statusCode: number;
+  body: T;
+}
 
 export interface ResponseEntity {
   statusCode: number;

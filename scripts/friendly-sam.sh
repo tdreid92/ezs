@@ -29,7 +29,7 @@ function set_local_function_config() {
 
 function start_local() {
   set_local_function_config
-  echo "Parameter Override Values: ${parameter_overrides}"
+  echo "Parameter Overrides: ${parameter_overrides}"
   yarn concurrently "./$app_name start_functions api" "./$app_name start_functions lambda"
 }
 
