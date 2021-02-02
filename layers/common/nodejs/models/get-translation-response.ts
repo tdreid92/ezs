@@ -3,4 +3,5 @@ export interface GetTranslationResponse {
   target: string;
   word: string;
   definition: string;
+  href?: string;
 }

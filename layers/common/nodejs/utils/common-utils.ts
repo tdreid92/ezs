@@ -46,10 +46,15 @@ const tryParse = (input: any) => {
   }
 };
 
+export function isEmptyObj(obj: any) {
+  return Object.keys(obj).length > 0;
+}
+
 export const commonUtils = {
   buildTableKey: buildTableKey,
   cast: cast,
   tryParse: tryParse,
   getElapsedTime: getElapsedTime,
-  getFormattedDate: getFormattedDate
+  getFormattedDate: getFormattedDate,
+  isEmptyObj: isEmptyObj
 };

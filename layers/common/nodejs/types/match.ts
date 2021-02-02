@@ -12,6 +12,10 @@ export function matched<T>(value: T): MatchContext<T> {
   };
 }
 
+/**
+ *
+ * @param value
+ */
 export function match<T>(value: T): MatchContext<T> {
   return {
     on: (predicate: Predicate<any> | undefined, fn: Transformation<any> | undefined) =>
@@ -19,3 +23,17 @@ export function match<T>(value: T): MatchContext<T> {
     otherwise: (fn) => fn(value)
   };
 }
+
+/**
+ * Omit type T from type V
+ *
+ * Author: stackoverflow.com/users/985454/qwerty
+ */
+export type Omit<T, V extends keyof T> = Pick<T, Exclude<keyof T, V>>;
+
+/**
+ * Merge type T and override values to type T with type V
+ *
+ * Author: stackoverflow.com/users/985454/qwerty
+ */
+export type Merge<T, V> = Omit<T, Extract<keyof T, keyof V>> & V;

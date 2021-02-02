@@ -3,9 +3,9 @@ import { PayloadRequest } from './payload';
 import { Immutable } from '../../types/immutable';
 import { InvocationType, InvokerConfiguration, LogType } from './invoker-configuration';
 
-export class InvokerRequest {
+export class InvokerRequest<T> {
   public functionName: Immutable<string>;
-  public payloadRequest?: Immutable<PayloadRequest>;
+  public payloadRequest?: Immutable<PayloadRequest<any>>;
   public invocationType?: Immutable<InvocationType>;
   public logType?: Immutable<LogType>;
   public qualifier?: Immutable<Lambda.Qualifier>;
@@ -24,7 +24,7 @@ export class InvokerRequest {
     this._lambda = new Lambda(config);
   }
 
-  public setPayloadRequest = (payloadRequest: PayloadRequest): this => {
+  public setPayloadRequest = (payloadRequest: PayloadRequest<T>): this => {
     this.payloadRequest = payloadRequest;
     return this;
   };

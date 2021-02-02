@@ -2,7 +2,7 @@ import { Logger } from 'lambda-logger-node';
 import { loggerMessages, mdcKeys, SubLogger } from './log-constants';
 import { Context } from 'aws-lambda';
 import { commonUtils } from '../utils/common-utils';
-import { ResponseEntity } from '../models/invoker/payload';
+import { PayloadResponse, ResponseEntity } from '../models/invoker/payload';
 
 const enum MinimumLogLevel {
   Debug = 'DEBUG',
@@ -113,8 +113,8 @@ const buildLogger = (): SamLogger => {
   });
 };
 
-export const dbLogWrapper = (log: SamLogger, fn: (params: any) => Promise<ResponseEntity>) => {
-  return async (params: any): Promise<ResponseEntity> => {
+export const dbLogWrapper = (log: SamLogger, fn: (params: any) => Promise<PayloadResponse<any>>) => {
+  return async (params: any): Promise<PayloadResponse<any>> => {
     const startTime: [number, number] = process.hrtime();
     const subLog: Logger = log.createSubLogger(SubLogger.DATABASE);
 
@@ -122,7 +122,7 @@ export const dbLogWrapper = (log: SamLogger, fn: (params: any) => Promise<Respon
     subLog.info(loggerMessages.started);
 
     return await fn(params)
-      .then((response: ResponseEntity) => {
+      .then((response: PayloadResponse<any>) => {
         log.setKey(mdcKeys.databaseResult, response);
         subLog.info(loggerMessages.completed);
         return response;

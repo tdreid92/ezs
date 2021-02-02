@@ -130,6 +130,13 @@ Resources:
             Method: GET
             PayloadFormatVersion: "2.0"
             Path: /v1/translation/{source}/{target}/{word}
+        ListTranslations:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TranslationHttpApi
+            Method: GET
+            PayloadFormatVersion: "2.0"
+            Path: /v1/translation/list
       MemorySize: 128
       Role: !GetAtt LambdaInvocationRole.Arn
       Timeout: 3

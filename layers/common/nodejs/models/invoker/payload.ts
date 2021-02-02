@@ -2,9 +2,9 @@ export interface PayloadRequest<T> {
   payload: T;
 }
 
-export interface PayloadResponse<T = any> {
+export interface PayloadResponse<T> {
   statusCode: number;
-  body: T;
+  body?: T;
 }
 
 export interface ResponseEntity {

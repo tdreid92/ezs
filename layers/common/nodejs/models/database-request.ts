@@ -3,12 +3,25 @@ import { UploadTranslationRequest } from './upload-translation-request';
 import { UpdateTranslationRequest } from './update-translation-request';
 import { DynamoDB } from 'aws-sdk';
 
-export interface DatabaseRequest {
+export type DatabaseRequest = DatabaseGetRequest | DatabaseListRequest | DatabaseUpdateRequest | DatabasePutRequest;
+
+interface DatabaseQuery {
   query: Query;
-  getRequest?: GetTranslationRequest;
-  uploadRequests?: UploadTranslationRequest[];
-  updateRequest?: UpdateTranslationRequest;
 }
+
+export interface DatabaseGetRequest extends DatabaseQuery {
+  getRequest: GetTranslationRequest;
+}
+
+export interface DatabaseUpdateRequest extends DatabaseQuery {
+  updateRequest: UpdateTranslationRequest;
+}
+
+export interface DatabasePutRequest extends DatabaseQuery {
+  uploadRequests: UploadTranslationRequest[];
+}
+
+export type DatabaseListRequest = DatabaseQuery;
 
 export type DatabaseResponse = DynamoDB.GetItemOutput | DynamoDB.BatchWriteItemOutput | DynamoDB.UpdateItemOutput;
 
