@@ -1,37 +1,51 @@
 import { config, languageCodeMap, voiceMap } from './config';
 import { PayloadRequest, PayloadResponse } from '../../../layers/common/nodejs/models/invoker/payload';
 import AWS from 'aws-sdk';
-import { PollyUploadRequest } from '../../../layers/common/nodejs/models/polly-upload-request';
 import { HttpStatus } from '../../../layers/common/nodejs/utils/http-status';
-import { EventResponse } from '../../../layers/common/nodejs/log/event';
+import { log } from '../../../layers/common/nodejs/log/sam-logger';
+import { EventResponse } from '../../../layers/common/nodejs/log/event-logger';
+import { PollyRequest } from '../../../layers/common/nodejs/models/translation';
 
 const polly = new AWS.Polly();
+const s3 = new AWS.S3();
 
-const handlePollySynthesis = async (event: PayloadRequest<PollyUploadRequest[]>): Promise<EventResponse> => {
-  const pollyUploadRequests: PollyUploadRequest[] = event.payload;
-  pollyUploadRequests.forEach((req: PollyUploadRequest) => synthesizeSpeech(req));
+const handlePollySynthesis = async (event: PayloadRequest<PollyRequest[]>): Promise<EventResponse> => {
+  const pollyUploadRequests: PollyRequest[] = event.payload;
+
+  pollyUploadRequests.forEach((req: PollyRequest) => synthesizeSpeech(req));
   return { statusCode: HttpStatus.Success } as PayloadResponse<undefined>;
 };
 
-const buildSpeakText = (speed: string, text: string): string =>
-  '<speak><prosody rate="' + speed + '">' + text + '</prosody></speak>';
+const synthesizeSpeech = async (pollyUploadRequest: PollyRequest): Promise<void> => {
+  log.info(pollyUploadRequest);
+  const input: AWS.Polly.SynthesizeSpeechInput = buildSynthesizeSpeechParams(pollyUploadRequest);
 
-const synthesizeSpeech = async (pollyUploadRequest: PollyUploadRequest) => {
-  const input: AWS.Polly.StartSpeechSynthesisTaskInput = buildSynthesizeSpeechParams(pollyUploadRequest);
-  const pollyOutput: AWS.Polly.StartSpeechSynthesisTaskOutput = await polly.startSpeechSynthesisTask(input).promise();
-  // pollyOutput.SynthesisTask.
+  const pollyOutput: AWS.Polly.SynthesizeSpeechOutput = await polly.synthesizeSpeech(input).promise();
+  log.error(pollyOutput.ContentType);
+  await s3write(config.s3bucketName, pollyOutput.AudioStream);
 };
 
-const buildSynthesizeSpeechParams = (
-  pollyUploadRequest: PollyUploadRequest
-): AWS.Polly.StartSpeechSynthesisTaskInput => ({
+const s3write = async (key: string, audioStream): Promise<void> => {
+  await s3
+    .putObject({
+      Bucket: config.s3bucketName + '/audio/',
+      Key: key + '.mp3',
+      Body: Buffer.from(audioStream),
+      ContentType: 'audio/mpeg'
+    })
+    .promise();
+  log.info('S3 write successful: ' + key);
+};
+
+const buildSsml = (speed: string, text: string): string =>
+  '<speak><prosody rate=' + speed + '>' + text + '</prosody></speak>';
+
+const buildSynthesizeSpeechParams = (pollyUploadRequest: PollyRequest): AWS.Polly.SynthesizeSpeechInput => ({
   OutputFormat: 'mp3',
-  OutputS3BucketName: config.s3bucketName,
-  OutputS3KeyPrefix: pollyUploadRequest.language + '.mp3',
   LanguageCode: languageCodeMap.get(pollyUploadRequest.language),
   VoiceId: voiceMap.get(pollyUploadRequest.language)!,
   TextType: 'ssml',
-  Text: buildSpeakText(pollyUploadRequest.speed, pollyUploadRequest.word)
+  Text: buildSsml(pollyUploadRequest.speed, pollyUploadRequest.word)
 });
 
 export const service = {

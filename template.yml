@@ -41,10 +41,10 @@ Parameters:
     Type: Number
     Default: 7
     Description: Number of days to retain this stage's logs
-  BucketName:
+  MediaBucketName:
     Type: String
     Default: 'bucket'
-    Description: Bucket Name for S3
+    Description: Media Bucket Name for S3
   TableName:
     Type: String
     Description: Table Name for DynamoDB Table
@@ -100,10 +100,10 @@ Resources:
         StageVariables: Json
         Tags: Map
 
-  MediaBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub ${BucketName}
+#  MediaBucket:
+#    Type: AWS::S3::Bucket
+#    Properties:
+#      BucketName: !Sub ${MediaBucketName}
 
   GetTranslationController:
     Type: AWS::Serverless::Function # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
@@ -172,7 +172,7 @@ Resources:
             Path: /v1/translation
       MemorySize: 128
       Role: !GetAtt LambdaInvocationRole.Arn
-      Timeout: 3
+      Timeout: 10
       Tags:
         StageName: !Sub ${Stage}
         Application: !Sub ${Application}
@@ -188,15 +188,10 @@ Resources:
       Environment:
         Variables:
           STAGE: !Sub ${Stage}
+          MEDIA_BUCKET_NAME: !Sub ${MediaBucketName}
           DYNAMODB_TABLE: !Sub ${TableName}
           DYNAMODB_ENDPOINT: !Sub ${TableEndpoint}
           IS_OFFLINE: !If [ IsOffline, true, false ]
-      Events:
-        S3PollyUpload:
-          Type: S3
-          Properties:
-            Bucket: !Ref BucketName
-            Events: s3:ObjectCreated:Put
       MemorySize: 128
       Role: !GetAtt LambdaInvocationRole.Arn
       Timeout: 3
@@ -207,30 +202,30 @@ Resources:
         StageName: !Sub ${Stage}
         Application: !Sub ${Application}
 
-#  PollySynthesizer:
-#    Type: AWS::Serverless::Function
-#    Properties:
-#      FunctionName: !Sub '${Application}-${ProjectId}-PollySynthesizer-${Stage}'
-#      Description: Synthesizes text to Speech
-#      Handler: index.handler
-#      Runtime: nodejs12.x
-#      CodeUri: src/polly-synthezier
-#      Environment:
-#        Variables:
-#          STAGE: !Sub ${Stage}
-#          REPOSITORY_SERVICE_FUNCTION: !Ref RepositoryService
-#          FUNCTION_ENDPOINT: !Sub ${FunctionEndpoint}
-#          IS_OFFLINE: !If [IsOffline, true, false]
-#      MemorySize: 128
-#      Role: !GetAtt LambdaInvocationRole.Arn
-#      Timeout: 3
-#      Policies:
-#        - S3CrudPolicy:
-#            BucketName: !Ref MediaBucket
-#        - PollyFullAccessPolicy: {}
-#      Tags:
-#        StageName: !Sub ${Stage}
-#        Application: !Sub ${Application}
+  PollySynthesizer:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${Application}-${ProjectId}-PollySynthesizer-${Stage}'
+      Description: Synthesizes text to Speech
+      Handler: index.handler
+      Runtime: nodejs12.x
+      CodeUri: src/polly-synthesizer
+      Environment:
+        Variables:
+          STAGE: !Sub ${Stage}
+          REPOSITORY_SERVICE_FUNCTION: !Ref RepositoryService
+          MEDIA_BUCKET_NAME: !Sub ${MediaBucketName}
+          FUNCTION_ENDPOINT: !Sub ${FunctionEndpoint}
+          IS_OFFLINE: !If [IsOffline, true, false]
+      MemorySize: 128
+      Role: !GetAtt LambdaInvocationRole.Arn
+      Timeout: 3
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Sub ${MediaBucketName}
+      Tags:
+        StageName: !Sub ${Stage}
+        Application: !Sub ${Application}
 
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
@@ -300,8 +295,10 @@ Resources:
               - sts:AssumeRole
       Path: /
       ManagedPolicyArns:
+        - !Sub 'arn:aws:iam::aws:policy/AmazonPollyFullAccess'
         - !Sub 'arn:aws:iam::aws:policy/CloudWatchFullAccess'
         - !Sub 'arn:aws:iam::aws:policy/AWSLambda_FullAccess'
+#        - !Sub 'arn:aws:iam::aws:policy/S3FullAccess'
       Tags:
         - Key: StageName
           Value: !Sub ${Stage}

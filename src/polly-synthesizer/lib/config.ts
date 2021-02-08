@@ -1,7 +1,7 @@
 import { from, IEnv, IOptionalVariable, IPresentVariable } from 'env-var';
 import { Immutable } from '../../../layers/common/nodejs/types/immutable';
-import { FunctionNamespace } from '../../../layers/common/nodejs/models/invoker/invoker-configuration';
-import { Language } from '../../../layers/common/nodejs/models/polly-upload-request';
+import { FunctionNamespace } from '../../../layers/common/nodejs/models/invoker/invoker';
+import { Language } from '../../../layers/common/nodejs/models/translation';
 
 class Config {
   private _env: IEnv<IPresentVariable, IOptionalVariable> = from(process.env);
@@ -17,7 +17,7 @@ class Config {
     this.isOffline = this._env.get('IS_OFFLINE').default('false').asBool();
     this.stage = this._env.get('STAGE').required().asString();
     this.repositoryServiceFunction = this._env.get('REPOSITORY_SERVICE_FUNCTION').required().asString();
-    this.s3bucketName = this._env.get('S3_MEDIA_BUCKET').required().asString();
+    this.s3bucketName = this._env.get('MEDIA_BUCKET_NAME').required().asString();
     this.functionEndpoint = this._env.get('FUNCTION_ENDPOINT').default('').asString();
 
     Object.freeze(this);
@@ -25,38 +25,31 @@ class Config {
 }
 
 const enum LanguageCode {
-  'de-DE',
-  'fr-FR',
-  'es-ES',
-  'ru-RU'
+  'de-DE' = 'de-DE',
+  'fr-FR' = 'fr-FR',
+  'es-ES' = 'fr-FR',
+  'ru-RU' = 'fr-FR'
 }
 
 const enum Orator {
-  Marlene,
-  Celine,
-  Conchita,
-  Tatyana
+  Marlene = 'Marlene',
+  Celine = 'Celine',
+  Conchita = 'Conchita',
+  Tatyana = 'Tatyana'
 }
 
-type VoiceEntry = [Language, string];
-
-const germanVoiceEntry: VoiceEntry = [Language.DE, Orator.Marlene.toString()];
-const frenchVoiceEntry: VoiceEntry = [Language.FR, Orator.Celine.toString()];
-const spanishVoiceEntry: VoiceEntry = [Language.ES, Orator.Conchita.toString()];
-const russianVoiceEntry: VoiceEntry = [Language.RU, Orator.Tatyana.toString()];
-
-export const voiceMap: Map<Language, string> = new Map([
-  germanVoiceEntry,
-  frenchVoiceEntry,
-  spanishVoiceEntry,
-  russianVoiceEntry
+export const voiceMap: Map<Language, Orator> = new Map([
+  [Language.DE, Orator.Marlene],
+  [Language.FR, Orator.Celine],
+  [Language.ES, Orator.Conchita],
+  [Language.RU, Orator.Tatyana]
 ]);
 
-export const languageCodeMap: Map<Language, string> = new Map([
-  [Language.DE, LanguageCode['de-DE'].toString()],
-  [Language.ES, LanguageCode['es-ES'].toString()],
-  [Language.FR, LanguageCode['fr-FR'].toString()],
-  [Language.RU, LanguageCode['ru-RU'].toString()]
+export const languageCodeMap: Map<Language, LanguageCode> = new Map([
+  [Language.DE, LanguageCode['de-DE']],
+  [Language.ES, LanguageCode['es-ES']],
+  [Language.FR, LanguageCode['fr-FR']],
+  [Language.RU, LanguageCode['ru-RU']]
 ]);
 
 export const config = new Config();

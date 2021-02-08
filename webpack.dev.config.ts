@@ -1,5 +1,5 @@
 import { resolve } from 'path';
-import { Configuration, IgnorePlugin } from 'webpack';
+import { Configuration } from 'webpack';
 import TsCheckerPlugin from 'fork-ts-checker-webpack-plugin';
 import AwsSamPlugin from 'aws-sam-webpack-plugin';
 const awsSamPlugin = new AwsSamPlugin();

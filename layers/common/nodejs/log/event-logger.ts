@@ -2,13 +2,33 @@ import { SamLogger } from './sam-logger';
 import { loggerMessages, mdcKeys, SubLogger } from './log-constants';
 import middy from '@middy/core';
 import { Logger } from 'lambda-logger-node';
-import { APIGatewayProxyStructuredResultV2, Context } from 'aws-lambda';
+import { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2, Context } from 'aws-lambda';
 import { PayloadRequest, PayloadResponse } from '../models/invoker/payload';
 import { NextFunction } from '../types/next';
 import { commonUtils } from '../utils/common-utils';
-import { match, Predicate } from '../types/match';
 import HandlerLambda = middy.HandlerLambda;
-import { EventRequest, EventResponse, APIGatewayEvent, APIGatewayResult } from './event';
+import { match, Predicate } from '../utils/match';
+import { Merge } from '../types/match';
+import { HttpError } from 'http-errors';
+
+export type APIGatewayPostEvent<Body> = Merge<
+  APIGatewayProxyEventV2,
+  {
+    body: Body;
+  }
+>;
+
+export type APIGatewayGetEvent<PathParameters> = Merge<
+  APIGatewayProxyEventV2,
+  {
+    pathParameters?: PathParameters;
+  }
+>;
+
+export type APIGatewayEvent<T = any, U = any> = APIGatewayPostEvent<T> | APIGatewayGetEvent<U>;
+export type APIGatewayResult = APIGatewayProxyStructuredResultV2 | HttpError;
+export type EventRequest<T = any, U = any> = APIGatewayEvent<T> | PayloadRequest<U>;
+export type EventResponse<T = any> = APIGatewayProxyStructuredResultV2 | PayloadResponse<T>;
 
 export const enum LoggerMode {
   Gateway,
@@ -23,7 +43,6 @@ interface LambdaLoggerConfig {
 
 const isControllerMode: Predicate<LoggerMode> = (m: LoggerMode) => m == LoggerMode.Gateway;
 const isLambdaMode: Predicate<LoggerMode> = (m: LoggerMode) => m == LoggerMode.Lambda;
-const isVoidLambdaMode: Predicate<LoggerMode> = (m: LoggerMode) => m == LoggerMode.VoidLambda;
 
 export const eventLogger = (config: LambdaLoggerConfig): middy.MiddlewareObject<EventRequest, EventResponse> => {
   const logger: SamLogger = config.logger;

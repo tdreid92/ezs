@@ -7,20 +7,20 @@ info:
 paths:
   /translation:
     post:
-      operationId: UploadTranslations
+      operationId: UploadDefinitions
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UploadTranslationRequest"
+              $ref: "#/components/schemas/DefinitionsRequest"
         required: true
       responses:
         "200":
-          description: "Successfully uploaded translations"
+          description: "Successfully uploaded definitions"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UploadTranslationsResponse"
+                $ref: "#/components/schemas/DefinitionsResponse"
 
   /v1/translation/{source}/{target}/{word}:
     get:
@@ -49,12 +49,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/GetTranslationResponse"
 
-#  /v1/translation/list:
-#    get:
-#      operationId: ListTranslations
-#      responses:
-#        "200":
-#          description: "Successfully retrieved translation list."
+  /v1/translation/list:
+    get:
+      operationId: ListTranslations
+      responses:
+        "200":
+          description: "Successfully retrieved translation list."
 #          headers:
 #            "X-DNS-Prefetch-Control": "off",
 #            "Strict-Transport-Security": "max-age=15552000; includeSubDomains; preload",
@@ -62,10 +62,10 @@ paths:
 #            "X-Content-Type-Options": "nosniff",
 #            "Referrer-Policy": "no-referrer",
 #            "X-Permitted-Cross-Domain-Policies": "none"
-#          content:
-#            application/json:
-#              schema:
-#                $ref: "#/components/schemas/ListTranslationsResponse"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListTranslationsResponse"
 
 #        "400":
 #          description: "Bad Request Exception"
@@ -111,7 +111,7 @@ components:
                 Items:
                   $ref: "#/components/schemas/Translation"
 
-    UploadTranslationRequest:
+    DefinitionsRequest:
       type: array
       properties:
         source:
@@ -122,8 +122,10 @@ components:
           type: string
         definition:
           type: string
+        href:
+          type: string
 
-    UploadTranslationResponse:
+    DefinitionsResponse:
       type: object
       properties:
         payload:

@@ -1,24 +1,18 @@
-import { GetTranslationRequest } from './get-translation-request';
-import { UploadTranslationRequest } from './upload-translation-request';
-import { UpdateTranslationRequest } from './update-translation-request';
 import { DynamoDB } from 'aws-sdk';
+import { Definition, TranslationRequest } from './translation';
 
-export type DatabaseRequest = DatabaseGetRequest | DatabaseListRequest | DatabaseUpdateRequest | DatabasePutRequest;
+export type DatabaseRequest = DatabaseGetRequest | DatabaseListRequest | DatabasePutRequest;
 
 interface DatabaseQuery {
   query: Query;
 }
 
 export interface DatabaseGetRequest extends DatabaseQuery {
-  getRequest: GetTranslationRequest;
-}
-
-export interface DatabaseUpdateRequest extends DatabaseQuery {
-  updateRequest: UpdateTranslationRequest;
+  getRequest: TranslationRequest;
 }
 
 export interface DatabasePutRequest extends DatabaseQuery {
-  uploadRequests: UploadTranslationRequest[];
+  putRequest: Definition[];
 }
 
 export type DatabaseListRequest = DatabaseQuery;
@@ -27,7 +21,7 @@ export type DatabaseResponse = DynamoDB.GetItemOutput | DynamoDB.BatchWriteItemO
 
 export const enum Query {
   Get = 'Get',
-  Scan = 'Scan',
-  BatchWrite = 'BatchWrite',
+  List = 'List',
+  Write = 'Write',
   Update = 'Update'
 }

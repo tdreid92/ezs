@@ -1,22 +1,26 @@
 import { config } from './config';
 import { Invoker } from '../../../layers/common/nodejs/models/invoker/invoker';
-import { GetTranslationRequest } from '../../../layers/common/nodejs/models/get-translation-request';
 import { PayloadRequest, PayloadResponse } from '../../../layers/common/nodejs/models/invoker/payload';
-import { DatabaseRequest, Query } from '../../../layers/common/nodejs/models/database-request';
+import {
+  DatabaseGetRequest,
+  DatabaseListRequest,
+  DatabaseRequest,
+  Query
+} from '../../../layers/common/nodejs/models/database-request';
 import { Handler } from 'aws-lambda';
-import { GetTranslationResponse } from '../../../layers/common/nodejs/models/get-translation-response';
-import { APIGatewayGetEvent, APIGatewayResult } from '../../../layers/common/nodejs/log/event';
 import { HttpStatus } from '../../../layers/common/nodejs/utils/http-status';
 import { HttpError } from 'http-errors';
 import { commonUtils } from '../../../layers/common/nodejs/utils/common-utils';
+import { APIGatewayGetEvent, APIGatewayResult } from '../../../layers/common/nodejs/log/event-logger';
+import { TranslationRequest, TranslationResponse } from '../../../layers/common/nodejs/models/translation';
 
-const handleGet: Handler = async (event: APIGatewayGetEvent<GetTranslationRequest>): Promise<APIGatewayResult> => {
-  const response:
-    | PayloadResponse<GetTranslationResponse>
-    | PayloadResponse<GetTranslationResponse[]>
-    | HttpError = commonUtils.isEmptyObj(event.pathParameters)
-    ? await getDefinition(event.pathParameters!)
-    : await scanDefinitions();
+type GetResponse = PayloadResponse<TranslationResponse> | PayloadResponse<TranslationResponse[]> | HttpError;
+
+const handleGet: Handler = async (
+  event: APIGatewayGetEvent<TranslationRequest | undefined>
+): Promise<APIGatewayResult> => {
+  const response: GetResponse = await getRoutedResponse(event.pathParameters);
+
   return response.statusCode == HttpStatus.Success
     ? {
         statusCode: response.statusCode,
@@ -25,49 +29,51 @@ const handleGet: Handler = async (event: APIGatewayGetEvent<GetTranslationReques
     : (response as HttpError);
 };
 
-const scanDefinitions = async (): Promise<PayloadResponse<GetTranslationResponse[]> | HttpError> =>
-  await new Invoker<DatabaseRequest, GetTranslationResponse[]>({
-    functionName: config.repositoryServiceFunction,
-    functionEndpoint: config.functionEndpoint
-  })
-    .setPayloadRequest({
-      payload: {
-        query: Query.Scan
-      }
-    } as PayloadRequest<DatabaseRequest>)
-    .invoke()
-    .then((invoker: Invoker) => invoker.getPayloadResponse());
+const getRoutedResponse = async (req: TranslationRequest | undefined): Promise<GetResponse> => {
+  return commonUtils.isEmptyObj(req) ? await getTranslation(req!) : await listTranslations();
+};
 
-const getDefinition = async (
-  getRequest: GetTranslationRequest
-): Promise<PayloadResponse<GetTranslationResponse> | HttpError> => {
-  if (getRequest.source == getRequest.target) {
-    return untranslatedResponse(getRequest);
-  }
+const getTranslation = async (req: TranslationRequest): Promise<PayloadResponse<TranslationResponse> | HttpError> => {
+  // if (req.source == req.target) {
+  //   return untranslatedResponse(req);
+  // }
 
-  return await new Invoker<DatabaseRequest, GetTranslationResponse>({
+  return await new Invoker<DatabaseRequest, TranslationRequest>({
     functionName: config.repositoryServiceFunction,
     functionEndpoint: config.functionEndpoint
   })
     .setPayloadRequest({
       payload: {
         query: Query.Get,
-        getRequest: getRequest
-      }
-    } as PayloadRequest<DatabaseRequest>)
+        getRequest: req
+      } as DatabaseGetRequest
+    } as PayloadRequest<DatabaseGetRequest>)
     .invoke()
     .then((invoker: Invoker) => invoker.getPayloadResponse());
 };
 
-const untranslatedResponse = (getRequest: GetTranslationRequest): PayloadResponse<GetTranslationResponse> => ({
-  statusCode: HttpStatus.Success,
-  body: {
-    source: getRequest.source,
-    target: getRequest.target,
-    word: getRequest.word,
-    definition: getRequest.word
-  }
-});
+const listTranslations = async (): Promise<PayloadResponse<TranslationResponse[]> | HttpError> =>
+  await new Invoker<DatabaseRequest, TranslationResponse[]>({
+    functionName: config.repositoryServiceFunction,
+    functionEndpoint: config.functionEndpoint
+  })
+    .setPayloadRequest({
+      payload: {
+        query: Query.List
+      } as DatabaseListRequest
+    } as PayloadRequest<DatabaseListRequest>)
+    .invoke()
+    .then((invoker: Invoker) => invoker.getPayloadResponse());
+
+// const untranslatedResponse = (req: Definition): PayloadResponse<Definition> => ({
+//   statusCode: HttpStatus.Success,
+//   body: {
+//     source: req.source,
+//     target: req.target,
+//     word: req.word,
+//     content: req.word
+//   }
+// });
 
 export const service = {
   handle: handleGet

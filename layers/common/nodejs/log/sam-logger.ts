@@ -2,7 +2,7 @@ import { Logger } from 'lambda-logger-node';
 import { loggerMessages, mdcKeys, SubLogger } from './log-constants';
 import { Context } from 'aws-lambda';
 import { commonUtils } from '../utils/common-utils';
-import { PayloadResponse, ResponseEntity } from '../models/invoker/payload';
+import { PayloadResponse } from '../models/invoker/payload';
 
 const enum MinimumLogLevel {
   Debug = 'DEBUG',

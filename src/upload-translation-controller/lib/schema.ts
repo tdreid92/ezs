@@ -13,7 +13,7 @@ export const schema = {
           minItems: 1,
           items: {
             type: 'object',
-            required: ['source', 'target', 'word', 'definition'],
+            required: ['source', 'target', 'word', 'content'],
             properties: {
               source: {
                 type: 'string',
@@ -29,7 +29,7 @@ export const schema = {
               word: {
                 type: 'string'
               },
-              definition: {
+              content: {
                 type: 'string'
               }
             }

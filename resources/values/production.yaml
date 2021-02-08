@@ -3,3 +3,4 @@ ParameterOverrides:
   CodeDeployRole: arn:aws:iam::416497755919:role/CodeDeployRole
   Application: SamFramework
   TableName: Translations
+  MediaBucketName: www.zungezen.com

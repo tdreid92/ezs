@@ -7,3 +7,4 @@ ParameterOverrides:
   TableName: Translations-Dev
   TableEndpoint: http://docker.for.mac.localhost:8042/
   FunctionEndpoint: http://docker.for.mac.localhost:3001/
+  MediaBucketName: www.zungezen.com
