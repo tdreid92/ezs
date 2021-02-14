@@ -9,8 +9,8 @@ import { DefinitionsRequest, TranslationRequest } from '../../../layers/common/n
 const dbClient: DynamoDB.DocumentClient = new DynamoDB.DocumentClient(
   config.isOffline
     ? {
-        region: 'localhost',
-        endpoint: config.tableEndpoint
+        // region: 'localhost',
+        // endpoint: config.tableEndpoint
       }
     : {}
 );
@@ -51,6 +51,7 @@ const scan = async (params: DynamoDB.ScanInput): Promise<PayloadResponse<Transla
           } as PayloadResponse<TranslationRequest[]>)
       );
   } catch (AWSError) {
+    console.log(JSON.stringify(AWSError));
     throw ({
       statusCode: AWSError.statusCode || HttpStatus.NotImplemented,
       body: AWSError.message

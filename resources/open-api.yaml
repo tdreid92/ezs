@@ -81,7 +81,7 @@ paths:
 #                $ref: "#/components/schemas/InternalServerErrorException"
 components:
   schemas:
-    TranslationItem:
+    TranslationResponse:
       type: object
       properties:
         source:
@@ -90,14 +90,16 @@ components:
           type: string
         word:
           type: string
-        definition:
+        content:
+          type: string
+        href:
           type: string
 
     GetTranslationResponse:
       type: object
       properties:
         ExchangeRateItem:
-          $ref: "#/components/schemas/TranslationItem"
+          $ref: "#/components/schemas/TranslationResponse"
 
     ListTranslationsResponse:
       type: object
@@ -109,7 +111,7 @@ components:
               type: array
               properties:
                 Items:
-                  $ref: "#/components/schemas/Translation"
+                  $ref: "#/components/schemas/TranslationResponse[]"
 
     DefinitionsRequest:
       type: array
@@ -120,9 +122,7 @@ components:
           type: string
         word:
           type: string
-        definition:
-          type: string
-        href:
+        content:
           type: string
 
     DefinitionsResponse:

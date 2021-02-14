@@ -50,7 +50,7 @@ abstract class LoggerWrapper implements ILoggerWrapper {
 
   public warn = (message: any): void => this._logger.warn(message);
 
-  public error = (message: any): void => this._logger(message);
+  public error = (message: any): void => this._logger.error(message);
 
   /** Overridable */
   public setKey(key: string, value: any): this {

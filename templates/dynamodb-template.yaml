@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  ProjectId:
+    Type: String
+    Default: sfw
+    Description: AWS CodeStar projectID used to associate new resources to team members
+  Application:
+    Type: String
+    Default: EZSam
+    Description: The application name
+  Stage:
+    Type: String
+    Default: Prod
+    AllowedValues:
+      - Dev
+      - Test
+      - Prod
+    Description: The name for a project pipeline stage, such as Dev, Test, or Prod for which resources are provisioned and deployed.
+    ConstraintDescription: Only Dev, Test, or Prod allowed
+  TableName:
+    Type: String
+    Description: Table Name for DynamoDB Table
+
+Resources:
+  TranslationsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${TableName}
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: translationKey
+          AttributeType: S
+      KeySchema:
+        - AttributeName: translationKey
+          KeyType: HASH
+      Tags:
+        - Key: StageName
+          Value: !Sub ${Stage}
+        - Key: Application
+          Value: !Sub ${Application}
+
+Outputs:
+  TableName:
+    Value: !Ref TranslationsTable
+    Description: DynamoDB table name

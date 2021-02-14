@@ -6,10 +6,10 @@ import { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2, Context } fr
 import { PayloadRequest, PayloadResponse } from '../models/invoker/payload';
 import { NextFunction } from '../types/next';
 import { commonUtils } from '../utils/common-utils';
-import HandlerLambda = middy.HandlerLambda;
 import { match, Predicate } from '../utils/match';
 import { Merge } from '../types/match';
 import { HttpError } from 'http-errors';
+import HandlerLambda = middy.HandlerLambda;
 
 export type APIGatewayPostEvent<Body> = Merge<
   APIGatewayProxyEventV2,

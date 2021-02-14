@@ -4,3 +4,4 @@ ParameterOverrides:
   Application: SamFramework
   TableName: Translations
   MediaBucketName: www.zungezen.com
+  LogRetentionDays: 7

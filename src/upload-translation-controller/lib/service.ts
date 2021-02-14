@@ -1,6 +1,6 @@
 import { config } from './config';
 import { InvocationType, Invoker } from '../../../layers/common/nodejs/models/invoker/invoker';
-import { DatabasePutRequest, DatabaseRequest, Query } from '../../../layers/common/nodejs/models/database-request';
+import { DatabasePutRequest, Query } from '../../../layers/common/nodejs/models/database-request';
 import { PayloadRequest, PayloadResponse } from '../../../layers/common/nodejs/models/invoker/payload';
 import { Handler } from 'aws-lambda';
 import { HttpStatus } from '../../../layers/common/nodejs/utils/http-status';
@@ -43,7 +43,7 @@ const uploadDefinitions = async (definitionsRequest: DefinitionsRequest): Promis
   await new Invoker({
     functionName: config.pollySynthesizerFunction,
     functionEndpoint: config.functionEndpoint,
-    invocationType: InvocationType.RequestResponse
+    invocationType: config.isOffline ? InvocationType.RequestResponse : InvocationType.Event
   })
     .setPayloadRequest({
       payload: definitions.map(

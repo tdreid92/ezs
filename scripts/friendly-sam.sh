@@ -123,8 +123,41 @@ function scan_items() {
     --endpoint-url $tableEndpoint \
     --no-cli-pager
 }
+#---------------------------------------------- DEPLOY ----------------------------------------------
 
-#---------------------------------------------- HELP ---------------------------------------------
+# $1 = resource
+# $2 = env
+function deploy() {
+  #TODO refactor env configurations for resources and local
+  if [ $2 == test ]; then
+    get_dynamodb_env_config
+  elif [ $2 == prod ]; then
+    get_dynamodb_env_config
+  fi
+
+  if [ $1 == dynamodb ]; then
+    deploy_dynamodb
+  elif [ $1 == s3 ]; then
+    deploy_s3
+  else
+    show_db_help
+  fi
+}
+
+# $1 = env
+function get_dynamodb_env_config() {
+  export tableName=$($abs_path_env_parser parameter-overrides production.yaml TableName)
+  export stage=$($abs_path_env_parser parameter-overrides production.yaml Stage)
+}
+
+function deploy_dynamodb() {
+  aws cloudformation deploy \
+    --template-file $abs_path/../templates/dynamodb-template.yaml \
+    --stack-name dynamodb-test \
+    --parameter-overrides TableName=$tableName
+}
+
+#---------------------------------------------- UTILITY ---------------------------------------------
 
 function show_help() {
   # TODO: write this as product nears completion and all features are fleshed out
@@ -164,5 +197,6 @@ start_functions) start_functions "$2" ;;
 start-local) set_local_function_config && start_local ;;
 fn) run_fn_cmd "$2" ;;
 db) run_db_cmd "$2" ;;
+deploy) deploy "$2" "$3" ;;
 *) show_help ;;
 esac

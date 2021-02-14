@@ -16,14 +16,29 @@ Transform:
 #    SourceCodeUrl: https://github.com
 # s3 sfw-deploy-ufddzmpkg
 
+Globals:
+  Function:
+    AutoPublishAlias: live
+    DeploymentPreference:
+      Enabled: true
+      Type: AllAtOnce
+      Role: !Ref CodeDeployRole
+    Handler: index.handler
+    MemorySize:
+      Timeout: 3
+    Runtime:
+    Tags:
+      StageName: !Sub ${Stage}
+      Application: !Sub ${Application}
+
 Parameters:
   ProjectId:
     Type: String
-    Default: 'ezs'
+    Default: sfw
     Description: AWS CodeStar projectID used to associate new resources to team members
   Application:
     Type: String
-    Default: 'EZSam'
+    Default: EZSam
     Description: The application name
   CodeDeployRole:
     Type: String
@@ -37,13 +52,13 @@ Parameters:
       - Prod
     Description: The name for a project pipeline stage, such as Dev, Test, or Prod for which resources are provisioned and deployed.
     ConstraintDescription: Only Dev, Test, or Prod allowed
-  CloudWatchRetentionInDays:
+  LogRetentionDays:
     Type: Number
     Default: 7
     Description: Number of days to retain this stage's logs
   MediaBucketName:
     Type: String
-    Default: 'bucket'
+    Default: bucket
     Description: Media Bucket Name for S3
   TableName:
     Type: String
@@ -56,89 +71,76 @@ Parameters:
     Default: ''
 
 Conditions:
-  IsOffline: !Equals [!Ref Stage, Dev]
-
-Globals:
-  Function:
-    AutoPublishAlias: live
-    DeploymentPreference:
-      Enabled: true
-      Type: Canary10Percent5Minutes
-      Role: !Ref CodeDeployRole
-      Tags:
-        StageName: !Sub ${Stage}
-        Application: !Sub ${Application}
+  IsOffline:
+    Fn::Equals:
+      - !Ref Stage
+      - Dev
 
 Resources:
   TranslationHttpApi:
     Type: AWS::Serverless::HttpApi # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-httpapi.html
     Properties:
-      AccessLogSettings:
-        DestinationArn: !GetAtt CloudWatchLogApiGateway.Arn
-        Format: >-
-          {"requestId":"$context.requestId", "ip": "$context.identity.sourceIp",
-          "caller":"$context.identity.caller",
-          "user":"$context.identity.user","requestTime":"$context.requestTime",
-          "eventType":"$context.eventType","routeKey":"$context.routeKey",
-          "status":"$context.status","connectionId":"$context.connectionId"}
-        # Auth: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-httpapi-httpapiauth.html
-        CorsConfiguration: true
-        DefaultRouteSettings:
-          DataTraceEnabled: false
-          DetailedMetricsEnabled: false
-          LoggingLevel: OFF
+#      AccessLogSettings:
+#        DestinationArn: !GetAtt CloudWatchLogApiGateway.Arn
+#        Format: $context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.protocol" $context.status $context.responseLength $context.requestId
+#        # Auth: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-httpapi-httpapiauth.html
+      CorsConfiguration: true
+      DefaultRouteSettings:
+        DataTraceEnabled: false
+        DetailedMetricsEnabled: false
+#        LoggingLevel: OFF
 #          ThrottlingBurstLimit: Integer
 #          ThrottlingRateLimit: Double
-        DefinitionBody:
-          Fn::Transform:
-            Name: AWS::Include
-            Parameters:
-              Location: resources/open-api.yaml
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: resources/open-api.yaml
 #        DefinitionUri: String | HttpApiDefinition
-        Description: Translation Api
-        StageName: !Sub ${Stage}
-        StageVariables: Json
-        Tags: Map
-
-#  MediaBucket:
-#    Type: AWS::S3::Bucket
-#    Properties:
-#      BucketName: !Sub ${MediaBucketName}
+      StageName: !Sub ${Stage}
+#      StageVariables: Json
+#      Tags: Map
 
   GetTranslationController:
     Type: AWS::Serverless::Function # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
     Properties:
-      FunctionName: !Sub '${Application}-${ProjectId}-GetTranslationController-${Stage}'
-      Description: Get translation
-      Handler: index.handler
-      Runtime: nodejs12.x
+      FunctionName: !Sub ${Application}-${ProjectId}-GetTranslationController-${Stage}
+      AutoPublishAlias: live
       CodeUri: src/get-translation-controller
+      Description: Get translation
+      DeploymentPreference:
+        Type: AllAtOnce
+
       #      DeadLetterQueue:
       #        Type: SNS
       #        TargetArn: arn:aws:sns:us-east-2:123456789012:my-topic
       Environment:
         Variables:
           STAGE: !Sub ${Stage}
-          IS_OFFLINE: !Equals [ IsOffline, true ]
           REPOSITORY_SERVICE_FUNCTION: !Ref RepositoryService
           FUNCTION_ENDPOINT: !Sub ${FunctionEndpoint}
+          IS_OFFLINE: !If [IsOffline, true, false]
       Events:
         GetTranslation:
           Type: HttpApi
           Properties:
             ApiId: !Ref TranslationHttpApi
             Method: GET
-            PayloadFormatVersion: "2.0"
             Path: /v1/translation/{source}/{target}/{word}
+            PayloadFormatVersion: "2.0"
         ListTranslations:
           Type: HttpApi
           Properties:
             ApiId: !Ref TranslationHttpApi
             Method: GET
-            PayloadFormatVersion: "2.0"
             Path: /v1/translation/list
+            PayloadFormatVersion: "2.0"
       MemorySize: 128
-      Role: !GetAtt LambdaInvocationRole.Arn
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName: !Ref RepositoryService
+        - !Ref CloudWatchWritePolicy
+      Runtime: nodejs12.x
       Timeout: 3
       Tags:
         StageName: !Sub ${Stage}
@@ -148,10 +150,12 @@ Resources:
     Type: AWS::Serverless::Function # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
     Properties:
       FunctionName: !Sub '${Application}-${ProjectId}-UploadTranslationController-${Stage}'
-      Description: Upload translations
-      Handler: index.handler
-      Runtime: nodejs12.x
+      AutoPublishAlias: live
       CodeUri: src/upload-translation-controller
+      Description: Upload translations
+      DeploymentPreference:
+        Type: AllAtOnce
+      Handler: index.handler
 #      DeadLetterQueue:
 #        Type: SNS
 #        TargetArn: arn:aws:sns:us-east-2:123456789012:my-topic
@@ -161,17 +165,23 @@ Resources:
           REPOSITORY_SERVICE_FUNCTION: !Ref RepositoryService
           POLLY_SYNTHESIZER_FUNCTION: !Ref PollySynthesizer
           FUNCTION_ENDPOINT: !Sub ${FunctionEndpoint}
-          IS_OFFLINE: !Equals [IsOffline, true]
+          IS_OFFLINE: !If [IsOffline, true, false]
       Events:
         UploadTranslations:
           Type: HttpApi
           Properties:
             ApiId: !Ref TranslationHttpApi
             Method: POST
-            PayloadFormatVersion: "2.0"
             Path: /v1/translation
+            PayloadFormatVersion: "2.0"
       MemorySize: 128
-      Role: !GetAtt LambdaInvocationRole.Arn
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName: !Ref RepositoryService
+        - LambdaInvokePolicy:
+            FunctionName: !Ref PollySynthesizer
+        - !Ref CloudWatchWritePolicy
+      Runtime: nodejs12.x
       Timeout: 10
       Tags:
         StageName: !Sub ${Stage}
@@ -181,23 +191,26 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub '${Application}-${ProjectId}-RepositoryService-${Stage}'
-      Description: CRUD
-      Handler: index.handler
-      Runtime: nodejs12.x
+      AutoPublishAlias: live
       CodeUri: src/repository-service
+      Description: CRUD
+      DeploymentPreference:
+        Type: AllAtOnce
+      Handler: index.handler
       Environment:
         Variables:
           STAGE: !Sub ${Stage}
           MEDIA_BUCKET_NAME: !Sub ${MediaBucketName}
           DYNAMODB_TABLE: !Sub ${TableName}
           DYNAMODB_ENDPOINT: !Sub ${TableEndpoint}
-          IS_OFFLINE: !If [ IsOffline, true, false ]
+          IS_OFFLINE: !If [IsOffline, true, false]
       MemorySize: 128
-      Role: !GetAtt LambdaInvocationRole.Arn
-      Timeout: 3
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref TableName
+            TableName: !Sub ${TableName}
+        - !Ref CloudWatchWritePolicy
+      Runtime: nodejs12.x
+      Timeout: 3
       Tags:
         StageName: !Sub ${Stage}
         Application: !Sub ${Application}
@@ -206,10 +219,12 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub '${Application}-${ProjectId}-PollySynthesizer-${Stage}'
-      Description: Synthesizes text to Speech
-      Handler: index.handler
-      Runtime: nodejs12.x
+      AutoPublishAlias: live
       CodeUri: src/polly-synthesizer
+      Description: Synthesizes text to Speech
+      DeploymentPreference:
+        Type: AllAtOnce
+      Handler: index.handler
       Environment:
         Variables:
           STAGE: !Sub ${Stage}
@@ -218,92 +233,62 @@ Resources:
           FUNCTION_ENDPOINT: !Sub ${FunctionEndpoint}
           IS_OFFLINE: !If [IsOffline, true, false]
       MemorySize: 128
-      Role: !GetAtt LambdaInvocationRole.Arn
-      Timeout: 3
       Policies:
-        - S3CrudPolicy:
+        - S3WritePolicy:
             BucketName: !Sub ${MediaBucketName}
+        - PollyFullAccessPolicy:
+            LexiconName: '*'
+        - !Ref CloudWatchWritePolicy
+      Runtime: nodejs12.x
+      Timeout: 3
       Tags:
         StageName: !Sub ${Stage}
         Application: !Sub ${Application}
 
-  DynamoDBTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: !Ref TableName
-      AttributeDefinitions:
-        - AttributeName:
-            Fn::Sub: ${TableName}
-          AttributeType: S
-      KeySchema:
-        - AttributeName:
-            Fn::Sub: ${TableName}
-          KeyType: HASH
-      SSESpecification:
-        SSEEnabled: true
-      StreamSpecification:
-        StreamViewType: NEW_IMAGE
-      BillingMode: PAY_PER_REQUEST
-      Tags:
-        - Key: StageName
-          Value: !Sub ${Stage}
-        - Key: Application
-          Value: !Sub ${Application}
-
-  CloudWatchLogGetTranslationController:
+  GetTranslationControllerLog:
     Type: AWS::Logs::LogGroup
     Properties:
-      RetentionInDays: !Sub {CloudWatchRetentionInDays}
+      RetentionInDays: !Sub ${LogRetentionDays}
       LogGroupName: !Sub /aws/lambda/${GetTranslationController}
 
-  CloudWatchLogUploadTranslationController:
+  UploadTranslationControllerLog:
     Type: AWS::Logs::LogGroup
     Properties:
-      RetentionInDays: !Sub {CloudWatchRetentionInDays}
+      RetentionInDays: !Sub ${LogRetentionDays}
       LogGroupName: !Sub /aws/lambda/${UploadTranslationController}
 
-  CloudWatchLogRepositoryService:
+  LogRepositoryServiceLog:
     Type: AWS::Logs::LogGroup
     Properties:
-      RetentionInDays: !Sub {CloudWatchRetentionInDays}
+      RetentionInDays: !Sub ${LogRetentionDays}
       LogGroupName: !Sub /aws/lambda/${RepositoryService}
 
-  CloudWatchLogPollySynthesizer:
+  PollySynthesizerLog:
     Type: AWS::Logs::LogGroup
     Properties:
-      RetentionInDays: 7
+      RetentionInDays: !Sub ${LogRetentionDays}
       LogGroupName: !Sub /aws/lambda/${PollySynthesizer}
 
-  CloudWatchLogApiGateway:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      RetentionInDays: !Sub {CloudWatchRetentionInDays}
-      LogGroupName: !Sub /aws/apigateway/${ApiGatewayApi.arn}
+#  CloudWatchLogApiGateway:
+#    Type: AWS::Logs::LogGroup
+#    DependsOn?:
+#    Properties:
+#      RetentionInDays: !Sub ${LogRetentionDays}
 
-  LambdaInvocationRole:
-    Type: AWS::IAM::Role
+  CloudWatchWritePolicy:
+    Type: AWS::IAM::ManagedPolicy
     Properties:
-      RoleName: !Sub '${Application}-${ProjectId}-LambdaInvocationRole-${Stage}'
-      AssumeRolePolicyDocument:
+      ManagedPolicyName: !Sub '${Application}-${ProjectId}-CloudWatchWritePolicy-${Stage}'
+      Description: Policy for writing to Lambda's logs
+      PolicyDocument:
+        Version: 2012-10-17
         Statement:
-          - 
-            Effect: Allow
-            Principal: 
-              Service: 
-                - lambda.amazonaws.com
-            Action: 
-              - sts:AssumeRole
-      Path: /
-      ManagedPolicyArns:
-        - !Sub 'arn:aws:iam::aws:policy/AmazonPollyFullAccess'
-        - !Sub 'arn:aws:iam::aws:policy/CloudWatchFullAccess'
-        - !Sub 'arn:aws:iam::aws:policy/AWSLambda_FullAccess'
-#        - !Sub 'arn:aws:iam::aws:policy/S3FullAccess'
-      Tags:
-        - Key: StageName
-          Value: !Sub ${Stage}
-        - Key: Application
-          Value: !Sub ${Application}
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:PutLogEvents
+          Resource: '*'
+
 
 
 

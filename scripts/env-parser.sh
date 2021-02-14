@@ -6,12 +6,14 @@ abs_path_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"/..
 abs_path_resources="${abs_path_root}"/resources/values
 
 # Read yaml specified port
-# 1 = value
+# 1 Required = value
 function read_dev_port() {
   yq e ".Ports.${1}" "${abs_path_resources}"/development.yaml
 }
 
 # Read yaml as key-value pairs, if value supplied, just return that value
+# 1 Required = fileName
+# 2 Optional = value
 function read_parameter_overrides() {
   local fileName=${1}
   local value=${2}

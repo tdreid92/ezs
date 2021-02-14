@@ -2,10 +2,11 @@ import { resolve } from 'path';
 import { Configuration } from 'webpack';
 import TsCheckerPlugin from 'fork-ts-checker-webpack-plugin';
 import AwsSamPlugin from 'aws-sam-webpack-plugin';
+import { exec } from 'child_process';
 const awsSamPlugin = new AwsSamPlugin();
 
 /** The base webpack config needed with a few optimizations. Some of this should explain itself. */
-const baseConfig: Configuration = {
+const baseConfiguration: Configuration = {
   devtool: 'eval-cheap-module-source-map',
   entry: () => awsSamPlugin.entry(), // Loads the entry object from the AWS::Serverless::Function resources in your SAM config
   mode: 'development',
@@ -48,9 +49,20 @@ const baseConfig: Configuration = {
         mode: 'write-tsbuildinfo',
         profile: true
       }
-    })
+    }),
+    {
+      apply: (compiler) => {
+        compiler.hooks.afterEmit.tap('AfterEmitPlugin', (compilation) => {
+          exec('./scripts/fileMover.sh', (err, stdout, stderr) => {
+            if (stdout) process.stdout.write(stdout);
+            if (stderr) process.stderr.write(stderr);
+          });
+        });
+      }
+    }
+    // new CopyWebpackPlugin({ patterns: [resolve('tsconfig.json')] })
   ],
   target: 'node' // Target Node.js instead of web browsers
 };
 
-export default baseConfig;
+export default baseConfiguration;

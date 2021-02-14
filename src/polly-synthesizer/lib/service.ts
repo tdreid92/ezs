@@ -5,6 +5,7 @@ import { HttpStatus } from '../../../layers/common/nodejs/utils/http-status';
 import { log } from '../../../layers/common/nodejs/log/sam-logger';
 import { EventResponse } from '../../../layers/common/nodejs/log/event-logger';
 import { PollyRequest } from '../../../layers/common/nodejs/models/translation';
+import { HttpError } from 'http-errors';
 
 const polly = new AWS.Polly();
 const s3 = new AWS.S3();
@@ -17,23 +18,39 @@ const handlePollySynthesis = async (event: PayloadRequest<PollyRequest[]>): Prom
 };
 
 const synthesizeSpeech = async (pollyUploadRequest: PollyRequest): Promise<void> => {
-  log.info(pollyUploadRequest);
   const input: AWS.Polly.SynthesizeSpeechInput = buildSynthesizeSpeechParams(pollyUploadRequest);
 
-  const pollyOutput: AWS.Polly.SynthesizeSpeechOutput = await polly.synthesizeSpeech(input).promise();
-  log.error(pollyOutput.ContentType);
-  await s3write(config.s3bucketName, pollyOutput.AudioStream);
+  let pollyOutput: AWS.Polly.SynthesizeSpeechOutput;
+  try {
+    log.info(input);
+    pollyOutput = await polly.synthesizeSpeech(input).promise();
+    await s3write(config.s3bucketName, pollyOutput.AudioStream);
+  } catch (AWSError) {
+    log.error('Error synthesizing request:' + JSON.stringify(AWSError));
+    throw ({
+      statusCode: AWSError.statusCode || HttpStatus.NotImplemented,
+      body: AWSError.message
+    } as unknown) as HttpError;
+  }
 };
 
 const s3write = async (key: string, audioStream): Promise<void> => {
-  await s3
-    .putObject({
-      Bucket: config.s3bucketName + '/audio/',
-      Key: key + '.mp3',
-      Body: Buffer.from(audioStream),
-      ContentType: 'audio/mpeg'
-    })
-    .promise();
+  try {
+    await s3
+      .putObject({
+        Bucket: config.s3bucketName + '/audio/',
+        Key: key + '.mp3',
+        Body: Buffer.from(audioStream),
+        ContentType: 'audio/mpeg'
+      })
+      .promise();
+  } catch (AWSError) {
+    log.error('Error synthesizing request:' + JSON.stringify(AWSError));
+    throw ({
+      statusCode: AWSError.statusCode || HttpStatus.NotImplemented,
+      body: AWSError.message
+    } as unknown) as HttpError;
+  }
   log.info('S3 write successful: ' + key);
 };
 
